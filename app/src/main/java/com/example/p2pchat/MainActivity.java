@@ -1,13 +1,11 @@
 package com.example.p2pchat;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Context;
 import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.util.Log;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends WiFiActivity {
 
     // Class variables
     private IntentFilter intentFilter = new IntentFilter();
@@ -19,52 +17,46 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+    } // end of onCreate
 
-        this.manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        this.channel = manager.initialize(this, getMainLooper(), null);
-        this.receiver = new WiFiDirectBroadcastReceiver(this.manager, this.channel, this);
-
-        this.intentFilter = new IntentFilter();
-        this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-        this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-        this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-        this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-
-        /*
-            Discovering peers, I'm not yet sure that this code belongs in onCreate, because
-            the lifecycle method onCreate is only called once, so if I want a new connection,
-            I'm not sure what I should so. The documentation for discoverPeers (https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager.html#discoverPeers(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)
-            says that the discovery remains active until a connection is initiated or a p2p group is formed.
-            So, maybe at that point it isn't necessary to discover peers anyways.
-         */
+    public void discoverPeers() {
+        // Discover a list of peers we can interact with
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
                 // Only notifies that the discovery process completed.
                 // does not provide information about the discovered peers.
-                // a WIFI_P2P_PEERS_CHANGED_ACTION intent is broadcasted if
-                // we were successful.
+                // a WIFI_P2P_PEERS_CHANGED_ACTION intent is broad-casted if
+                // we were successful, see WiFiDirectBroadcastManager for state change code.
+                Log.i("MainActivity", "Peer Discovery reports success");
             }
 
             @Override
             public void onFailure(int reasonCode) {
-
+                // Turn the error code into a human readable message.
+                // Other error handling may occur in this code.
+                String errorType;
+                switch (reasonCode) {
+                    case WifiP2pManager.ERROR:
+                        errorType = "Operation Failed due to an internal error.";
+                        break;
+                    case WifiP2pManager.P2P_UNSUPPORTED:
+                        errorType = "Operation failed because Peer to Peer connections are not supported on this device.";
+                        break;
+                    case WifiP2pManager.BUSY:
+                        errorType = "Operation failed because the framework is busy and is unable to service the request.";
+                        break;
+                    case WifiP2pManager.NO_SERVICE_REQUESTS:
+                        errorType = "Operation failed because no service channel requests were added.";
+                        break;
+                    default:
+                        errorType = "Operation failed due to an unknown error. Reason Code: " + reasonCode;
+                        break;
+                }
+                // log the error with a description of what went wrong.
+                Log.e("MainActivity","Peer Discovery Failure. Error: " + errorType);
             }
         });
-    } // end of onCreate
-
-    /** register the BroadcastReceiver with the intent values to be matched */
-    @Override
-    public void onResume() {
-        super.onResume();
-        receiver = new WiFiDirectBroadcastReceiver(manager, channel, this);
-        registerReceiver(receiver, intentFilter);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        unregisterReceiver(receiver); // implementing the LifecycleObserver interface should simplify this code
     }
 
 } // end of class
