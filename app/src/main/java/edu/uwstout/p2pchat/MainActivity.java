@@ -1,9 +1,11 @@
-package com.example.p2pchat;
+package edu.uwstout.p2pchat;
 
 import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.uwstout.p2pchat.R;
 
 public class MainActivity extends WiFiActivity {
 

@@ -1,4 +1,4 @@
-package com.example.p2pchat;
+package edu.uwstout.p2pchat;
 
 import android.content.Context;
 import android.content.IntentFilter;
