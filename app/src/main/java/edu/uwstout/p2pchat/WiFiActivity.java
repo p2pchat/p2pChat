@@ -2,6 +2,7 @@ package edu.uwstout.p2pchat;
 
 import android.content.Context;
 import android.content.IntentFilter;
+import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 
@@ -14,6 +15,30 @@ public abstract class WiFiActivity extends AppCompatActivity {
     protected WifiP2pManager manager;
     protected WiFiDirectBroadcastReceiver receiver;
 
+    // Private Variables
+    private boolean p2pEnabled = false;
+
+    // Getters and Setters
+    public void setP2pEnabled(boolean enabled) { this.p2pEnabled = enabled; }
+    public boolean isP2pEnabled() { return p2pEnabled; }
+
+    // LIFECYCLE FUNCTIONS
+    /** register the BroadcastReceiver with the intent values to be matched */
+    @Override
+    public void onResume() {
+        super.onResume();
+        receiver = new WiFiDirectBroadcastReceiver(manager, channel, this);
+        registerReceiver(receiver, intentFilter);
+    }
+
+    /** unregister the BroadcastReceiver so that wi-fi events are not taking up computer time */
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(receiver);
+    }
+
+    // OTHER METHODS
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,19 +67,8 @@ public abstract class WiFiActivity extends AppCompatActivity {
      */
     protected abstract void discoverPeers();
 
-    // LIFECYCLE FUNCTIONS
-    /** register the BroadcastReceiver with the intent values to be matched */
-    @Override
-    public void onResume() {
-        super.onResume();
-        receiver = new WiFiDirectBroadcastReceiver(manager, channel, this);
-        registerReceiver(receiver, intentFilter);
-    }
-
-    /** unregister the BroadcastReceiver so that wi-fi events are not taking up computer time */
-    @Override
-    public void onPause() {
-        super.onPause();
-        unregisterReceiver(receiver);
-    }
+    /**
+     * takes a list of WiFi P2P devices and displays them on the GUI
+     */
+    protected abstract void displayPeers(WifiP2pDeviceList wifiP2pDeviceList);
 }

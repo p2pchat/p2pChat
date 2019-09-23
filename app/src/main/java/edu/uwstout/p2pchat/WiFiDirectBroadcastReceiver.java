@@ -38,7 +38,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
                 // take that device list and give it to the activity to display
                 // so that the user can choose what device they want to connect to
-
+                activity.displayPeers(wifiP2pDeviceList);
             }
         };
 
@@ -46,9 +46,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             // Check to see if Wi-Fi is enabled and notify appropriate activity
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
-                // Wifi P2P is enabled, notify the activity
+                activity.setP2pEnabled(true);
             } else {
-                // Wi-Fi P2P is not enabled, notify the activity
+                activity.setP2pEnabled(false);
             }
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
             // Call WifiP2pManager.requestPeers() to get a list of current peers

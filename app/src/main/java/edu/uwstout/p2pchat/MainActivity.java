@@ -1,24 +1,27 @@
 package edu.uwstout.p2pchat;
 
-import android.content.IntentFilter;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import com.uwstout.p2pchat.R;
+import java.util.Collection;
 
 public class MainActivity extends WiFiActivity {
 
-    // Class variables
-    private IntentFilter intentFilter = new IntentFilter();
-    private WifiP2pManager.Channel channel;
-    private WifiP2pManager manager;
-    private WiFiDirectBroadcastReceiver receiver;
+    private LinearLayout peerListLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Get references to the GUI objects
+        peerListLayout = findViewById(R.id.peerListLayout);
     } // end of onCreate
 
     public void discoverPeers() {
@@ -59,6 +62,30 @@ public class MainActivity extends WiFiActivity {
                 Log.e("MainActivity","Peer Discovery Failure. Error: " + errorType);
             }
         });
+    }
+
+    @Override
+    public void displayPeers(WifiP2pDeviceList wifiP2pDeviceList) {
+        // Take the list of P2P devices and display relevant information on the screen
+
+        // Parse the device list and put their details as textViews
+        Collection<WifiP2pDevice> peers = wifiP2pDeviceList.getDeviceList();
+        int viewID = 1;
+
+        for (WifiP2pDevice device :
+                peers) {
+            // create a TextView for the WiFiP2p device
+            TextView label = new TextView(this);
+            label.setText("Testing");
+            label.setId(viewID++);
+            label.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            ));
+            // add some way of letting us know if the user taps the description
+
+            // add the TextView to the view
+        }
     }
 
 } // end of class
