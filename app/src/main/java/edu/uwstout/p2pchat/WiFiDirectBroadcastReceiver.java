@@ -38,6 +38,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
                 // take that device list and give it to the activity to display
                 // so that the user can choose what device they want to connect to
+                Log.i("WFDBroadcastReceiver","Peers available");
                 activity.displayPeers(wifiP2pDeviceList);
             }
         };
@@ -46,27 +47,42 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             // Check to see if Wi-Fi is enabled and notify appropriate activity
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
+                // Log the event
+                Log.i("WFDBroadcastReceiver","WIFI P2P State Changed to enabled");
                 activity.setP2pEnabled(true);
             } else {
+                // Log the event
+                Log.i("WFDBroadcastReceiver","WIFI P2P State Changed to disabled");
                 activity.setP2pEnabled(false);
             }
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
+            // Log the event
+            Log.i("WFDBroadcastReceiver","WIFI P2P Peers Changed");
+
             // Call WifiP2pManager.requestPeers() to get a list of current peers
             // request available peers from the wifi p2p manager. This is an
             // asynchronous call and the calling activity is notified with a
             // callback on PeerListListener.onPeersAvailable()
             if (manager != null) {
+                Log.i("WFDBroadcastReceiver","Requesting Peers");
                 manager.requestPeers(channel, myPeerListListener);
             }
             else {
                 Log.e("WFDBroadcastReceiver","manager null, cannot retrieve list of peers");
             }
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
+            // Log the event
+            Log.i("WFDBroadcastReceiver","WIFI P2P Connection Changed");
             // Respond to new connection or disconnections
             // Applications can use requestConnectionInfo(), requestNetworkInfo(), or requestGroupInfo() to retrieve the current connection information.
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
+            // Log the event
+            Log.i("WFDBroadcastReceiver","WIFI P2P This Device Changed");
             // Respond to this device's wifi state changing
             // Applications can use requestDeviceInfo() to retrieve the current connection information.
+        }
+        else {
+            Log.e("WFDBroadcastReceiver","Action not recognized. Action: " + action);
         }
     }
 }

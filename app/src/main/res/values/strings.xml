@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">P2Pchat</string>
     <string name="discovered_devices">Discovered Devices</string>
+    <string name="refresh">Refresh</string>
 </resources>

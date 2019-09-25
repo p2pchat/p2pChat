@@ -1,19 +1,27 @@
 package edu.uwstout.p2pchat;
 
+import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.Collection;
+import java.util.List;
 
 public class MainActivity extends WiFiActivity {
 
     private LinearLayout peerListLayout;
+    private Button refreshButton;
+    private WifiP2pDevice[] peers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +30,15 @@ public class MainActivity extends WiFiActivity {
 
         // Get references to the GUI objects
         peerListLayout = findViewById(R.id.peerListLayout);
+        refreshButton = findViewById(R.id.refresh_button);
+
+        // Create a listener which will ask for a new list of peers
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                discoverPeers();
+            }
+        });
     } // end of onCreate
 
     public void discoverPeers() {
@@ -69,23 +86,54 @@ public class MainActivity extends WiFiActivity {
         // Take the list of P2P devices and display relevant information on the screen
 
         // Parse the device list and put their details as textViews
-        Collection<WifiP2pDevice> peers = wifiP2pDeviceList.getDeviceList();
-        int viewID = 1;
+        peers = wifiP2pDeviceList.getDeviceList().toArray(new WifiP2pDevice[0]);
 
-        for (WifiP2pDevice device :
-                peers) {
+        // Log some information for sanity check
+        Log.i("MainActivity","Size of peer list: " + peers.length);
+        // Clear the old peer list
+        peerListLayout.removeAllViews();
+        // create a new peer list
+        int idTracker = 0;
+
+        for (WifiP2pDevice device : peers) {
             // create a TextView for the WiFiP2p device
             TextView label = new TextView(this);
-            label.setText("Testing");
-            label.setId(viewID++);
+            label.setText(device.toString());
+            label.setId(idTracker++);
+            label.setClickable(true);
             label.setLayoutParams(new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
             ));
-            // add some way of letting us know if the user taps the description
-
+            // add an onClickListener
+            label.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    connectToDevice(peers[view.getId()]);
+                }
+            });
             // add the TextView to the view
+            peerListLayout.addView(label);
         }
+    }
+
+    protected void connectToDevice(WifiP2pDevice device)
+    {
+        WifiP2pConfig config = new WifiP2pConfig();
+        config.deviceAddress = device.deviceAddress;
+        manager.connect(channel, config, new WifiP2pManager.ActionListener() {
+
+            @Override
+            public void onSuccess() {
+                Log.i("MainActivity", "System reports successful connection");
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                // TODO figure out what the reasons are?
+                Log.e("MainActivity","Connection failure. Reason: " + reason);
+            }
+        });
     }
 
 } // end of class

@@ -2,6 +2,7 @@ package edu.uwstout.p2pchat;
 
 import android.content.Context;
 import android.content.IntentFilter;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
@@ -71,4 +72,10 @@ public abstract class WiFiActivity extends AppCompatActivity {
      * takes a list of WiFi P2P devices and displays them on the GUI
      */
     protected abstract void displayPeers(WifiP2pDeviceList wifiP2pDeviceList);
+
+    /**
+     * makes a connection to the selected device
+     * @param device the information about the device we want to connect to.
+     */
+    protected abstract void connectToDevice(WifiP2pDevice device);
 }
