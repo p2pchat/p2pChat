@@ -1,15 +1,22 @@
 package edu.uwstout.p2pchat;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-public abstract class WiFiActivity extends AppCompatActivity {
+public abstract class WiFiDirectActivity extends AppCompatActivity implements WifiP2pManager.ChannelListener
+{
     // Protected variables
     protected IntentFilter intentFilter = new IntentFilter();
     protected WifiP2pManager.Channel channel;
@@ -17,6 +24,7 @@ public abstract class WiFiActivity extends AppCompatActivity {
     protected WiFiDirectBroadcastReceiver receiver;
 
     // Private Variables
+    private static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1001;
     private boolean p2pEnabled = false;
 
     // Getters and Setters
@@ -39,7 +47,11 @@ public abstract class WiFiActivity extends AppCompatActivity {
         unregisterReceiver(receiver);
     }
 
-    // OTHER METHODS
+    /**
+     * Lifecycle function which instantiates the GUI for
+     * first time setup
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,9 +69,47 @@ public abstract class WiFiActivity extends AppCompatActivity {
         this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 
+        // Check if the app has permissions to use location data, and ask for it if we don't.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                    WiFiDirectActivity.PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION);
+            // We don't handle the response here, we
+        }
+
         // Because there is the potential for the response to have errors handled in the GUI,
-        // discover peers ought to be called within the child class.
+        // discover peers ought to be created within the child class. (it's declared abstract)
         this.discoverPeers();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        // Use of switch case to allow us to expand this method later if needed.
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION:
+                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    Log.e("WiFiDirectActivity",
+                            "Coarse Location permission not granted. Unable to use WiFi Direct features");
+                    finish(); // closes the activity
+                }
+                break;
+            default:
+                Log.e("WiFiDirectActivity", "Unhandled permissions result: " + requestCode);
+        }
+    }
+
+    /**
+     * Required by the ChannelListener interface. Responds to the channel
+     * disconnecting in the application.
+     */
+    @Override
+    public void onChannelDisconnected() {
+        // default implementation is merely letting the user know.
+        // overriding would be recommended to try and connect again.
+        Toast.makeText(this, "Channel lost", Toast.LENGTH_SHORT).show();
+        Log.e("WiFiDirectActivity", "Channel lost, implementing try again protocol suggested.");
     }
 
     /**

@@ -8,16 +8,16 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
 
 /**
- * A BroadcastReceiver that notifies a WiFiActivity of important Wi-Fi p2p events.
+ * A BroadcastReceiver that notifies a WiFiDirectActivity of important Wi-Fi p2p events.
  */
 public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
-    private WiFiActivity activity;
+    private WiFiDirectActivity activity;
 
     public WiFiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel,
-                                       WiFiActivity activity) {
+                                       WiFiDirectActivity activity) {
         super();
         this.manager = manager;
         this.channel = channel;

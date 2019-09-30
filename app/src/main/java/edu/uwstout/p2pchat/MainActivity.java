@@ -12,12 +12,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.util.Collection;
-import java.util.List;
-
-public class MainActivity extends WiFiActivity {
+public class MainActivity extends WiFiDirectActivity
+{
 
     private LinearLayout peerListLayout;
     private Button refreshButton;
