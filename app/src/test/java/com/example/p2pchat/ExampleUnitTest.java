@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.*;
 
 /**
@@ -16,7 +18,7 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() {
-        assertEquals(4, 2 + 2);
+        assertThat(4).isEqualTo(2 + 2);
     }
     @Test
     public void verify_uuid_unique()
@@ -26,6 +28,6 @@ public class ExampleUnitTest {
             uuids[i] = UUID.randomUUID();
         }
         HashSet<UUID> isUnique = new HashSet<UUID>(Arrays.asList(uuids));
-        assertEquals(uuids.length, isUnique.size());
+        assertThat(uuids.length).isEqualTo(isUnique.size());
     }
 }
