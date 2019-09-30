@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() {
-        assertThat(4).isEqualTo(4 + 2);
+        assertThat(4).isEqualTo(2 + 2);
     }
     @Test
     public void verify_uuid_unique()
