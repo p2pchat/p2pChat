@@ -34,6 +34,6 @@ public class ExampleInstrumentedTest {
     }
     @Test
     public void testHelloWorld() {
-        onView(withText("Hello World")).check(matches(isDisplayed()));
+        onView(withText("Hello World!")).check(matches(isDisplayed()));
     }
 }
