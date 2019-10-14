@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">P2Pchat</string>
+    <string name="send">Send</string>
+    <string name="message_hint">Please Enter Your Message...</string>
+    <string name="attach_description">Attach Files or Photos</string>
+    <string name="file_name">file</string>
 </resources>
