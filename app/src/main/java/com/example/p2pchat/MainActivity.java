@@ -1,10 +1,12 @@
 package com.example.p2pchat;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
 
 import android.os.Bundle;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FragmentActivity
+{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
