@@ -2,15 +2,12 @@ package com.example.p2pchat;
 
 
 import android.os.Bundle;
-
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.example.p2pchat.databinding.FragmentHomeBinding;
+import edu.uwstout.p2pchat.databinding.FragmentHomeBinding;
 
 
 /**
