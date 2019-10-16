@@ -7,15 +7,28 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.databinding.BindingAdapter;
 import androidx.fragment.app.Fragment;
+
+import com.example.p2pchat.databinding.FragmentChatBinding;
 
 public class ChatFragment extends Fragment
 {
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState)
     {
-        return inflater.inflate(R.layout.fragment_chat,container,false);
+         FragmentChatBinding binding = FragmentChatBinding.inflate(inflater,container,false);
+
+        return binding.getRoot();
     }
+
+    @BindingAdapter("android:OnClick")
+    public static void sendButtonClickListener(View view, View.OnClickListener send)
+    {
+
+    }
+
 }

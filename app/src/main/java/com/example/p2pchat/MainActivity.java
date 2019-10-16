@@ -1,6 +1,5 @@
 package com.example.p2pchat;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
 import android.os.Bundle;
