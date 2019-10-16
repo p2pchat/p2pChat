@@ -1,4 +1,4 @@
-package com.example.p2pchat;
+package edu.uwstout.p2pchat;
 
 import android.content.Context;
 
@@ -30,7 +30,11 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.example.p2pchat", appContext.getPackageName());
+        assertEquals("com.uwstout.p2pchat", appContext.getPackageName());
+    }
+    @Test
+    public void testHelloWorld() {
+        onView(withText("Hello World!")).check(matches(isDisplayed()));
     }
     @Test
     public void testHelloWorld() {

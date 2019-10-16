@@ -1,4 +1,4 @@
-package com.example.p2pchat;
+package edu.uwstout.p2pchat;
 
 import org.junit.Test;
 
@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import static com.google.common.truth.Truth.assertThat;
-
-import static org.junit.Assert.*;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
