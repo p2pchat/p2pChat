@@ -1,14 +1,25 @@
 package com.example.p2pchat;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 
-public class MainActivity extends AppCompatActivity {
+import androidx.appcompat.app.AppCompatActivity;
 
+public class MainActivity extends AppCompatActivity
+{
+
+    /**
+     * say hello. Nothign works well. asdfasdf.
+     * Does nothign here. dasfsdfasdfasd
+     *
+     * @param savedInstanceState
+     *         saved instance.
+     */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
+
+
 }
