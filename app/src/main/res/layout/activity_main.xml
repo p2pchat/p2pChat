@@ -6,7 +6,7 @@
     tools:context="edu.uwstout.p2pchat.MainActivity">
 
     <fragment
-        android:name="com.example.p2pchat.ChatFragment"
+        android:name="edu.uwstout.p2pchat.ChatFragment"
         android:id="@+id/fragment_chat"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
