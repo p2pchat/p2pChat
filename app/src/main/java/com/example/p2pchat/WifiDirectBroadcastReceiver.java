@@ -11,6 +11,7 @@ import android.util.Log;
  * The WifiDirectBroadcastReceiver class listens for events related to
  * Wifi-Direct behavior, and calls the appropriate method in the WifiDirectActivity
  * that a reference of this class is coupled to.
+ *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  * @see android.content.BroadcastReceiver
  * @see WifiDirectActivity
@@ -24,10 +25,14 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
 
     /**
      * class constructor
-     * @param manager the WifiP2pManager that the app activity is currently using
-     * @param channel the WifiP2pManager that the app activity is currently using
-     * @param activity the WifiDirectActivity that this BroadcastReceiver is
-     *                 going to be coupled to.
+     *
+     * @param manager
+     *         the WifiP2pManager that the app activity is currently using
+     * @param channel
+     *         the WifiP2pManager that the app activity is currently using
+     * @param activity
+     *         the WifiDirectActivity that this BroadcastReceiver is
+     *         going to be coupled to.
      */
     public WifiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel,
             WifiDirectActivity activity)
@@ -41,12 +46,14 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
     /**
      * Description pending
      *
-     * @param context the context in which the receiver is running
-     * @param intent The intent being received
+     * @param context
+     *         the context in which the receiver is running
+     * @param intent
+     *         The intent being received
      */
     @Override
     public void onReceive(Context context, Intent intent)
-    {
+    { // TODO define better behavior for all events and how we respond to them
         // Variable declaration
         String action = intent.getAction();
         WifiP2pManager.PeerListListener myPeerListListener = new WifiP2pManager.PeerListListener()
@@ -110,7 +117,8 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
             // Log the event
             Log.i("WFDBroadcastReceiver", "WIFI P2P This Device Changed");
             // Respond to this device's wifi state changing
-            // Applications can use requestDeviceInfo() to retrieve the current connection information.
+            // Applications can use requestDeviceInfo() to retrieve the current connection
+            // information.
         }
         else
         {

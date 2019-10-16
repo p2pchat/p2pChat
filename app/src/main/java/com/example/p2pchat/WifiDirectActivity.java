@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -23,7 +24,8 @@ import androidx.core.app.ActivityCompat;
  *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
-public abstract class WifiDirectActivity extends AppCompatActivity implements WifiP2pManager.ChannelListener,
+public abstract class WifiDirectActivity extends AppCompatActivity implements
+        WifiP2pManager.ChannelListener,
         ActivityCompat.OnRequestPermissionsResultCallback
 {
     // protected variables
@@ -65,6 +67,7 @@ public abstract class WifiDirectActivity extends AppCompatActivity implements Wi
 
     /**
      * Registers the receiver with the intent values to be matched
+     *
      * @see android.app.Activity
      */
     @Override
@@ -78,6 +81,7 @@ public abstract class WifiDirectActivity extends AppCompatActivity implements Wi
     /**
      * Unregister the WifiDirectBroadcastReceiver so that Wifi events don't take
      * processing time
+     *
      * @see android.app.Activity
      * @see com.example.p2pchat.WifiDirectBroadcastReceiver
      */
@@ -130,6 +134,7 @@ public abstract class WifiDirectActivity extends AppCompatActivity implements Wi
     /**
      * Required by the ChannelListener interface. Responds to the channel
      * disconnecting within the application.
+     *
      * @see android.net.wifi.p2p.WifiP2pManager.ChannelListener
      */
     @Override
@@ -156,13 +161,17 @@ public abstract class WifiDirectActivity extends AppCompatActivity implements Wi
 
     /**
      * Takes a list of WifiP2pDevices and displays them on the GUI
+     *
      * @param wifiP2pDeviceList
+     *         a list of devices that we can connect to.
      */
-    protected abstract void displayPeers(WifiP2pDeviceList wifiP2pDeviceList);
+    public abstract void displayPeers(WifiP2pDeviceList wifiP2pDeviceList);
 
     /**
      * makes a connection to the input device
-     * @param device the WifiP2pDevice that we want to connect to.
+     *
+     * @param device
+     *         the WifiP2pDevice that we want to connect to.
      */
     protected abstract void connectToDevice(WifiP2pDevice device);
 
@@ -175,22 +184,29 @@ public abstract class WifiDirectActivity extends AppCompatActivity implements Wi
     /**
      * A callback where the user has granted or denied the app permissions to use the location
      * (required for WifiDirect)
+     *
+     * @param requestCode
+     *         an int representing the request granted
+     * @param permissions
+     *         an array of strings representing the requested permissions
+     * @param grantResults
+     *         an array of ints parallel to the permissions parameter. Either
+     *         PERMISSION_GRANTED or PERMISSION_DENIED
      * @see androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
-     * @param requestCode an int representing the request granted
-     * @param permissions an array of strings representing the requested permissions
-     * @param grantResults an array of ints parallel to the permissions parameter. Either
-     *                     PERMISSION_GRANTED or PERMISSION_DENIED
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull
             int[] grantResults)
     {
         // Use of switch case to allow us to expand this method later if needed.
-        switch (requestCode) {
+        switch (requestCode)
+        {
             case PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION:
-                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] != PackageManager.PERMISSION_GRANTED)
+                {
                     Log.e("WiFiDirectActivity",
-                            "Coarse Location permission not granted. Unable to use WiFi Direct features");
+                            "Coarse Location permission not granted. Unable to use WiFi Direct " +
+                                    "features");
                     finish(); // closes the activity
                 }
                 break;
@@ -202,14 +218,18 @@ public abstract class WifiDirectActivity extends AppCompatActivity implements Wi
     /**
      * Takes a WifiP2pDevice and returns a summary of the essential details
      * of that device as a string.
-     * @see WifiP2pDevice
-     * @param device The WifiP2pDevice that we wish to summarize
+     *
+     * @param device
+     *         The WifiP2pDevice that we wish to summarize
      * @return a string which describes a subset of all the details of a WifiP2pDevice which is
-     *      meant to be displayed on the GUI for the user.
+     * meant to be displayed on the GUI for the user.
+     * @see WifiP2pDevice
      */
     public static String summarizeP2pDevice(WifiP2pDevice device)
     {
-        // TODO implement
-        return "Implementation pending";
+        return device.deviceName + "\n"
+                + device.deviceAddress + "\n"
+                + device.primaryDeviceType + "\n"
+                + device.secondaryDeviceType;
     }
 } // end of class
