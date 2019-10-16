@@ -1,6 +1,5 @@
-package com.example.p2pchat;
+package edu.uwstout.p2pchat;
 
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
