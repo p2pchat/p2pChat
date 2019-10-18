@@ -14,21 +14,22 @@ import edu.uwstout.p2pchat.databinding.FragmentChatBinding;
 
 public class ChatFragment extends Fragment
 {
+    private static FragmentChatBinding binding;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState)
     {
-         FragmentChatBinding binding = FragmentChatBinding.inflate(inflater,container,false);
+         binding = FragmentChatBinding.inflate(inflater,container,false);
 
         return binding.getRoot();
     }
 
-    @BindingAdapter("android:OnClick")
-    public static void setButtonClickListener(View view, View.OnClickListener send)
+
+    public static void ButtonClickListener()
     {
-        
+        binding.getInputText();
 
     }
 
