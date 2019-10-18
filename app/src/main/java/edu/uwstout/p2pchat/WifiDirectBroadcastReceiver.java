@@ -3,6 +3,7 @@ package edu.uwstout.p2pchat;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
@@ -64,7 +65,7 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
                 // take that device list and give it to the activity to display
                 // so that the user can choose what device they want to connect to
                 Log.i("WFDBroadcastReceiver", "Peers available");
-                activity.displayPeers(wifiP2pDeviceList);
+                activity.peersHaveChanged(wifiP2pDeviceList);
             }
         };
 
@@ -117,8 +118,8 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
             // Log the event
             Log.i("WFDBroadcastReceiver", "WIFI P2P This Device Changed");
             // Respond to this device's wifi state changing
-            // Applications can use requestDeviceInfo() to retrieve the current connection
-            // information.
+            // by getting the new device and sending it to the WifiDirectActivity class
+            this.activity.setThisDevice((WifiP2pDevice) intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE));
         }
         else
         {

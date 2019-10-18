@@ -14,25 +14,6 @@ public class MainActivity extends WifiDirectActivity {
     }
 
     /**
-     * starts a call to WifiP2pManager.discoverPeers() and describes the behavior
-     * of the callback.
-     * Each activity must handle their own errors in the GUI, thus this method is abstract.
-     */
-    protected void discoverPeers() {
-        // TODO implement
-    }
-
-    /**
-     * Takes a list of WifiP2pDevices and displays them on the GUI
-     *
-     * @param wifiP2pDeviceList
-     *         a list of devices that we can connect to.
-     */
-    public void displayPeers(WifiP2pDeviceList wifiP2pDeviceList) {
-        // TODO implement
-    }
-
-    /**
      * makes a connection to the input device
      *
      * @param device

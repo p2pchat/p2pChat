@@ -16,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import java.util.List;
+
 /**
  * The WiFi Direct Activity class is any activity that needs to use
  * WiFi Direct protocols. The abstract class handles a lot of the
@@ -28,6 +30,16 @@ public abstract class WifiDirectActivity extends AppCompatActivity implements
         WifiP2pManager.ChannelListener,
         ActivityCompat.OnRequestPermissionsResultCallback
 {
+    /*
+        creating an observer interface so that fragments can subscribe to
+        events that matter to them so that they can respond in the GUI.
+     */
+    public interface PeerDiscoveryListener {
+        void peerListChanged(WifiP2pDeviceList wifiP2pDeviceList);
+        void peerDiscoveryFailed(int reasonCode);
+    }
+
+
     // protected variables
     protected IntentFilter intentFilter = new IntentFilter();
     protected WifiP2pManager.Channel channel;
@@ -37,13 +49,20 @@ public abstract class WifiDirectActivity extends AppCompatActivity implements
     // Private Variables
     private static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1001;
     private boolean p2pEnabled = false;
+    private WifiP2pDevice thisDevice = null;
+    private List<PeerDiscoveryListener> peerDiscoveryListeners;
 
-    // Getters and Setters
+    //////////////////////////////////////////////////
+    //
+    // GETTERS AND SETTERS
+    //
+    //////////////////////////////////////////////////
 
     /**
+     * Sets the state of Peer to Peer communication being enabled
+     *
      * @param enabled
      *         whether or not peer to peer communication is enabled
-     * @brief Sets the state of Peer to Peer communication being enabled
      */
     public void setP2pEnabled(boolean enabled)
     {
@@ -51,12 +70,62 @@ public abstract class WifiDirectActivity extends AppCompatActivity implements
     }
 
     /**
+     * Let's us know if peer to peer is enabled
+     *
      * @return a boolean indicating if peer to peer communication is enabled
-     * @brief Let's us know if peer to peer is enabled
      */
     public boolean isP2pEnabled()
     {
         return p2pEnabled;
+    }
+
+    /**
+     * Returns a reference to the WifiP2pDevice that represents this device
+     *
+     * @return a WifiP2pDevice that is this device, or null if this device doesn't have P2P enabled
+     * @see WifiP2pDevice
+     */
+    public WifiP2pDevice getThisDevice()
+    {
+        if (this.isP2pEnabled())
+        {
+            return this.thisDevice;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Sets the details of the WifiP2pDevice that represents this device
+     * @param thisDevice a WifiP2pDevice that is this device
+     */
+    public void setThisDevice(WifiP2pDevice thisDevice)
+    {
+        this.thisDevice = thisDevice;
+    }
+
+    /**
+     * Adds a PeerDiscoveryListener to the list of listeners that we
+     * will notify based on relevant events.
+     * @see PeerDiscoveryListener
+     * @param pdl a PeerDiscoveryListener that wants to be notified
+     */
+    public void subscribePeerDiscoveryListener(PeerDiscoveryListener pdl)
+    {
+        this.peerDiscoveryListeners.add(pdl);
+    }
+
+    /**
+     * Removes a PeerDiscoveryListener to the list of listeners that we
+     * will notify based on relevant events.
+     * @see PeerDiscoveryListener
+     * @param pdl a PeerDiscoveryListener that no longer wants to be notified
+     */
+    public void unsubscribePeerDiscoveryListener(PeerDiscoveryListener pdl)
+    {
+        this.peerDiscoveryListeners.remove(pdl);
     }
 
     //////////////////////////////////////////////////
@@ -83,7 +152,7 @@ public abstract class WifiDirectActivity extends AppCompatActivity implements
      * processing time
      *
      * @see android.app.Activity
-     * @see com.example.p2pchat.WifiDirectBroadcastReceiver
+     * @see edu.uwstout.p2pchat.WifiDirectBroadcastReceiver
      */
     @Override
     public void onPause()
@@ -92,6 +161,11 @@ public abstract class WifiDirectActivity extends AppCompatActivity implements
         unregisterReceiver(receiver);
     }
 
+    /**
+     * A lifecycle function that handles one-time initiation when the activity
+     * is instantiated for the first time.
+     * @param savedInstanceState
+     */
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -143,7 +217,65 @@ public abstract class WifiDirectActivity extends AppCompatActivity implements
         // default implementation is merely letting the user know
         // overriding would be recommended to try and connect again.
         Toast.makeText(this, "Channel lost", Toast.LENGTH_SHORT).show();
-        Log.e("WifiDirectActivity", "Chennel lost, implementing try again protocol suggested");
+        Log.e("WifiDirectActivity", "Channel lost, implementing try again protocol suggested");
+    }
+
+    /**
+     * starts a call to WifiP2pManager.discoverPeers() and describes the behavior
+     * of the callback.
+     * Each activity must handle their own errors in the GUI, thus this method is abstract.
+     */
+    public void discoverPeers() {
+        // Create a callback listener
+
+
+        // Discover a list of peers we can interact with
+        manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                // Only notifies that the discovery process completed.
+                // does not provide information about the discovered peers.
+                // a WIFI_P2P_PEERS_CHANGED_ACTION intent is broad-casted if
+                // we were successful, see WiFiDirectBroadcastManager for state change code.
+                Log.i("WifiDirectActivity", "Peer Discovery reports success");
+            }
+
+            @Override
+            public void onFailure(int reasonCode) {
+                // Turn the error code into a human readable message.
+                // Other error handling may occur in this code.
+                String errorType;
+                switch (reasonCode) {
+                    case WifiP2pManager.ERROR:
+                        errorType = "Operation Failed due to an internal error.";
+                        break;
+                    case WifiP2pManager.P2P_UNSUPPORTED:
+                        errorType = "Operation failed because Peer to Peer connections are not supported on this device.";
+                        break;
+                    case WifiP2pManager.BUSY:
+                        errorType = "Operation failed because the framework is busy and is unable to service the request.";
+                        break;
+                    case WifiP2pManager.NO_SERVICE_REQUESTS:
+                        errorType = "Operation failed because no service channel requests were added.";
+                        break;
+                    default:
+                        errorType = "Operation failed due to an unknown error. Reason Code: " + reasonCode;
+                        break;
+                }
+                // log the error with a description of what went wrong.
+                Log.e("WifiDirectActivity","Peer Discovery Failure. Error: " + errorType);
+                // Tell the PeerDiscoveryListeners that peer discovery has gone wrong.
+//                for (PeerDiscoveryListener pdl : ) {
+////                    pdl.peerDiscoveryFailed(reasonCode);
+////                }
+            }
+        });
+    }
+
+    public void peersHaveChanged(WifiP2pDeviceList wifiP2pDeviceList) {
+        for (PeerDiscoveryListener pdl : this.peerDiscoveryListeners) {
+            pdl.peerListChanged(wifiP2pDeviceList);
+        }
     }
 
     //////////////////////////////////////////////////
@@ -151,21 +283,6 @@ public abstract class WifiDirectActivity extends AppCompatActivity implements
     // ABSTRACT METHODS FOR CHILDREN CLASSES
     //
     //////////////////////////////////////////////////
-
-    /**
-     * starts a call to WifiP2pManager.discoverPeers() and describes the behavior
-     * of the callback.
-     * Each activity must handle their own errors in the GUI, thus this method is abstract.
-     */
-    protected abstract void discoverPeers();
-
-    /**
-     * Takes a list of WifiP2pDevices and displays them on the GUI
-     *
-     * @param wifiP2pDeviceList
-     *         a list of devices that we can connect to.
-     */
-    public abstract void displayPeers(WifiP2pDeviceList wifiP2pDeviceList);
 
     /**
      * makes a connection to the input device

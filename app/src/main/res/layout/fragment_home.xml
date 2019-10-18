@@ -58,6 +58,7 @@
             app:layout_constraintTop_toBottomOf="@+id/prev_connected_title">
 
             <LinearLayout
+                android:id="@+id/prev_connected_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
@@ -92,6 +93,7 @@
             app:layout_constraintTop_toBottomOf="@+id/unrecognized_title">
 
             <LinearLayout
+                android:id="@+id/unrecognized_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />

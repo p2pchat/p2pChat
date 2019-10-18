@@ -7,4 +7,6 @@
     <string name="placeholder">Placeholder Text</string>
     <string name="previously_connected_devices">Previously Connected Devices</string>
     <string name="unrecognized_devices">Unrecognized Devices</string>
+    <string name="p2p_not_enabled_error">Wifi Direct/P2P connections are not enabled.
+        Please enable them in settings.</string>
 </resources>
