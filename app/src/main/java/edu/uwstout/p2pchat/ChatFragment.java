@@ -16,6 +16,13 @@ public class ChatFragment extends Fragment
 {
     private static FragmentChatBinding binding;
 
+    /**
+     *
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,

@@ -14,11 +14,21 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
 
     private List<P2PMessage> messageList = null;
 
+    /**
+     *
+     * @param messageList
+     */
     public P2PMessageAdapter(List<P2PMessage> messageList)
     {
         this.messageList = messageList;
     }
 
+    /**
+     *
+     * @param parent
+     * @param viewType
+     * @return
+     */
     @NonNull
     @Override
     public P2PMessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
@@ -29,6 +39,11 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
 
     }
 
+    /**
+     *
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(@NonNull P2PMessageViewHolder holder, int position)
     {
@@ -37,6 +52,10 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
         holder.bindData(message);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public int getItemCount()
     {

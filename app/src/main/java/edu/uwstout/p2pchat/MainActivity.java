@@ -7,7 +7,10 @@ import edu.uwstout.p2pchat.R;
 
 public class MainActivity extends FragmentActivity
 {
-
+    /**
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
