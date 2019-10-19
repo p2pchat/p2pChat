@@ -22,7 +22,6 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
     // private variables
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
-    private WifiDirectActivity activity;
 
     /**
      * class constructor
@@ -31,17 +30,12 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
      *         the WifiP2pManager that the app activity is currently using
      * @param channel
      *         the WifiP2pManager that the app activity is currently using
-     * @param activity
-     *         the WifiDirectActivity that this BroadcastReceiver is
-     *         going to be coupled to.
      */
-    public WifiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel,
-            WifiDirectActivity activity)
+    public WifiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel)
     {
         super();
         this.manager = manager;
         this.channel = channel;
-        this.activity = activity;
     }
 
     /**
@@ -65,7 +59,7 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
                 // take that device list and give it to the activity to display
                 // so that the user can choose what device they want to connect to
                 Log.i("WFDBroadcastReceiver", "Peers available");
-                activity.peersHaveChanged(wifiP2pDeviceList);
+                WifiDirect.getInstance().peersHaveChanged(wifiP2pDeviceList);
             }
         };
 
@@ -77,13 +71,13 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
             {
                 // Log the event
                 Log.i("WFDBroadcastReceiver", "WIFI P2P State Changed to enabled");
-                activity.setP2pEnabled(true);
+                WifiDirect.getInstance().setP2pEnabled(true);
             }
             else
             {
                 // Log the event
                 Log.i("WFDBroadcastReceiver", "WIFI P2P State Changed to disabled");
-                activity.setP2pEnabled(false);
+                WifiDirect.getInstance().setP2pEnabled(false);
             }
         }
         else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action))
@@ -118,8 +112,10 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
             // Log the event
             Log.i("WFDBroadcastReceiver", "WIFI P2P This Device Changed");
             // Respond to this device's wifi state changing
-            // by getting the new device and sending it to the WifiDirectActivity class
-            this.activity.setThisDevice((WifiP2pDevice) intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE));
+            // by getting the new device and sending it to the WifiDirect Singleton
+            WifiDirect.getInstance().setThisDevice(
+                    (WifiP2pDevice) intent.getParcelableExtra(
+                            WifiP2pManager.EXTRA_WIFI_P2P_DEVICE));
         }
         else
         {
