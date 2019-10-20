@@ -27,10 +27,11 @@ import java.util.List;
  * functioning, and tying the process of connectivity to a single GUI would
  * reduce flexibility as the application became more complex.
  *
- * We extend the IntentService class for two reasons. One, it makes this singleton
- * run its tasks, which include blocking tasks such as networking, in a separate
- * thread from the main thread. It also enables us to get the system service for
- * WifiP2p without being dependent on an activity and getting context leak.
+ * We extend the IntentService class for two reasons. One, it enables this
+ * singleton to run its tasks, which include blocking tasks such as networking,
+ * in a separate thread from the main thread. It also enables us to get the
+ * system service for WifiP2p without being dependent on an activity and getting
+ * context leak.
  *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
@@ -137,14 +138,8 @@ public class WifiDirect extends IntentService implements WifiP2pManager.ChannelL
      */
     public WifiP2pDevice getThisDevice()
     {
-        if (this.isP2pEnabled())
-        {
-            return this.thisDevice;
-        }
-        else
-        {
-            return null;
-        }
+        // ternary operator
+        return (this.isP2pEnabled()) ? this.thisDevice : null;
     }
 
     /**
@@ -324,7 +319,7 @@ public class WifiDirect extends IntentService implements WifiP2pManager.ChannelL
     protected void onHandleIntent(@Nullable Intent intent)
     {
         // TODO come up with a better use for this
-        Log.i("WifiDirect", "onHandleIntent called consider implementing in greater detail.");
+        Log.i("WifiDirect", "onHandleIntent called. Consider implementing in greater detail.");
     }
 
     /**

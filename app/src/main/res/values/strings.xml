@@ -9,4 +9,5 @@
     <string name="unrecognized_devices">Unrecognized Devices</string>
     <string name="p2p_not_enabled_error">Wifi Direct/P2P connections are not enabled.
         Please enable them in settings.</string>
+    <string name="discover_peers">Discover Peers</string>
 </resources>
