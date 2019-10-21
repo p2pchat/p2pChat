@@ -1,6 +1,7 @@
 package edu.uwstout.p2pchat;
 
 
+import android.content.Context;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
@@ -50,16 +51,20 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
         {
             // Android Studio might complain that getThisDevice might return a nullPointerException,
             // this try catch block will handle that error, so we can safely ignore the warning.
-            thisDevice = ((WifiDirectActivity)this.getActivity()).getThisDevice();
+            thisDevice = WifiDirect.getInstance(this.getContext()).getThisDevice();
         }
-        catch (NullPointerException npe) {
+        catch (Exception e)
+        {
             thisDevice = null;
         }
-        if (thisDevice != null) {
+        if (thisDevice != null) // problem, this will be null, but if you wait a second it won't be.
+        { // we don't want to block the thread, but we need to update when the information is
+            // available.
             this.binding.homeMyDeviceInfo.setText(
-                    WifiDirectActivity.summarizeP2pDevice(thisDevice));
+                    WifiDirect.summarizeP2pDevice(thisDevice));
         }
-        else {
+        else
+        {
             this.binding.homeMyDeviceInfo.setText(getString(R.string.p2p_not_enabled_error));
         }
 
@@ -68,7 +73,7 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
         setHasOptionsMenu(true);
 
         // subscribe to the events that we need in this context
-        WifiDirect.getInstance().subscribePeerDiscoveryListener(this);
+        WifiDirect.getInstance(this.getContext()).subscribePeerDiscoveryListener(this);
 
         return binding.getRoot();
     }
@@ -85,11 +90,13 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
-        if (item.getItemId() == R.id.refresh_peers) {
-            WifiDirect.getInstance().discoverPeers();
+        if (item.getItemId() == R.id.refresh_peers)
+        {
+            WifiDirect.getInstance(this.getContext()).discoverPeers();
             return true;
         }
-        else {
+        else
+        {
             Log.e("HomeFragment", "Unrecognized options item: " + item.getItemId());
             return false;
         }
@@ -115,13 +122,15 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
                 wifiP2pDeviceList.getDeviceList().toArray(new WifiP2pDevice[0]);
 
         // Log some information for sanity check
-        Log.i("MainActivity","Size of peer list: " + peers.length);
+        Log.i("MainActivity", "Size of peer list: " + peers.length);
         // Clear the old peer list
         binding.unrecognizedList.removeAllViews();
         // create a new peer list
         int idTracker = 0;
+        final Context thisContext = this.getContext();
 
-        for (WifiP2pDevice device : peers) {
+        for (WifiP2pDevice device : peers)
+        {
             // create a TextView for the WiFiP2p device
             TextView label = new TextView(this.getContext());
             label.setText(device.toString());
@@ -132,10 +141,12 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
                     ViewGroup.LayoutParams.WRAP_CONTENT
             ));
             // add an onClickListener
-            label.setOnClickListener(new View.OnClickListener() {
+            label.setOnClickListener(new View.OnClickListener()
+            {
                 @Override
-                public void onClick(View view) {
-                    WifiDirect.getInstance().connectToDevice(peers[view.getId()]);
+                public void onClick(View view)
+                { // I need a way to ensure the context isn't null?
+                    WifiDirect.getInstance(thisContext).connectToDevice(peers[view.getId()]);
                 }
             });
             // add the TextView to the view
@@ -149,21 +160,27 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
         // Turn the error code into a human readable message.
         // Other error handling may occur in this code.
         String errorType;
-        switch (reasonCode) {
+        switch (reasonCode)
+        {
             case WifiP2pManager.ERROR:
                 errorType = "Peer discovery failed due to an internal error.";
                 break;
             case WifiP2pManager.P2P_UNSUPPORTED:
-                errorType = "Peer discovery failed because Peer to Peer connections are not supported on this device.";
+                errorType =
+                        "Peer discovery failed because Peer to Peer connections are not supported" +
+                                " on this device.";
                 break;
             case WifiP2pManager.BUSY:
-                errorType = "Peer discovery failed because the framework is busy and is unable to service the request.";
+                errorType =
+                        "Peer discovery failed because the framework is busy and is unable to " +
+                                "service the request.";
                 break;
             case WifiP2pManager.NO_SERVICE_REQUESTS:
                 errorType = "Peer discovery failed because no service channel requests were added.";
                 break;
             default:
-                errorType = "Peer discovery failed due to an unknown error. Reason Code: " + reasonCode;
+                errorType =
+                        "Peer discovery failed due to an unknown error. Reason Code: " + reasonCode;
                 break;
         }
         // Make a toast telling the user what went wrong
@@ -174,14 +191,14 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
     public void onResume()
     {
         super.onResume();
-        WifiDirect.getInstance().resume();
+        WifiDirect.getInstance(this.getContext()).resume();
     }
 
     @Override
     public void onPause()
     {
         super.onPause();
-        WifiDirect.getInstance().pause();
+        WifiDirect.getInstance(this.getContext()).pause();
     }
 
     @Override
@@ -191,6 +208,6 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
         // this is necessary so that we don't have a memory leak
         // caused by old references to old listeners / views that
         // won't exist anymore.
-        WifiDirect.getInstance().unsubscribePeerDiscoveryListener(this);
+        WifiDirect.getInstance(this.getContext()).unsubscribePeerDiscoveryListener(this);
     }
 }

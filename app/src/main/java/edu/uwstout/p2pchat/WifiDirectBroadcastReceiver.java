@@ -10,12 +10,12 @@ import android.util.Log;
 
 /**
  * The WifiDirectBroadcastReceiver class listens for events related to
- * Wifi-Direct behavior, and calls the appropriate method in the WifiDirectActivity
- * that a reference of this class is coupled to.
+ * Wifi-Direct behavior, and calls the appropriate method in the WifiDirect
+ * Singleton.
  *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  * @see android.content.BroadcastReceiver
- * @see WifiDirectActivity
+ * @see WifiDirect
  */
 public class WifiDirectBroadcastReceiver extends BroadcastReceiver
 {
@@ -47,7 +47,7 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
      *         The intent being received
      */
     @Override
-    public void onReceive(Context context, Intent intent)
+    public void onReceive(final Context context, Intent intent)
     { // TODO define better behavior for all events and how we respond to them
         // Variable declaration
         String action = intent.getAction();
@@ -59,7 +59,7 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
                 // take that device list and give it to the activity to display
                 // so that the user can choose what device they want to connect to
                 Log.i("WFDBroadcastReceiver", "Peers available");
-                WifiDirect.getInstance().peersHaveChanged(wifiP2pDeviceList);
+                WifiDirect.getInstance(context).peersHaveChanged(wifiP2pDeviceList);
             }
         };
 
@@ -71,13 +71,13 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
             {
                 // Log the event
                 Log.i("WFDBroadcastReceiver", "WIFI P2P State Changed to enabled");
-                WifiDirect.getInstance().setP2pEnabled(true);
+                WifiDirect.getInstance(context).setP2pEnabled(true);
             }
             else
             {
                 // Log the event
                 Log.i("WFDBroadcastReceiver", "WIFI P2P State Changed to disabled");
-                WifiDirect.getInstance().setP2pEnabled(false);
+                WifiDirect.getInstance(context).setP2pEnabled(false);
             }
         }
         else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action))
@@ -113,7 +113,7 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
             Log.i("WFDBroadcastReceiver", "WIFI P2P This Device Changed");
             // Respond to this device's wifi state changing
             // by getting the new device and sending it to the WifiDirect Singleton
-            WifiDirect.getInstance().setThisDevice(
+            WifiDirect.getInstance(context).setThisDevice(
                     (WifiP2pDevice) intent.getParcelableExtra(
                             WifiP2pManager.EXTRA_WIFI_P2P_DEVICE));
         }
