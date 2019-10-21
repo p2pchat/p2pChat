@@ -1,8 +1,10 @@
 package edu.uwstout.p2pchat;
 
 
-
 import static android.view.View.GONE;
+
+import android.view.Gravity;
+import android.view.View;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,7 +16,6 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
 
     /**
      *
-     * @param binding
      */
     P2PMessageViewHolder(ItemMessageBinding binding)
     {
@@ -25,16 +26,23 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
 
     /**
      *
-     * @param message
      */
-    void bindData(P2PMessage message){
-        if(message.getMessageType().equals("Image")){
+    void bindData(P2PMessage message)
+    {
+        if (message.getMessageType().equals("Image"))
+        {
             binding.chatMsgTextView.setVisibility(GONE);
 
-        }else{
+        }
+        else
+        {
             binding.chatMsgImageView.setVisibility(GONE);
         }
-        binding.setStatus(message.getStatus());
+        if(message.getStatus().equals("end")){
+            binding.chatMsgLayout.setGravity(Gravity.END);
+        }else {
+            binding.chatMsgLayout.setGravity(Gravity.START);
+        }
         binding.setTextOutput(message.getTimestamp() + ":" + message.getText());
         binding.executePendingBindings();
     }

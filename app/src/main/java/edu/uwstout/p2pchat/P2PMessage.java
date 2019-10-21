@@ -9,10 +9,6 @@ public class P2PMessage
 
     /**
      *
-     * @param text
-     * @param timestamp
-     * @param status
-     * @param messageType
      */
     public P2PMessage(String text, String timestamp, String status, String messageType)
     {
@@ -24,7 +20,6 @@ public class P2PMessage
 
     /**
      *
-     * @return
      */
     String getText()
     {
@@ -33,7 +28,6 @@ public class P2PMessage
 
     /**
      *
-     * @param text
      */
     public void setText(String text)
     {
@@ -42,7 +36,6 @@ public class P2PMessage
 
     /**
      *
-     * @return
      */
     String getTimestamp()
     {
@@ -51,7 +44,6 @@ public class P2PMessage
 
     /**
      *
-     * @param timestamp
      */
     public void setTimestamp(String timestamp)
     {
@@ -60,7 +52,6 @@ public class P2PMessage
 
     /**
      *
-     * @return
      */
     String getStatus()
     {
@@ -69,7 +60,6 @@ public class P2PMessage
 
     /**
      *
-     * @param status
      */
     public void setStatus(String status)
     {
@@ -78,7 +68,6 @@ public class P2PMessage
 
     /**
      *
-     * @return
      */
     String getMessageType()
     {
@@ -87,7 +76,6 @@ public class P2PMessage
 
     /**
      *
-     * @param messageType
      */
     public void setMessageType(String messageType)
     {

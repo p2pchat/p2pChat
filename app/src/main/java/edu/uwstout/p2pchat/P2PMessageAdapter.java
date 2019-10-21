@@ -2,6 +2,7 @@ package edu.uwstout.p2pchat;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,7 +18,6 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
 
     /**
      *
-     * @param messageList
      */
     public P2PMessageAdapter(List<P2PMessage> messageList)
     {
@@ -26,24 +26,19 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
 
     /**
      *
-     * @param parent
-     * @param viewType
-     * @return
      */
     @NonNull
     @Override
     public P2PMessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        ItemMessageBinding binding = ItemMessageBinding.inflate(layoutInflater,parent,false);
+        ItemMessageBinding binding = ItemMessageBinding.inflate(layoutInflater, parent, false);
         return new P2PMessageViewHolder(binding);
 
     }
 
     /**
      *
-     * @param holder
-     * @param position
      */
     @Override
     public void onBindViewHolder(@NonNull P2PMessageViewHolder holder, int position)
@@ -55,12 +50,12 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
 
     /**
      *
-     * @return
      */
     @Override
     public int getItemCount()
     {
-        if(messageList == null){
+        if (messageList == null)
+        {
             messageList = new ArrayList<P2PMessage>();
         }
         return messageList.size();

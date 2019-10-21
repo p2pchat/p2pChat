@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.databinding.BindingAdapter;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -25,17 +24,13 @@ public class ChatFragment extends Fragment
 
     /**
      *
-     * @param inflater
-     * @param container
-     * @param savedInstanceState
-     * @return
      */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState)
     {
-        binding = FragmentChatBinding.inflate(inflater,container,false);
+        binding = FragmentChatBinding.inflate(inflater, container, true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         binding.messagesRecyclerView.setLayoutManager(linearLayoutManager);
 
@@ -51,14 +46,17 @@ public class ChatFragment extends Fragment
             @Override
             public void onClick(View view)
             {
+                String text = binding.textInput.getText().toString();
                 Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                P2PMessage message = new P2PMessage(binding.getInputText(), timestamp.toString(),"end","text");
+                P2PMessage message = new P2PMessage(text, timestamp.toString(),
+                        "end", "text");
                 messages.add(message);
                 int newMessagePosition = messages.size() - 1;
 
                 messageAdapter.notifyItemInserted(newMessagePosition);
 
                 binding.messagesRecyclerView.scrollToPosition(newMessagePosition);
+                binding.textInput.setText("");
             }
         });
 
