@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.uwstout.p2pchat.databinding.ItemMessageBinding;
@@ -12,7 +13,7 @@ import edu.uwstout.p2pchat.databinding.ItemMessageBinding;
 public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder>
 {
 
-    private List<P2PMessage> messageList = null;
+    private List<P2PMessage> messageList;
 
     /**
      *
@@ -59,6 +60,11 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
     @Override
     public int getItemCount()
     {
-        return 0;
+        if(messageList == null){
+            messageList = new ArrayList<P2PMessage>();
+        }
+        return messageList.size();
     }
+
+
 }
