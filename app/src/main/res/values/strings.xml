@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">P2Pchat</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="my_device_title">My Device:</string>
+    <string name="placeholder">Placeholder Text</string>
+    <string name="previously_connected_devices">Previously Connected Devices</string>
+    <string name="unrecognized_devices">Unrecognized Devices</string>
+    <string name="p2p_not_enabled_error">Wifi Direct/P2P connections are not enabled.
+        Please enable them in settings.</string>
+    <string name="discover_peers">Discover Peers</string>
 </resources>
