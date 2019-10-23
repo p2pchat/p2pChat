@@ -5,8 +5,10 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 
 @Database(entities = {Peer.class, Message.class}, version = 1)
+@TypeConverters(Converters.class)
 abstract class P2pDatabase extends RoomDatabase {
     abstract public DataAccessObject dataAccessObject();
     static P2pDatabase instance;

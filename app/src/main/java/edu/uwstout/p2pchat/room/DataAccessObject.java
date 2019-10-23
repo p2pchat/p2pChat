@@ -17,4 +17,6 @@ public interface DataAccessObject {
     void deleteMessages(Message... messages);
     @Query("SELECT * FROM Message WHERE macAddress = :macAddress")
     Message[] getMessagesFromPeer(String macAddress);
+    @Query("SELECT * FROM Peer")
+    Peer[] getPeers();
 }

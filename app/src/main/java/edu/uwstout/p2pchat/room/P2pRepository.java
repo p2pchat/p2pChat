@@ -45,6 +45,10 @@ public class P2pRepository {
         (new AsyncInsertMessage(dao)).execute(messages);
     }
 
+    public Peer[] getPeers() {
+        return dao.getPeers();
+    }
+
     public P2pRepository(Application app) {
         P2pDatabase database = P2pDatabase.getInstance(app);
         dao = database.dataAccessObject();
