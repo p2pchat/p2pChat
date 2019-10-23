@@ -31,18 +31,20 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
         if (message.getMessageType().equals("Image"))
         {
             binding.chatMsgTextView.setVisibility(GONE);
+            binding.chatMsgTextView.setMaxHeight(0);
 
         }
         else
         {
             binding.chatMsgImageView.setVisibility(GONE);
+            binding.chatMsgImageView.setMaxHeight(0);
         }
         if(message.getStatus().equals("end")){
             binding.chatMsgLayout.setGravity(Gravity.END);
         }else {
             binding.chatMsgLayout.setGravity(Gravity.START);
         }
-        binding.setTextOutput(message.getTimestamp() + ":" + message.getText());
+        binding.setTextOutput(message.getTimestamp() + ": \n" + message.getText());
         binding.executePendingBindings();
     }
 }
