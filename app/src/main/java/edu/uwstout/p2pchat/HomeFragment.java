@@ -122,7 +122,7 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
                 wifiP2pDeviceList.getDeviceList().toArray(new WifiP2pDevice[0]);
 
         // Log some information for sanity check
-        Log.i("MainActivity", "Size of peer list: " + peers.length);
+        Log.i("HomeFragment", "Size of peer list: " + peers.length);
         // Clear the old peer list
         binding.unrecognizedList.removeAllViews();
         // create a new peer list

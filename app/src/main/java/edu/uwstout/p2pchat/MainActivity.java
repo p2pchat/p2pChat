@@ -8,12 +8,24 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
+
+import edu.uwstout.p2pchat.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity
 {
     // Necessary for consistency between methods
     private static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1001;
+
+    private ActivityMainBinding binding;
+    private DrawerLayout drawerLayout;
 
     /**
      * A lifecycle function which creates the view
@@ -25,8 +37,28 @@ public class MainActivity extends AppCompatActivity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        this.binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        this.drawerLayout = binding.drawerLayout;
+        final NavController navController =
+                Navigation.findNavController(this, R.id.mainNavHostFragment);
+        NavigationUI.setupActionBarWithNavController(this, navController, this.drawerLayout);
 
+        // prevent nav gesture if not on start destination
+        navController.addOnDestinationChangedListener(
+                new NavController.OnDestinationChangedListener()
+                {
+                    @Override
+                    public void onDestinationChanged(@NonNull NavController controller,
+                            @NonNull NavDestination destination, @Nullable Bundle arguments)
+                    {
+                        if (destination.getId() == navController.getGraph().getStartDestination()) {
+                            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                        } else {
+                            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                        }
+                    }
+                });
+        NavigationUI.setupWithNavController(binding.mainNavView, navController);
 //        // Check if the app has permissions to use location data, and ask for it if we don't.
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
 //                && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -71,4 +103,14 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Makes it possible to use the up button in the top left corner of the screen
+     * @return a boolean indicating if the fragment can move up on the back stack.
+     */
+    @Override
+    public boolean onSupportNavigateUp()
+    {
+        final NavController navController = Navigation.findNavController(this, R.id.mainNavHostFragment);
+        return NavigationUI.navigateUp(navController, drawerLayout);
+    }
 }
