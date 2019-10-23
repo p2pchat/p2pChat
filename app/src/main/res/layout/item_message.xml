@@ -22,7 +22,9 @@
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
                 android:text="@{textOutput}"
-                android:textIsSelectable="true"/>
+                android:textIsSelectable="true"
+                android:background="@color/colorPrimary"
+                android:textColor="@color/colorAccent"/>
             <ImageView
                 android:id="@+id/chat_msg_image_view"
                 android:layout_width="wrap_content"

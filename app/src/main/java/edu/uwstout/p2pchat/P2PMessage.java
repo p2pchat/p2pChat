@@ -10,7 +10,7 @@ public class P2PMessage
     /**
      *
      */
-    public P2PMessage(String text, String timestamp, String status, String messageType)
+    P2PMessage(String text, String timestamp, String status, String messageType)
     {
         this.text = text;
         this.timestamp = timestamp;
