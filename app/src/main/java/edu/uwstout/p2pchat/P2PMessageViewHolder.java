@@ -4,7 +4,6 @@ package edu.uwstout.p2pchat;
 import static android.view.View.GONE;
 
 import android.view.Gravity;
-import android.view.View;
 
 import androidx.recyclerview.widget.RecyclerView;
 

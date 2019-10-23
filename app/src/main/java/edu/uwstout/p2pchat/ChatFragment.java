@@ -18,7 +18,7 @@ import edu.uwstout.p2pchat.databinding.FragmentChatBinding;
 
 public class ChatFragment extends Fragment
 {
-    private static FragmentChatBinding binding;
+    private FragmentChatBinding binding;
     private final List<P2PMessage> messages = new ArrayList<>();
     private P2PMessageAdapter messageAdapter;
 

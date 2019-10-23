@@ -19,7 +19,7 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
     /**
      *
      */
-    public P2PMessageAdapter(List<P2PMessage> messageList)
+    P2PMessageAdapter(List<P2PMessage> messageList)
     {
         this.messageList = messageList;
     }

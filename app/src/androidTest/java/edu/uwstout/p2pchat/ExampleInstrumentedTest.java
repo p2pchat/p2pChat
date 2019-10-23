@@ -32,8 +32,5 @@ public class ExampleInstrumentedTest {
 
         assertEquals("com.uwstout.p2pchat", appContext.getPackageName());
     }
-    @Test
-    public void testHelloWorld() {
-        onView(withText("Hello World!")).check(matches(isDisplayed()));
-    }
+
 }
