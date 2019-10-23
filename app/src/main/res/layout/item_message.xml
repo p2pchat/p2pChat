@@ -7,7 +7,7 @@
     </data>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
         <LinearLayout
             android:id="@+id/chat_msg_layout"
@@ -25,7 +25,7 @@
                 android:textIsSelectable="true"
                 android:background="@color/colorPrimary"
                 android:textColor="@color/colorAccent"
-                android:textSize="10pt"/>
+                android:textSize="8pt"/>
             <ImageView
                 android:contentDescription="@{textOutput}"
                 android:id="@+id/chat_msg_image_view"
