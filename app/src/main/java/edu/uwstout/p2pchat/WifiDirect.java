@@ -4,6 +4,7 @@ import static android.os.Looper.getMainLooper;
 
 import android.content.Context;
 import android.content.IntentFilter;
+import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
@@ -29,20 +30,42 @@ import java.util.List;
  */
 public class WifiDirect implements WifiP2pManager.ChannelListener
 {
-    /*
+    /**
         Creating an observer interface so that fragments can subscribe
         to events that matter to them so that they can respond in the GUI.
      */
     public interface PeerDiscoveryListener
     {
+        /**
+         * Notifies the observer that the list of peers available has changed
+         * @param wifiP2pDeviceList a list of available peers
+         */
         void peerListChanged(WifiP2pDeviceList wifiP2pDeviceList);
 
+        /**
+         * Notifies the observer that peer discovery failed
+         * @param reasonCode the reason for failure. Either WifiP2pManager.ERROR, WifiP2pManager
+         *                   .P2P_UNSUPPORTED, WifiP2pManager.BUSY, WifiP2pManager
+         *                   .NO_SERVICE_REQUESTS
+         */
         void peerDiscoveryFailed(int reasonCode);
+
+        /**
+         * Notifies the observer that we have successfully connected to a peer
+         */
+        void peerConnectionSucceeded();
+
+        /**
+         * notifies the observer that we were unable to connect to a peer
+         * @param reasonCode the reason for failure (list of reasons unknown at this time)
+         */
+        void peerConnectionFailed(int reasonCode);
     }
 
     // PRIVATE VARIABLES
     private boolean p2pEnabled = false;
-    private IntentFilter intentFilter = new IntentFilter();
+    private static String LOG_TAG = "WifiDirect";
+    private IntentFilter intentFilter;
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
     private WifiDirectBroadcastReceiver receiver;
@@ -121,7 +144,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
     }
 
     /**
-     * Let's us know if peer to peer is enabled
+     * Lets us know if peer to peer is enabled
      *
      * @return a boolean indicating if peer to peer communication is enabled
      */
@@ -236,7 +259,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
     @Override
     public void onChannelDisconnected()
     {
-        Log.e("WifiDirect", "Channel lost, implementing try again protocol suggested");
+        Log.e(LOG_TAG, "Channel lost, implementing try again protocol suggested");
         // TODO reimplement so that there is an observer protocol for this
     }
 
@@ -268,7 +291,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
                 // a WIFI_P2P_PEERS_CHANGED_ACTION intent is broad-casted if
                 // we were successful, see WiFiDirectBroadcastManager for state
                 // change code in the onReceive method.
-                Log.i("WifiDirect", "Peer Discovery reports success");
+                Log.i(LOG_TAG, "Peer Discovery reports success");
             }
 
             @Override
@@ -302,7 +325,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
                         break;
                 }
                 // log the error with a description of what went wrong.
-                Log.e("WifiDirect", "Peer Discovery Failure. Error: " + errorType);
+                Log.e(LOG_TAG, "Peer Discovery Failure. Error: " + errorType);
                 // Tell the PeerDiscoveryListeners that peer discovery has gone wrong.
                 WifiDirect.getInstance(mContext).peerDiscoveryFailed(reasonCode);
             }
@@ -357,7 +380,41 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
      */
     public void connectToDevice(WifiP2pDevice device)
     {
-        // TODO implementation pending
+        WifiP2pConfig config = new WifiP2pConfig();
+        config.deviceAddress = device.deviceAddress;
+
+        class ActionListenerWithContext implements WifiP2pManager.ActionListener
+        {
+
+            private Context mContext;
+
+            private ActionListenerWithContext(Context context)
+            {
+                mContext = context;
+            }
+
+            @Override
+            public void onSuccess() {
+                Log.i(LOG_TAG, "System reports successful connection");
+                for (PeerDiscoveryListener listener :
+                        WifiDirect.getInstance(mContext).peerDiscoveryListeners) {
+                    listener.peerConnectionSucceeded();
+                }
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                // TODO figure out what the reasons are?
+                Log.e(LOG_TAG,"Connection failure. Reason: " + reason);
+                for (PeerDiscoveryListener listener :
+                        WifiDirect.getInstance(mContext).peerDiscoveryListeners) {
+                    listener.peerConnectionFailed(reason);
+                }
+            }
+
+        }
+
+        manager.connect(channel, config, new ActionListenerWithContext(this.context));
     }
 
     //////////////////////////////////////////////////
