@@ -10,6 +10,7 @@ import java.util.Date;
 @Entity(foreignKeys = @ForeignKey(entity = Peer.class, parentColumns = "macAddress", childColumns = "macAddress", onDelete = ForeignKey.CASCADE))
 public class Message {
     @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
     public int id;
     @ColumnInfo(name = "timestamp")
     public Date timestamp;

@@ -26,7 +26,7 @@ public class RoomTesting {
     }
     @Test
     public void test_insert() {
-        Peer peer = new Peer();
+        Peer peer = new Peer("makjdflkasjkldfj");
         peer.nickname = "test";
         repo.insertPeers(peer);
         Thread.sleep(100);
