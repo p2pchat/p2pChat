@@ -22,6 +22,7 @@
             android:orientation="horizontal">
 
             <ImageButton
+                android:id="@+id/attachmentButton"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:contentDescription="@string/attach_description"

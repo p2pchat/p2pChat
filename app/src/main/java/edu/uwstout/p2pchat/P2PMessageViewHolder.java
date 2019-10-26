@@ -44,7 +44,8 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
         }else {
             binding.chatMsgLayout.setGravity(Gravity.START);
         }
-        binding.setTextOutput(message.getTimestamp() + ": \n" + message.getText());
+        binding.setTextOutput(message.getText());
+        binding.setTimestamp(message.getTimestamp());
         binding.executePendingBindings();
     }
 }

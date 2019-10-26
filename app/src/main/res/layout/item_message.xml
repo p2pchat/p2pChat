@@ -4,6 +4,9 @@
         <variable
             name="textOutput"
             type="String" />
+        <variable
+            name="timestamp"
+            type="String" />
     </data>
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,6 +18,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end">
+            <TextView
+                android:id="@+id/chat_msg_timestamp_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:textIsSelectable="true"
+                android:text="@{timestamp}"
+                android:background="@color/colorPrimary"
+                android:textColor="@color/colorAccent"
+                android:textSize="8pt"/>
 
             <TextView
                 android:id="@+id/chat_msg_text_view"
