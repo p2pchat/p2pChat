@@ -31,6 +31,7 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
     @Override
     public P2PMessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
+
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         ItemMessageBinding binding = ItemMessageBinding.inflate(layoutInflater, parent, false);
         return new P2PMessageViewHolder(binding);

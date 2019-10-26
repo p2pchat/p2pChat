@@ -1,6 +1,6 @@
 package edu.uwstout.p2pchat;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +17,21 @@ public class P2PMessageAdapterTest
     private ArrayList<P2PMessage> test_messageList;
     private P2PMessageAdapter test_messageAdapter;
 
+
+
+
+
+
+
+
+
+
+
     @Before
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
+
+
+
         test_text = "Hello";
         test_timestamp = "11-09-1997 11:50:23.453";
         test_status = "end";
@@ -33,15 +45,9 @@ public class P2PMessageAdapterTest
 
 
 
-    @Test
-    public void onCreateViewHolder()
-    {
-    }
 
-    @Test
-    public void onBindViewHolder()
-    {
-    }
+
+
 
     @Test
     public void testGetItemCount()
