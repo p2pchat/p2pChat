@@ -1,9 +1,12 @@
 package edu.uwstout.p2pchat.room;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Dao;
 import androidx.room.Query;
+
+import java.util.List;
 
 @Dao
 public interface DataAccessObject {
@@ -16,7 +19,7 @@ public interface DataAccessObject {
     @Delete
     void deleteMessages(Message... messages);
     @Query("SELECT * FROM message WHERE macAddress = :macAddress")
-    Message[] getMessagesFromPeer(String macAddress);
+    LiveData<List<Message>> getMessagesFromPeer(String macAddress);
     @Query("SELECT * FROM peer")
-    Peer[] getPeers();
+    LiveData<List<Peer>> getPeers();
 }
