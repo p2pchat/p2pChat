@@ -32,6 +32,4 @@ public class ExampleInstrumentedTest {
 
         assertEquals("com.uwstout.p2pchat", appContext.getPackageName());
     }
-
-
 }
