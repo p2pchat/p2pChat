@@ -19,7 +19,7 @@ public interface DataAccessObject {
     @Delete
     void deleteMessages(Message... messages);
     @Query("SELECT * FROM message WHERE macAddress = :macAddress")
-    LiveData<List<Message>> getMessagesFromPeer(String macAddress);
+    List<Message> getMessagesFromPeer(String macAddress);
     @Query("SELECT * FROM peer")
-    LiveData<List<Peer>> getPeers();
+    List<Peer> getPeers();
 }

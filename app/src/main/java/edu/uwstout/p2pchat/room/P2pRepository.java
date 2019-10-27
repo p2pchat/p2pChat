@@ -79,11 +79,11 @@ public class P2pRepository {
         (new AsyncInsertMessage(dao)).execute(messages);
     }
 
-    public LiveData<List<Message>> getMessages(String macAddress) {
+    public List<Message> getMessages(String macAddress) {
         return dao.getMessagesFromPeer(macAddress);
     }
 
-    public LiveData<List<Peer>> getPeers() {
+    public List<Peer> getPeers() {
         return dao.getPeers();
     }
 

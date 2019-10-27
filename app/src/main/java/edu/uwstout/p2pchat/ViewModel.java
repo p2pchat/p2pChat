@@ -47,11 +47,11 @@ public class ViewModel extends AndroidViewModel {
         repo.deleteMessages(message);
     }
 
-    public LiveData<List<Peer>> getPeers() {
+    public List<Peer> getPeers() {
         return repo.getPeers();
     }
 
-    public LiveData<List<Message>> getMessages(String macAddress) {
+    public List<Message> getMessages(String macAddress) {
         return repo.getMessages(macAddress);
     }
 
