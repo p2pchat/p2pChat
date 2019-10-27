@@ -4,13 +4,12 @@ import android.os.Bundle;
 
 
 import androidx.appcompat.app.AppCompatActivity;
-import edu.uwstout.p2pchat.R;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
 
+public class MainActivity extends AppCompatActivity
+{
     /**
-     * say hello. Nothign works well. asdfasdf.
-     * Does nothign here. dasfsdfasdfasd
      *
      * @param savedInstanceState
      *         saved instance.
@@ -20,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
     }
 
 

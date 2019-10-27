@@ -1,167 +1,92 @@
-package com.example.p2pchat;
+package edu.uwstout.p2pchat;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ExpandableListView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link SettingFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link SettingFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * A fragment that hosts the settings.
  */
 public class SettingFragment extends Fragment
 {
 
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    /**
-     * The argument parameter variable for parameter 1.
-     */
-    private static final String ARG_PARAM1 = "param1";
 
     /**
-     * The arg parameter 2.
-     */
-    private static final String ARG_PARAM2 = "param2";
-
-    /**
-     * A default variable that came with the class.
-     */
-    private String mParam1;
-
-    /** Another default variable that came with the parameters.
-     */
-    private String mParam2;
-
-    /** Another default object that came with the fragment.
-     */
-    private OnFragmentInteractionListener mListener;
-
-    /** Default method that came with the fragment.
-     *  Used for setting the fragment.
+     * Default constructor. Nothing will be used in here.
      */
     public SettingFragment()
     {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1
-     *         Parameter 1.
-     * @param param2
-     *         Parameter 2.
-     * @return A new instance of fragment SettingFragment.
-     */
-    public static SettingFragment newInstance(final String param1, final String param2)
-    {
-        SettingFragment fragment = new SettingFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     /**
-     * Everything that comes with the fragment shall be in here.
-     * @param savedInstanceState variable that came with the class.
-     */
-    @Override
-    public void onCreate(final Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null)
-        {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-
-    /**
+     * Creates the view.
      *
      * @param inflater
+     *         default things needed for the onCreateview.
      * @param container
+     *         container needed.
      * @param savedInstanceState
-     * @return
+     *         needed.
+     * @return view inflated and manipulated to fragment_settings xml.
      */
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState)
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+            final Bundle savedInstanceState)
     {
+        Context context;
+
+
+        // Creates the view.
+        View view = inflater.inflate(R.layout.fragment_setting, container, false);
+
+        //Save context for shared preferences.
+        context = view.getContext();
+
+
+        //Gets the expandable list view from the findViewById.
+        ExpandableListView m = view.findViewById(R.id.eList);
+
+        try
+        {
+            //New Listview-adapter instance.
+            ExpandableSettingsListViewAdapter adapter =
+                    new ExpandableSettingsListViewAdapter(context, this.getActivity(),
+                            this.getActivity().getSupportFragmentManager());
+
+            //Sets the adapter for Expandable list view.
+            m.setAdapter(adapter);
+        }
+        catch (NullPointerException error)
+        {
+            //If an error occurs log it into the console as a warning.
+            Log.w("Null Pointer Issue",
+                    "Null for getSupportFragmentManager() " +
+                    "ExpandableSettingsListViewAdapter: " + error.getMessage());
+
+            //Make a toast that something went wrong.
+            Toast.makeText(context, "Error with ExpandableSettingsListViewAdapter, please report " +
+                            "this as a bug. Sorry for your inconvience.",
+                    Toast.LENGTH_SHORT).show();
+
+        }
+
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_setting, container, false);
+        return view;
     }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri)
-    {
-        if (mListener != null)
-        {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context)
-    {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener)
-        {
-            mListener = (OnFragmentInteractionListener) context;
-        }
-        else
-        {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach()
-    {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener
-    {
-        // TODO: Update argument type and name
-        //CHECKSTYLE:OFF
-        void onFragmentInteraction(Uri uri);
-        //CHECKSTYLE:ON
-    }
-
-
-
-
-
-
-
-
-
 
 
 }
