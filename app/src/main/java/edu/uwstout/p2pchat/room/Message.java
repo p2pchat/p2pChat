@@ -5,7 +5,10 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
+import java.io.File;
 import java.util.Date;
+
+import edu.uwstout.p2pchat.ExternalFile;
 
 @Entity(foreignKeys = @ForeignKey(entity = Peer.class, parentColumns = "macAddress", childColumns = "macAddress", onDelete = ForeignKey.CASCADE))
 public class Message {
@@ -22,4 +25,14 @@ public class Message {
     public String mimeType;
     @ColumnInfo(name = "content")
     public String content;
+
+    public Boolean isFile() {
+        return mimeType != "text/plain";
+    }
+    public ExternalFile getFile() {
+        if(isFile()) {
+            return new ExternalFile(new File(content));
+        }
+        return null;
+    }
 }

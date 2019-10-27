@@ -3,8 +3,11 @@ package edu.uwstout.p2pchat;
 import android.content.Context;
 import android.os.Environment;
 
+import com.google.common.io.ByteStreams;
+
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.List;
 
 public class InMemoryFile {
@@ -13,6 +16,15 @@ public class InMemoryFile {
     public InMemoryFile(String filename, byte[] data) {
         this.filename = filename;
         this.data = data;
+    }
+    public InMemoryFile(String filename, InputStream stream) {
+        try {
+            data = ByteStreams.toByteArray(stream);
+            this.filename = filename;
+        } catch(Exception e) {
+            data = new byte[0];
+            filename = "Error";
+        }
     }
     public ExternalFile saveToStorage(Context context) {
         File path = new File(context.getFilesDir(), filename);

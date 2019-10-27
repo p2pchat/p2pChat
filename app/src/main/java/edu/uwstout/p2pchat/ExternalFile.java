@@ -19,4 +19,7 @@ public class ExternalFile {
             return null;
         }
     }
+    public boolean delete() {
+        return path.delete();
+    }
 }
