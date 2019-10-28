@@ -1,21 +1,23 @@
 package edu.uwstout.p2pchat.room;
 
-import androidx.lifecycle.LiveData;
+import android.Manifest;
+
 import androidx.room.Room;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.GrantPermissionRule;
+
 import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import edu.uwstout.p2pchat.ExternalFile;
 import edu.uwstout.p2pchat.InMemoryFile;
@@ -24,6 +26,9 @@ import edu.uwstout.p2pchat.InMemoryFile;
 public class RoomTesting {
 
     private P2pDatabase database;
+
+    @Rule
+    public GrantPermissionRule grantPermissionRule = GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
     @Before
     public void initDb() {
@@ -147,15 +152,8 @@ public class RoomTesting {
         InMemoryFile snowden = null;
 
         try {
-            final String[] names = InstrumentationRegistry.getInstrumentation().getContext().getResources().getAssets().list("");
-            System.out.println(names);
-        } catch (IOException e) {
-            fail();
-        }
-
-        try {
-            lyrics = new InMemoryFile("lyrics.txt", InstrumentationRegistry.getInstrumentation().getContext().getResources().getAssets().open("testing/lyrics.txt"));
-            snowden = new InMemoryFile("snowden.png", InstrumentationRegistry.getInstrumentation().getContext().getResources().getAssets().open("testing/snowden.png"));
+            lyrics = new InMemoryFile("lyrics.txt", InstrumentationRegistry.getInstrumentation().getContext().getResources().getAssets().open("lyrics.txt"));
+            snowden = new InMemoryFile("snowden.png", InstrumentationRegistry.getInstrumentation().getContext().getResources().getAssets().open("snowden.png"));
         } catch (Exception e) {
             fail();
         }
@@ -163,8 +161,13 @@ public class RoomTesting {
         assertNotEquals(lyrics.getSize(), 0);
         assertNotEquals(snowden.getSize(), 0);
 
-        ExternalFile savedLyrics = lyrics.saveToStorage(InstrumentationRegistry.getInstrumentation().getContext());
-        ExternalFile savedSnowden = snowden.saveToStorage(InstrumentationRegistry.getInstrumentation().getContext());
+        Date now = Calendar.getInstance().getTime();
+
+        ExternalFile savedLyrics = lyrics.saveToStorage(InstrumentationRegistry.getInstrumentation().getContext(), now);
+        ExternalFile savedSnowden = snowden.saveToStorage(InstrumentationRegistry.getInstrumentation().getContext(), now);
+
+        assertNotNull(savedLyrics);
+        assertNotNull(savedSnowden);
 
         assertTrue(savedLyrics.exists());
         assertTrue(savedSnowden.exists());
@@ -173,8 +176,6 @@ public class RoomTesting {
         peer.nickname = "Tony Stark";
 
         dao.insertPeers(peer);
-
-        Date now = Calendar.getInstance().getTime();
 
         Message messageLyrics = new Message();
         messageLyrics.sent = false;
@@ -192,10 +193,28 @@ public class RoomTesting {
         InMemoryFile loadedLyrics = recoveredLyrics.loadIntoMemory();
 
         assertEquals(lyrics.getSize(), loadedLyrics.getSize());
-        assertEquals(lyrics, loadedLyrics);
+        assertTrue(lyrics.equals(loadedLyrics));
 
+        savedLyrics.delete();
 
+        Message messageSnowden = new Message();
+        messageSnowden.sent = false;
+        messageSnowden.mimeType = "image/png";
+        messageSnowden.macAddress = peer.macAddress;
+        messageSnowden.timestamp = now;
+        messageSnowden.content = savedSnowden.getPath();
 
+        dao.insertMessages(messageSnowden);
 
+        ExternalFile recoveredSnowden = dao.getMessagesFromPeer(peer.macAddress).get(1).getFile();
+
+        assertNotNull(recoveredSnowden);
+
+        InMemoryFile loadedSnowden = recoveredSnowden.loadIntoMemory();
+
+        assertEquals(snowden.getSize(), loadedSnowden.getSize());
+        assertTrue(snowden.equals(loadedSnowden));
+
+        savedSnowden.delete();
     }
 }
