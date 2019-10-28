@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity
                     Log.e(LOG_TAG, "Write access permission not granted.");
                     finish();
                 }
+                // TODO: Handle case where file write failed, and needs to be retried
             default:
                 Log.e(LOG_TAG, "Unhandled permissions result: " + requestCode);
         }
