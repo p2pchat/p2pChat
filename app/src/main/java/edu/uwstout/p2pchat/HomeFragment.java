@@ -33,12 +33,24 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
     // private variables
     private FragmentHomeBinding binding = null;
 
+    /**
+     * The constructor for the class, it is required by java, but is empty
+     */
     public HomeFragment()
     {
         // Required empty public constructor
     }
 
 
+    /**
+     * Inflates the fragment view and instantiates essential components of the view for first
+     * time setup
+     * @param inflater a LayoutInflater which handles creating the layout from the XML file
+     * @param container a ViewGroup that the fragment is contained in
+     * @param savedInstanceState a Bundle created by the OS which may contain information from
+     *                           last known state. It provides lifecycle functionality.
+     * @return the root of the FragmentHomeBinding object used for data binding.
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState)
@@ -78,6 +90,11 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
         return binding.getRoot();
     }
 
+    /**
+     * creates an options menu so that we have buttons in the toolbar
+     * @param menu the Menu that we programmatically create
+     * @param inflater a MenuInflater which creates the layout from the XML file
+     */
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
     {
@@ -87,6 +104,11 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
     }
 
+    /**
+     * handles the event when an item in our options menu is clicked
+     * @param item the MenuItem that was clicked
+     * @return a boolean indicating if the click was handled or not
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
@@ -103,6 +125,11 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
 
     }
 
+    /**
+     * Required by the WifiDirect.PeerDiscoveryListener, this method updates the view
+     * to display all of the available peers for WifiDirect communication
+     * @param wifiP2pDeviceList the list of peers that are available.
+     */
     @Override
     public void peerListChanged(WifiP2pDeviceList wifiP2pDeviceList)
     {
@@ -122,7 +149,7 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
                 wifiP2pDeviceList.getDeviceList().toArray(new WifiP2pDevice[0]);
 
         // Log some information for sanity check
-        Log.i("MainActivity", "Size of peer list: " + peers.length);
+        Log.i("HomeFragment", "Size of peer list: " + peers.length);
         // Clear the old peer list
         binding.unrecognizedList.removeAllViews();
         // create a new peer list
@@ -133,7 +160,7 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
         {
             // create a TextView for the WiFiP2p device
             TextView label = new TextView(this.getContext());
-            label.setText(device.toString());
+            label.setText(WifiDirect.summarizeP2pDevice(device));
             label.setId(idTracker++);
             label.setClickable(true);
             label.setLayoutParams(new LinearLayout.LayoutParams(
@@ -154,6 +181,11 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
         }
     }
 
+    /**
+     * Required by the WifiDirect.PeerDiscoveryListener interface, this method informs the user
+     * that peer discovery failed for some reason.
+     * @param reasonCode the reason for failure
+     */
     @Override
     public void peerDiscoveryFailed(int reasonCode)
     {
@@ -187,6 +219,32 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
         Toast.makeText(this.getContext(), errorType, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Required by the WifiDirect.PeerDiscoveryListener interface, this method notifies
+     * the user that we successfully connected to a peer.
+     */
+    @Override
+    public void peerConnectionSucceeded()
+    {
+        Toast.makeText(this.getContext(), "Connection succeeded", Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Required by the WifiDirect.PeerDiscoveryListener interface, this method notifies
+     *      * the user that we were unable to connect to a peer.
+     * @param reasonCode the reason for failure (list of reasons unknown at this time)
+     */
+    @Override
+    public void peerConnectionFailed(int reasonCode)
+    {
+        Toast.makeText(this.getContext(), "Connection failed. Reason: " + reasonCode,
+                Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Lifecycle function, this method will ensure that our WifiDirect singleton
+     * is properly receiving signals after loosing and regaining focus
+     */
     @Override
     public void onResume()
     {
@@ -194,6 +252,10 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
         WifiDirect.getInstance(this.getContext()).resume();
     }
 
+    /**
+     * Interrupts the WifiDirect singleton from receiving signals while the application
+     * has lost focus
+     */
     @Override
     public void onPause()
     {
@@ -201,6 +263,10 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
         WifiDirect.getInstance(this.getContext()).pause();
     }
 
+    /**
+     * Unregisters this fragment as an observer to ensure that we don't have a memory leak
+     * when the fragment is destroyed.
+     */
     @Override
     public void onDestroyView()
     {

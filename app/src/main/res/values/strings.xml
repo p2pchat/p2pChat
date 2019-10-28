@@ -10,4 +10,7 @@
     <string name="p2p_not_enabled_error">Wifi Direct/P2P connections are not enabled.
         Please enable them in settings.</string>
     <string name="discover_peers">Discover Peers</string>
+    <string name="chat_history">Chat History</string>
+    <string name="settings">Settings</string>
+    <string name="help">Help</string>
 </resources>

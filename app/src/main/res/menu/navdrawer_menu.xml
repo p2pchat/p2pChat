@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- TODO add an icon to each item later -->
+    <item
+        android:id="@+id/chatHistoryFragment"
+        android:title="@string/chat_history"/>
+
+    <item
+        android:id="@+id/settingFragment"
+        android:title="@string/settings"/>
+
+    <item
+        android:id="@+id/helpPageFragment"
+        android:title="@string/help"/>
+</menu>

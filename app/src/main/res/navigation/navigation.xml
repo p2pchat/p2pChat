@@ -8,6 +8,6 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="edu.uwstout.p2pchat.HomeFragment"
-        android:label="fragment_home"
+        android:label="Home"
         tools:layout="@layout/fragment_home" />
 </navigation>
