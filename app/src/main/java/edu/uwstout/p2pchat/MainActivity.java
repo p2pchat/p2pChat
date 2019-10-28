@@ -60,8 +60,6 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
         NavigationUI.setupWithNavController(binding.mainNavView, navController);
-        // TODO this is causing an app crash, revisit this in a future sprint since this wasn't
-        //  an explicit goal of this sprint
         // Check if the app has permissions to use location data, and ask for it if we don't.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                 && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
