@@ -6,16 +6,16 @@ import java.io.FileInputStream;
 
 public class ExternalFile
 {
-    File path;
-    String mimeType;
+    private File path;
+    private String mimeType;
 
-    public ExternalFile(File path, String mimeType)
+    public ExternalFile(final File pathRef, final String mimeTypeStr)
     {
-        this.path = path;
-        this.mimeType = mimeType;
+        path = pathRef;
+        mimeType = mimeTypeStr;
     }
 
-    public InMemoryFile loadIntoMemory()
+    public final InMemoryFile loadIntoMemory()
     {
         byte[] data = new byte[(int) path.length()];
         try
@@ -30,17 +30,17 @@ public class ExternalFile
         }
     }
 
-    public boolean delete()
+    public final boolean delete()
     {
         return path.delete();
     }
 
-    public boolean exists()
+    public final boolean exists()
     {
         return path.exists();
     }
 
-    public String getPath()
+    public final String getPath()
     {
         return path.getPath();
     }

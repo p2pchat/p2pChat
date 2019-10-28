@@ -20,24 +20,27 @@ import java.util.List;
 
 public class InMemoryFile
 {
-    byte[] data;
-    String filename;
-    String mimeType;
+    private byte[] data;
+    private String filename;
+    private String mimeType;
 
-    public InMemoryFile(String filename, byte[] data, String mimeType)
+    private final int oneThousand = 1000;
+
+    public InMemoryFile(final String filenameStr, final byte[] dataRef, final String mimeTypeStr)
     {
-        this.filename = filename;
-        this.data = data;
-        this.mimeType = mimeType;
+        filename = filenameStr;
+        data = dataRef;
+        mimeType = mimeTypeStr;
     }
 
-    public InMemoryFile(String filename, InputStream stream, String mimeType)
+    public InMemoryFile(final String filenameStr, final InputStream streamRef,
+            final String mimeTypeStr)
     {
         try
         {
-            data = ByteStreams.toByteArray(stream);
-            this.filename = filename;
-            this.mimeType = mimeType;
+            data = ByteStreams.toByteArray(streamRef);
+            filename = filenameStr;
+            mimeType = mimeTypeStr;
         }
         catch (Exception e)
         {
@@ -46,7 +49,7 @@ public class InMemoryFile
         }
     }
 
-    public ExternalFile saveToStorage(Context context, Date date)
+    public ExternalFile saveToStorage(final Context context, final Date date)
     {
         if (ContextCompat.checkSelfPermission(context,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
@@ -58,7 +61,7 @@ public class InMemoryFile
         else
         {
             File pathToDir = new File(context.getExternalFilesDir(null),
-                    String.valueOf(date.getTime() / 1000));
+                    String.valueOf(date.getTime() / oneThousand));
             pathToDir.mkdir();
             File path = new File(pathToDir, filename);
 
@@ -80,17 +83,17 @@ public class InMemoryFile
         }
     }
 
-    public String getMimeType()
+    public final String getMimeType()
     {
         return mimeType;
     }
 
-    public int getSize()
+    public final int getSize()
     {
         return data.length;
     }
 
-    public boolean equals(InMemoryFile other)
+    public final boolean equals(final InMemoryFile other)
     {
         return Arrays.equals(data, other.data) &&
                 filename.equals(other.filename);

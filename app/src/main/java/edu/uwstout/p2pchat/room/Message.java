@@ -28,9 +28,9 @@ public class Message
     @ColumnInfo(name = "content")
     public String content;
 
-    public Message(String macAddress)
+    public Message(String macAddressStr)
     {
-        this.macAddress = macAddress;
+        macAddress = macAddressStr;
     }
 
     public Boolean isFile()

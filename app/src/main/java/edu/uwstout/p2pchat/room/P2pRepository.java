@@ -12,109 +12,109 @@ public class P2pRepository
 
     private DataAccessObject dao;
 
-    private class AsyncInsertPeer extends AsyncTask<Peer, Void, Void>
+    private static class AsyncInsertPeer extends AsyncTask<Peer, Void, Void>
     {
 
         private DataAccessObject dao;
 
-        public AsyncInsertPeer(DataAccessObject dao)
+        public AsyncInsertPeer(final DataAccessObject daoRef)
         {
-            this.dao = dao;
+            dao = daoRef;
         }
 
         @Override
-        protected Void doInBackground(Peer... peers)
+        protected Void doInBackground(final Peer... peers)
         {
             dao.insertPeers(peers);
             return null;
         }
     }
 
-    private class AsyncDeletePeer extends AsyncTask<Peer, Void, Void>
+    private static class AsyncDeletePeer extends AsyncTask<Peer, Void, Void>
     {
 
         private DataAccessObject dao;
 
-        public AsyncDeletePeer(DataAccessObject dao)
+        public AsyncDeletePeer(final DataAccessObject daoRef)
         {
-            this.dao = dao;
+            dao = daoRef;
         }
 
         @Override
-        protected Void doInBackground(Peer... peers)
+        protected Void doInBackground(final Peer... peers)
         {
             dao.deletePeers(peers);
             return null;
         }
     }
 
-    private class AsyncDeleteMessage extends AsyncTask<Message, Void, Void>
+    private static class AsyncDeleteMessage extends AsyncTask<Message, Void, Void>
     {
 
         private DataAccessObject dao;
 
-        public AsyncDeleteMessage(DataAccessObject dao)
+        public AsyncDeleteMessage(final DataAccessObject daoRef)
         {
-            this.dao = dao;
+            dao = daoRef;
         }
 
         @Override
-        protected Void doInBackground(Message... messages)
+        protected Void doInBackground(final Message... messages)
         {
             dao.deleteMessages(messages);
             return null;
         }
     }
 
-    private class AsyncInsertMessage extends AsyncTask<Message, Void, Void>
+    private static class AsyncInsertMessage extends AsyncTask<Message, Void, Void>
     {
 
         private DataAccessObject dao;
 
-        public AsyncInsertMessage(DataAccessObject dao)
+        public AsyncInsertMessage(final DataAccessObject daoRef)
         {
-            this.dao = dao;
+            dao = daoRef;
         }
 
         @Override
-        protected Void doInBackground(Message... messages)
+        protected Void doInBackground(final Message... messages)
         {
             dao.insertMessages(messages);
             return null;
         }
     }
 
-    public void insertPeers(Peer... peers)
+    public final void insertPeers(final Peer... peers)
     {
         (new AsyncInsertPeer(dao)).execute(peers);
     }
 
-    public void insertMessages(Message... messages)
+    public final void insertMessages(final Message... messages)
     {
         (new AsyncInsertMessage(dao)).execute(messages);
     }
 
-    public List<Message> getMessages(String macAddress)
+    public final List<Message> getMessages(final String macAddress)
     {
         return dao.getMessagesFromPeer(macAddress);
     }
 
-    public List<Peer> getPeers()
+    public final List<Peer> getPeers()
     {
         return dao.getPeers();
     }
 
-    public void deletePeers(Peer... peers)
+    public final void deletePeers(final Peer... peers)
     {
         (new AsyncDeletePeer(dao)).execute(peers);
     }
 
-    public void deleteMessages(Message... messages)
+    public final void deleteMessages(final Message... messages)
     {
         (new AsyncDeleteMessage(dao)).execute(messages);
     }
 
-    public P2pRepository(Application app)
+    public P2pRepository(final Application app)
     {
         P2pDatabase database = P2pDatabase.getInstance(app);
         dao = database.dataAccessObject();

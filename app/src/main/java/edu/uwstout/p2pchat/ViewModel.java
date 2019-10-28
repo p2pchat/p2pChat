@@ -19,20 +19,21 @@ public class ViewModel extends AndroidViewModel
 
     private P2pRepository repo;
 
-    public ViewModel(@NonNull Application application)
+    public ViewModel(@NonNull final Application application)
     {
         super(application);
     }
 
-    public void insertPeer(String macAddress, String nickname)
+    public final void insertPeer(final String macAddress, final String nickname)
     {
         Peer peer = new Peer(macAddress);
         peer.nickname = nickname;
         repo.insertPeers(peer);
     }
 
-    public void insertMessage(String macAddress, Date timestamp, Boolean sent, String mimeType,
-            String content)
+    public final void insertMessage(final String macAddress, final Date timestamp,
+            final Boolean sent, final String mimeType,
+            final String content)
     {
         Message message = new Message(macAddress);
         message.timestamp = timestamp;
@@ -42,7 +43,8 @@ public class ViewModel extends AndroidViewModel
         repo.insertMessages(message);
     }
 
-    public void insertTextMessage(String macAddress, Date timestamp, Boolean sent, String message)
+    public final void insertTextMessage(final String macAddress, final Date timestamp,
+            final Boolean sent, final String message)
     {
         Message newMessage = new Message(macAddress);
         newMessage.timestamp = timestamp;
@@ -52,8 +54,9 @@ public class ViewModel extends AndroidViewModel
         repo.insertMessages(newMessage);
     }
 
-    public Boolean insertFileMessage(String macAddress, Date timestamp, Boolean sent,
-            InMemoryFile file, Context context)
+    public final Boolean insertFileMessage(final String macAddress, final Date timestamp,
+            final Boolean sent,
+            final InMemoryFile file, final Context context)
     {
         ExternalFile storedFile = file.saveToStorage(context, timestamp);
         if (storedFile == null)
@@ -69,24 +72,24 @@ public class ViewModel extends AndroidViewModel
         return true;
     }
 
-    public void deletePeer(String macAddress)
+    public final void deletePeer(final String macAddress)
     {
         repo.deletePeers(new Peer(macAddress));
     }
 
-    public void deleteMessage(int messageId)
+    public final void deleteMessage(final int messageId)
     {
         Message message = new Message("");
         message.id = messageId;
         repo.deleteMessages(message);
     }
 
-    public List<Peer> getPeers()
+    public final List<Peer> getPeers()
     {
         return repo.getPeers();
     }
 
-    public List<Message> getMessages(String macAddress)
+    public final List<Message> getMessages(final String macAddress)
     {
         return repo.getMessages(macAddress);
     }
