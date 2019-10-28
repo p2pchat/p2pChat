@@ -23,7 +23,8 @@ import edu.uwstout.p2pchat.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity
 {
     // Necessary for consistency between methods
-    private static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1001;
+    public static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1001;
+    public static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1002;
     private static final String LOG_TAG = "MainActivity";
 
     // private ActivityMainBinding binding;
@@ -102,6 +103,11 @@ public class MainActivity extends AppCompatActivity
                     finish(); // closes the activity
                 }
                 break;
+            case PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
+                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    Log.e(LOG_TAG, "Write access permission not granted.");
+                    finish();
+                }
             default:
                 Log.e(LOG_TAG, "Unhandled permissions result: " + requestCode);
         }

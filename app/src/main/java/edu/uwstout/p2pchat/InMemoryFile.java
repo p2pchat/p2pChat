@@ -86,7 +86,7 @@ public class InMemoryFile
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
         {
             ActivityCompat.requestPermissions((Activity) context,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
             return null;
         }
         else
