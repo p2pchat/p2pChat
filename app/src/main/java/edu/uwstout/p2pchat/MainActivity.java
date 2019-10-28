@@ -17,6 +17,7 @@ import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import Annotations.BugAlert;
 import edu.uwstout.p2pchat.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity
      * @param savedInstanceState
      *         a Bundle which contains information saved by the OS
      */
+    @BugAlert
     @Override
     public void onCreate(Bundle savedInstanceState)
     {

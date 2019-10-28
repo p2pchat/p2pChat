@@ -18,7 +18,7 @@
             android:layout_marginRight="10dp"
             android:autofillHints=""
             android:ems="10"
-            android:hint="@string/new_nickname"
+            android:hint="new_nickname"
             android:inputType="textPersonName"
             android:textSize="24sp" />
 

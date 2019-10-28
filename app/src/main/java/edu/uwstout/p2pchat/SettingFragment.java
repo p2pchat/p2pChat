@@ -41,7 +41,6 @@ public class SettingFragment extends Fragment
      *         needed.
      * @return view inflated and manipulated to fragment_settings xml.
      */
-    @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState)
@@ -59,10 +58,11 @@ public class SettingFragment extends Fragment
         //Gets the expandable list view from the findViewById.
         ExpandableListView m = view.findViewById(R.id.eList);
 
+
         try
         {
             //New Listview-adapter instance.
-            ExpandableSettingsListViewAdapter adapter =
+            @Nullable ExpandableSettingsListViewAdapter adapter =
                     new ExpandableSettingsListViewAdapter(context, this.getActivity(),
                             this.getActivity().getSupportFragmentManager());
 

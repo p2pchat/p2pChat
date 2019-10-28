@@ -8,10 +8,20 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.NavController;
+import androidx.navigation.NavDirections;
+import androidx.navigation.NavGraph;
+import androidx.navigation.NavHostController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 
 import java.util.LinkedList;
 
+import Annotations.BugAlert;
 import Annotations.NeedAssistance;
 
 /**
@@ -293,6 +303,8 @@ class SettingNode
     @NeedAssistance(note = "Changed fragments")
     private void setNickNameActionListener()
     {
+
+
         //Creates the onclick listener for when the set nickname
         // tab get clicked.
         parentView[2].setOnClickListener(new View.OnClickListener()
@@ -301,7 +313,15 @@ class SettingNode
             public void onClick(View view)
             {
                 //TODO change fragments here.
-                
+                Fragment currentFragment =
+                        (Fragment) manager.findFragmentById(R.id.mainNavHostFragment);
+
+                NavController nav = Navigation.findNavController(mActivity,
+                        R.id.mainNavHostFragment);
+
+                nav.navigate(R.id.toNickNameFragment);
+
+
             }
         });
     }
