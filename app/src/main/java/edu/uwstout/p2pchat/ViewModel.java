@@ -1,6 +1,7 @@
 package edu.uwstout.p2pchat;
 
 import android.app.Application;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -28,8 +29,7 @@ public class ViewModel extends AndroidViewModel {
     }
 
     public void insertMessage(String macAddress, Date timestamp, Boolean sent, String mimeType, String content) {
-        Message message = new Message();
-        message.macAddress = macAddress;
+        Message message = new Message(macAddress);
         message.timestamp = timestamp;
         message.sent = sent;
         message.mimeType = mimeType;
@@ -37,12 +37,33 @@ public class ViewModel extends AndroidViewModel {
         repo.insertMessages(message);
     }
 
+    public void insertTextMessage(String macAddress, Date timestamp, Boolean sent, String message) {
+        Message newMessage = new Message(macAddress);
+        newMessage.timestamp = timestamp;
+        newMessage.sent = sent;
+        newMessage.mimeType = "text/message";
+        newMessage.content = message;
+        repo.insertMessages(newMessage);
+    }
+
+    public Boolean insertFileMessage(String macAddress, Date timestamp, Boolean sent, InMemoryFile file, Context context) {
+        ExternalFile storedFile = file.saveToStorage(context, timestamp);
+        if(storedFile==null) return false;
+        Message message = new Message(macAddress);
+        message.mimeType = file.mimeType;
+        message.timestamp = timestamp;
+        message.sent = sent;
+        message.content = storedFile.getPath();
+        repo.insertMessages(message);
+        return true;
+    }
+
     public void deletePeer(String macAddress) {
         repo.deletePeers(new Peer(macAddress));
     }
 
     public void deleteMessage(int messageId) {
-        Message message = new Message();
+        Message message = new Message("");
         message.id = messageId;
         repo.deleteMessages(message);
     }

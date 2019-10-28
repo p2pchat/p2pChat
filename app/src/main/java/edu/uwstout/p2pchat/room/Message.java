@@ -26,12 +26,15 @@ public class Message {
     @ColumnInfo(name = "content")
     public String content;
 
+    public Message(String macAddress) {
+        this.macAddress = macAddress;
+    }
     public Boolean isFile() {
         return mimeType != "text/message";
     }
     public ExternalFile getFile() {
         if(isFile()) {
-            return new ExternalFile(new File(content));
+            return new ExternalFile(new File(content), mimeType);
         }
         return null;
     }

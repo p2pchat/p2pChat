@@ -21,15 +21,18 @@ import java.util.List;
 public class InMemoryFile {
     byte[] data;
     String filename;
+    String mimeType;
 
-    public InMemoryFile(String filename, byte[] data) {
+    public InMemoryFile(String filename, byte[] data, String mimeType) {
         this.filename = filename;
         this.data = data;
+        this.mimeType = mimeType;
     }
-    public InMemoryFile(String filename, InputStream stream) {
+    public InMemoryFile(String filename, InputStream stream, String mimeType) {
         try {
             data = ByteStreams.toByteArray(stream);
             this.filename = filename;
+            this.mimeType = mimeType;
         } catch(Exception e) {
             data = new byte[0];
             filename = "Error";
@@ -51,11 +54,14 @@ public class InMemoryFile {
                 FileOutputStream stream = new FileOutputStream(path);
                 stream.write(data);
                 stream.close();
-                return new ExternalFile(path);
+                return new ExternalFile(path, mimeType);
             } catch(Exception exception) {
                 return null;
             }
         }
+    }
+    public String getMimeType() {
+        return mimeType;
     }
     public int getSize() {
         return data.length;

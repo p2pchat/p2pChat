@@ -82,66 +82,63 @@ public class RoomTesting {
         peer2.nickname = "Armin Arlert";
         database.dataAccessObject().insertPeers(peer2);
 
-        assertEquals(dao.getMessagesFromPeer("7a:a0:83:04:03:60").size(), 0);
-        assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").size(), 0);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).size(), 0);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).size(), 0);
 
         Date now = Calendar.getInstance().getTime();
 
-        Message message = new Message();
+        Message message = new Message(peer.macAddress);
         message.timestamp = now;
         message.mimeType = "text/message";
-        message.macAddress = "7a:a0:83:04:03:60";
         message.sent = true;
         message.content = "Historia is best girl, don't you agree Armin?";
         dao.insertMessages(message);
 
-        assertEquals(dao.getMessagesFromPeer("7a:a0:83:04:03:60").size(), 1);
-        assertEquals(dao.getMessagesFromPeer("7a:a0:83:04:03:60").get(0).content, message.content);
-        assertEquals(dao.getMessagesFromPeer("7a:a0:83:04:03:60").get(0).timestamp, message.timestamp);
-        assertEquals(dao.getMessagesFromPeer("7a:a0:83:04:03:60").get(0).mimeType, message.mimeType);
-        assertEquals(dao.getMessagesFromPeer("7a:a0:83:04:03:60").get(0).macAddress, message.macAddress);
-        assertEquals(dao.getMessagesFromPeer("7a:a0:83:04:03:60").get(0).sent, message.sent);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).size(), 1);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(0).content, message.content);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(0).timestamp, message.timestamp);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(0).mimeType, message.mimeType);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(0).macAddress, message.macAddress);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(0).sent, message.sent);
 
-        Message message2 = new Message();
+        Message message2 = new Message(peer2.macAddress);
         message2.timestamp = now;
         message2.mimeType = "text/message";
-        message2.macAddress = "7c:4f:87:2c:56:d5";
         message2.sent = false;
         message2.content = "What about Mikasa? She's head over heels for you.";
         dao.insertMessages(message2);
 
-        assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").size(), 1);
-        assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").get(0).content, message2.content);
-        assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").get(0).timestamp, message2.timestamp);
-        assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").get(0).mimeType, message2.mimeType);
-        assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").get(0).macAddress, message2.macAddress);
-        assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").get(0).sent, message2.sent);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).size(), 1);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).content, message2.content);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).timestamp, message2.timestamp);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).mimeType, message2.mimeType);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).macAddress, message2.macAddress);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).sent, message2.sent);
 
-        Message message3 = new Message();
+        Message message3 = new Message(peer.macAddress);
         message3.timestamp = now;
         message3.mimeType = "text/message";
-        message3.macAddress = "7a:a0:83:04:03:60";
         message3.sent = true;
         message3.content = "But Historia is a literal Queen! ばか!";
         dao.insertMessages(message3);
 
-        assertEquals(dao.getMessagesFromPeer("7a:a0:83:04:03:60").size(), 2);
-        assertEquals(dao.getMessagesFromPeer("7a:a0:83:04:03:60").get(1).content, message3.content);
-        assertEquals(dao.getMessagesFromPeer("7a:a0:83:04:03:60").get(1).timestamp, message3.timestamp);
-        assertEquals(dao.getMessagesFromPeer("7a:a0:83:04:03:60").get(1).mimeType, message3.mimeType);
-        assertEquals(dao.getMessagesFromPeer("7a:a0:83:04:03:60").get(1).macAddress, message3.macAddress);
-        assertEquals(dao.getMessagesFromPeer("7a:a0:83:04:03:60").get(1).sent, message3.sent);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).size(), 2);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(1).content, message3.content);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(1).timestamp, message3.timestamp);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(1).mimeType, message3.mimeType);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(1).macAddress, message3.macAddress);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(1).sent, message3.sent);
 
         // Eren is now feeling bad about that last message so he is going to delete it
 
         dao.deleteMessages(message3);
 
-        assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").size(), 1);
-        assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").get(0).content, message2.content);
-        assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").get(0).timestamp, message2.timestamp);
-        assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").get(0).mimeType, message2.mimeType);
-        assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").get(0).macAddress, message2.macAddress);
-        assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").get(0).sent, message2.sent);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).size(), 1);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).content, message2.content);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).timestamp, message2.timestamp);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).mimeType, message2.mimeType);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).macAddress, message2.macAddress);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).sent, message2.sent);
     }
 
     @Test
@@ -152,8 +149,8 @@ public class RoomTesting {
         InMemoryFile snowden = null;
 
         try {
-            lyrics = new InMemoryFile("lyrics.txt", InstrumentationRegistry.getInstrumentation().getContext().getResources().getAssets().open("lyrics.txt"));
-            snowden = new InMemoryFile("snowden.png", InstrumentationRegistry.getInstrumentation().getContext().getResources().getAssets().open("snowden.png"));
+            lyrics = new InMemoryFile("lyrics.txt", InstrumentationRegistry.getInstrumentation().getContext().getResources().getAssets().open("lyrics.txt"), "text/plain");
+            snowden = new InMemoryFile("snowden.png", InstrumentationRegistry.getInstrumentation().getContext().getResources().getAssets().open("snowden.png"), "image/png");
         } catch (Exception e) {
             fail();
         }
@@ -177,10 +174,9 @@ public class RoomTesting {
 
         dao.insertPeers(peer);
 
-        Message messageLyrics = new Message();
+        Message messageLyrics = new Message(peer.macAddress);
         messageLyrics.sent = false;
         messageLyrics.mimeType = "text/plain";
-        messageLyrics.macAddress = peer.macAddress;
         messageLyrics.timestamp = now;
         messageLyrics.content = savedLyrics.getPath();
 
@@ -197,10 +193,9 @@ public class RoomTesting {
 
         savedLyrics.delete();
 
-        Message messageSnowden = new Message();
+        Message messageSnowden = new Message(peer.macAddress);
         messageSnowden.sent = false;
         messageSnowden.mimeType = "image/png";
-        messageSnowden.macAddress = peer.macAddress;
         messageSnowden.timestamp = now;
         messageSnowden.content = savedSnowden.getPath();
 
