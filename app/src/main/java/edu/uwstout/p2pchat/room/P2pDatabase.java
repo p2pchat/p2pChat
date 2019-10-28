@@ -7,15 +7,29 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
+/**
+ * Database holding the peer and message tables.
+ */
 @Database(entities = {Peer.class, Message.class}, version = 1)
 @TypeConverters(Converters.class)
 abstract class P2pDatabase extends RoomDatabase
 {
-    abstract public DataAccessObject dataAccessObject();
+    /**
+     * @return instance of DataAccessObject to be used in CRUD operations
+     */
+    public abstract DataAccessObject dataAccessObject();
 
-    static P2pDatabase instance;
+    /**
+     * Application wide single instance of this Database.
+     */
+    private static P2pDatabase instance;
 
-    static P2pDatabase getInstance(Context context)
+    /**
+     * Returns or creates instance of the database using the Singleton design pattern.
+     * @param context Application context
+     * @return Instance of P2pDatabase
+     */
+    static P2pDatabase getInstance(final Context context)
     {
         if (instance == null)
         {

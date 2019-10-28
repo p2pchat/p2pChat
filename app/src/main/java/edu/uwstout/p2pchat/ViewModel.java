@@ -5,7 +5,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
 
 import java.util.Date;
 import java.util.List;
@@ -22,6 +21,7 @@ public class ViewModel extends AndroidViewModel
     public ViewModel(@NonNull final Application application)
     {
         super(application);
+        repo = new P2pRepository(application);
     }
 
     public final void insertPeer(final String macAddress, final String nickname)
@@ -64,7 +64,7 @@ public class ViewModel extends AndroidViewModel
             return false;
         }
         Message message = new Message(macAddress);
-        message.mimeType = file.mimeType;
+        message.mimeType = file.getMimeType();
         message.timestamp = timestamp;
         message.sent = sent;
         message.content = storedFile.getPath();
