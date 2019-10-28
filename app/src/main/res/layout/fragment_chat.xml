@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <import type="androidx.fragment.app.Fragment"/>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="100">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/messagesRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="12" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="88"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/attachmentButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/attach_description"
+                android:src="@mipmap/attachment_round"
+                />
+
+            <EditText
+                android:id="@+id/textInput"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:hint="@string/message_hint"
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine"
+                android:text=""
+                android:layout_weight="1"/>
+
+
+            <Button
+                android:id="@+id/sendButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/send"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
+</layout>
