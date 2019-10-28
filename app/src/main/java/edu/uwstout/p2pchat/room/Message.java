@@ -10,8 +10,10 @@ import java.util.Date;
 
 import edu.uwstout.p2pchat.ExternalFile;
 
-@Entity(foreignKeys = @ForeignKey(entity = Peer.class, parentColumns = "macAddress", childColumns = "macAddress", onDelete = ForeignKey.CASCADE))
-public class Message {
+@Entity(foreignKeys = @ForeignKey(entity = Peer.class, parentColumns = "macAddress",
+        childColumns = "macAddress", onDelete = ForeignKey.CASCADE))
+public class Message
+{
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     public int id;
@@ -26,14 +28,20 @@ public class Message {
     @ColumnInfo(name = "content")
     public String content;
 
-    public Message(String macAddress) {
+    public Message(String macAddress)
+    {
         this.macAddress = macAddress;
     }
-    public Boolean isFile() {
+
+    public Boolean isFile()
+    {
         return mimeType != "text/message";
     }
-    public ExternalFile getFile() {
-        if(isFile()) {
+
+    public ExternalFile getFile()
+    {
+        if (isFile())
+        {
             return new ExternalFile(new File(content), mimeType);
         }
         return null;

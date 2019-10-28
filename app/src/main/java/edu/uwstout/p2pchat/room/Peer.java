@@ -8,14 +8,17 @@ import androidx.room.PrimaryKey;
 import org.jetbrains.annotations.NotNull;
 
 @Entity
-public class Peer {
+public class Peer
+{
     @PrimaryKey
     @ColumnInfo(name = "macAddress")
     @NotNull
     public String macAddress;
     @ColumnInfo(name = "nickname")
     public String nickname;
-    public Peer(String macAddress) {
+
+    public Peer(String macAddress)
+    {
         this.macAddress = macAddress;
     }
 }

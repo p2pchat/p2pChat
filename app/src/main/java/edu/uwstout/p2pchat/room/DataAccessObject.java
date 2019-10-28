@@ -9,17 +9,23 @@ import androidx.room.Query;
 import java.util.List;
 
 @Dao
-public interface DataAccessObject {
+public interface DataAccessObject
+{
     @Insert
     void insertPeers(Peer... peers);
+
     @Insert
     void insertMessages(Message... messages);
+
     @Delete
     void deletePeers(Peer... peers);
+
     @Delete
     void deleteMessages(Message... messages);
+
     @Query("SELECT * FROM message WHERE macAddress = :macAddress")
     List<Message> getMessagesFromPeer(String macAddress);
+
     @Query("SELECT * FROM peer")
     List<Peer> getPeers();
 }

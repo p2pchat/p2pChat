@@ -9,11 +9,16 @@ import androidx.room.TypeConverters;
 
 @Database(entities = {Peer.class, Message.class}, version = 1)
 @TypeConverters(Converters.class)
-abstract class P2pDatabase extends RoomDatabase {
+abstract class P2pDatabase extends RoomDatabase
+{
     abstract public DataAccessObject dataAccessObject();
+
     static P2pDatabase instance;
-    static P2pDatabase getInstance(Context context) {
-        if (instance == null) {
+
+    static P2pDatabase getInstance(Context context)
+    {
+        if (instance == null)
+        {
             instance = Room.databaseBuilder(
                     context,
                     P2pDatabase.class,

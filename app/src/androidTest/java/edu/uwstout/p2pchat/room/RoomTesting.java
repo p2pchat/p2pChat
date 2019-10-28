@@ -23,25 +23,33 @@ import edu.uwstout.p2pchat.ExternalFile;
 import edu.uwstout.p2pchat.InMemoryFile;
 
 @RunWith(AndroidJUnit4.class)
-public class RoomTesting {
+public class RoomTesting
+{
 
     private P2pDatabase database;
 
     @Rule
-    public GrantPermissionRule grantPermissionRule = GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    public GrantPermissionRule grantPermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
     @Before
-    public void initDb() {
-        database = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getInstrumentation().getContext(), P2pDatabase.class).build();
+    public void initDb()
+    {
+        database = Room.inMemoryDatabaseBuilder(
+                InstrumentationRegistry.getInstrumentation().getContext(), P2pDatabase.class)
+                .build();
     }
+
     @After
-    public void closeDb() {
+    public void closeDb()
+    {
         database.close();
         database = null;
     }
 
     @Test
-    public void createAndDestroyPeer() {
+    public void createAndDestroyPeer()
+    {
         DataAccessObject dao = database.dataAccessObject();
         assertEquals(dao.getPeers().size(), 0);
 
@@ -71,7 +79,8 @@ public class RoomTesting {
     }
 
     @Test
-    public void createAndDestroyMessage() {
+    public void createAndDestroyMessage()
+    {
         DataAccessObject dao = database.dataAccessObject();
 
         Peer peer = new Peer("7a:a0:83:04:03:60");
@@ -98,7 +107,8 @@ public class RoomTesting {
         assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(0).content, message.content);
         assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(0).timestamp, message.timestamp);
         assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(0).mimeType, message.mimeType);
-        assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(0).macAddress, message.macAddress);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(0).macAddress,
+                message.macAddress);
         assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(0).sent, message.sent);
 
         Message message2 = new Message(peer2.macAddress);
@@ -110,9 +120,11 @@ public class RoomTesting {
 
         assertEquals(dao.getMessagesFromPeer(peer2.macAddress).size(), 1);
         assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).content, message2.content);
-        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).timestamp, message2.timestamp);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).timestamp,
+                message2.timestamp);
         assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).mimeType, message2.mimeType);
-        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).macAddress, message2.macAddress);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).macAddress,
+                message2.macAddress);
         assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).sent, message2.sent);
 
         Message message3 = new Message(peer.macAddress);
@@ -126,7 +138,8 @@ public class RoomTesting {
         assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(1).content, message3.content);
         assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(1).timestamp, message3.timestamp);
         assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(1).mimeType, message3.mimeType);
-        assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(1).macAddress, message3.macAddress);
+        assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(1).macAddress,
+                message3.macAddress);
         assertEquals(dao.getMessagesFromPeer(peer.macAddress).get(1).sent, message3.sent);
 
         // Eren is now feeling bad about that last message so he is going to delete it
@@ -135,23 +148,33 @@ public class RoomTesting {
 
         assertEquals(dao.getMessagesFromPeer(peer2.macAddress).size(), 1);
         assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).content, message2.content);
-        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).timestamp, message2.timestamp);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).timestamp,
+                message2.timestamp);
         assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).mimeType, message2.mimeType);
-        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).macAddress, message2.macAddress);
+        assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).macAddress,
+                message2.macAddress);
         assertEquals(dao.getMessagesFromPeer(peer2.macAddress).get(0).sent, message2.sent);
     }
 
     @Test
-    public void createAndDestroyFiles() {
+    public void createAndDestroyFiles()
+    {
         DataAccessObject dao = database.dataAccessObject();
 
         InMemoryFile lyrics = null;
         InMemoryFile snowden = null;
 
-        try {
-            lyrics = new InMemoryFile("lyrics.txt", InstrumentationRegistry.getInstrumentation().getContext().getResources().getAssets().open("lyrics.txt"), "text/plain");
-            snowden = new InMemoryFile("snowden.png", InstrumentationRegistry.getInstrumentation().getContext().getResources().getAssets().open("snowden.png"), "image/png");
-        } catch (Exception e) {
+        try
+        {
+            lyrics = new InMemoryFile("lyrics.txt",
+                    InstrumentationRegistry.getInstrumentation().getContext().getResources()
+                            .getAssets().open("lyrics.txt"), "text/plain");
+            snowden = new InMemoryFile("snowden.png",
+                    InstrumentationRegistry.getInstrumentation().getContext().getResources()
+                            .getAssets().open("snowden.png"), "image/png");
+        }
+        catch (Exception e)
+        {
             fail();
         }
 
@@ -160,8 +183,10 @@ public class RoomTesting {
 
         Date now = Calendar.getInstance().getTime();
 
-        ExternalFile savedLyrics = lyrics.saveToStorage(InstrumentationRegistry.getInstrumentation().getContext(), now);
-        ExternalFile savedSnowden = snowden.saveToStorage(InstrumentationRegistry.getInstrumentation().getContext(), now);
+        ExternalFile savedLyrics = lyrics.saveToStorage(
+                InstrumentationRegistry.getInstrumentation().getContext(), now);
+        ExternalFile savedSnowden = snowden.saveToStorage(
+                InstrumentationRegistry.getInstrumentation().getContext(), now);
 
         assertNotNull(savedLyrics);
         assertNotNull(savedSnowden);

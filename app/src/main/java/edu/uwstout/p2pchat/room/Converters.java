@@ -4,17 +4,23 @@ import androidx.room.TypeConverter;
 
 import java.util.Date;
 
-public class Converters {
+public class Converters
+{
     @TypeConverter
-    public Date fromTimestamp(Long value) {
+    public Date fromTimestamp(Long value)
+    {
         return value == null ? null : new Date(value);
     }
 
     @TypeConverter
-    public Long dateToTimestamp(Date date) {
-        if (date == null) {
+    public Long dateToTimestamp(Date date)
+    {
+        if (date == null)
+        {
             return null;
-        } else {
+        }
+        else
+        {
             return date.getTime();
         }
     }
