@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    dataBinding{
+    dataBinding {
         enabled = true
     }
     compileSdkVersion 29
@@ -46,4 +46,5 @@ dependencies {
     implementation 'androidx.room:room-runtime:2.2.1'
     implementation 'androidx.navigation:navigation-fragment:2.1.0'
     implementation 'androidx.navigation:navigation-ui:2.1.0'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
 }
