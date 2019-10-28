@@ -27,7 +27,7 @@ public class Message {
     public String content;
 
     public Boolean isFile() {
-        return mimeType != "text/plain";
+        return mimeType != "text/message";
     }
     public ExternalFile getFile() {
         if(isFile()) {

@@ -22,4 +22,10 @@ public class ExternalFile {
     public boolean delete() {
         return path.delete();
     }
+    public boolean exists() {
+        return path.exists();
+    }
+    public String getPath() {
+        return path.getPath();
+    }
 }

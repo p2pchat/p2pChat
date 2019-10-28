@@ -11,10 +11,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import edu.uwstout.p2pchat.ExternalFile;
+import edu.uwstout.p2pchat.InMemoryFile;
 
 @RunWith(AndroidJUnit4.class)
 public class RoomTesting {
@@ -80,7 +84,7 @@ public class RoomTesting {
 
         Message message = new Message();
         message.timestamp = now;
-        message.mimeType = "text/plain";
+        message.mimeType = "text/message";
         message.macAddress = "7a:a0:83:04:03:60";
         message.sent = true;
         message.content = "Historia is best girl, don't you agree Armin?";
@@ -95,7 +99,7 @@ public class RoomTesting {
 
         Message message2 = new Message();
         message2.timestamp = now;
-        message2.mimeType = "text/plain";
+        message2.mimeType = "text/message";
         message2.macAddress = "7c:4f:87:2c:56:d5";
         message2.sent = false;
         message2.content = "What about Mikasa? She's head over heels for you.";
@@ -110,7 +114,7 @@ public class RoomTesting {
 
         Message message3 = new Message();
         message3.timestamp = now;
-        message3.mimeType = "text/plain";
+        message3.mimeType = "text/message";
         message3.macAddress = "7a:a0:83:04:03:60";
         message3.sent = true;
         message3.content = "But Historia is a literal Queen! ばか!";
@@ -133,5 +137,65 @@ public class RoomTesting {
         assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").get(0).mimeType, message2.mimeType);
         assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").get(0).macAddress, message2.macAddress);
         assertEquals(dao.getMessagesFromPeer("7c:4f:87:2c:56:d5").get(0).sent, message2.sent);
+    }
+
+    @Test
+    public void createAndDestroyFiles() {
+        DataAccessObject dao = database.dataAccessObject();
+
+        InMemoryFile lyrics = null;
+        InMemoryFile snowden = null;
+
+        try {
+            final String[] names = InstrumentationRegistry.getInstrumentation().getContext().getResources().getAssets().list("");
+            System.out.println(names);
+        } catch (IOException e) {
+            fail();
+        }
+
+        try {
+            lyrics = new InMemoryFile("lyrics.txt", InstrumentationRegistry.getInstrumentation().getContext().getResources().getAssets().open("testing/lyrics.txt"));
+            snowden = new InMemoryFile("snowden.png", InstrumentationRegistry.getInstrumentation().getContext().getResources().getAssets().open("testing/snowden.png"));
+        } catch (Exception e) {
+            fail();
+        }
+
+        assertNotEquals(lyrics.getSize(), 0);
+        assertNotEquals(snowden.getSize(), 0);
+
+        ExternalFile savedLyrics = lyrics.saveToStorage(InstrumentationRegistry.getInstrumentation().getContext());
+        ExternalFile savedSnowden = snowden.saveToStorage(InstrumentationRegistry.getInstrumentation().getContext());
+
+        assertTrue(savedLyrics.exists());
+        assertTrue(savedSnowden.exists());
+
+        Peer peer = new Peer("8a:c4:03:c2:73:87");
+        peer.nickname = "Tony Stark";
+
+        dao.insertPeers(peer);
+
+        Date now = Calendar.getInstance().getTime();
+
+        Message messageLyrics = new Message();
+        messageLyrics.sent = false;
+        messageLyrics.mimeType = "text/plain";
+        messageLyrics.macAddress = peer.macAddress;
+        messageLyrics.timestamp = now;
+        messageLyrics.content = savedLyrics.getPath();
+
+        dao.insertMessages(messageLyrics);
+
+        ExternalFile recoveredLyrics = dao.getMessagesFromPeer(peer.macAddress).get(0).getFile();
+
+        assertNotNull(recoveredLyrics);
+
+        InMemoryFile loadedLyrics = recoveredLyrics.loadIntoMemory();
+
+        assertEquals(lyrics.getSize(), loadedLyrics.getSize());
+        assertEquals(lyrics, loadedLyrics);
+
+
+
+
     }
 }

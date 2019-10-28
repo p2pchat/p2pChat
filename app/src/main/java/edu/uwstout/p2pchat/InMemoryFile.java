@@ -40,4 +40,7 @@ public class InMemoryFile {
            return null;
         }
     }
+    public int getSize() {
+        return data.length;
+    }
 }
