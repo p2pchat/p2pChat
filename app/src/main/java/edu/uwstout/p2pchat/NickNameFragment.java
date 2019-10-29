@@ -20,11 +20,6 @@ import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
 
-import Annotations.DatabaseRequired;
-import Annotations.Fix;
-import Annotations.NotDone;
-import Annotations.Priority;
-import Annotations.Todo;
 
 
 /**
@@ -32,7 +27,6 @@ import Annotations.Todo;
  * nicknames.
  * A simple {@link Fragment} subclass.
  */
-@NotDone
 public class NickNameFragment extends Fragment
 {
     /**
@@ -99,8 +93,6 @@ public class NickNameFragment extends Fragment
     /** Creates an array adapter from the database and returns it.
      * @return a newly created array adapter created from data.
      */
-    @DatabaseRequired(why = "Need to extract information from the database" +
-            " and put it names.")
     private ArrayAdapter getNickNameAdapter()
     {
 
@@ -143,7 +135,6 @@ public class NickNameFragment extends Fragment
     /**
      * Assigns all names to the arraylist.
      */
-    @Todo(item1 = "Extract names from database.")
     private void setNames() {
         //Set names here.
         //TODO remove later

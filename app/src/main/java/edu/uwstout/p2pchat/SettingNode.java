@@ -21,8 +21,6 @@ import androidx.navigation.ui.NavigationUI;
 
 import java.util.LinkedList;
 
-import Annotations.BugAlert;
-import Annotations.NeedAssistance;
 
 /**
  * This class here is responsible putting messy code into
@@ -300,7 +298,6 @@ class SettingNode
     /**
      * Sets the nick name action.
      */
-    @NeedAssistance(note = "Changed fragments")
     private void setNickNameActionListener()
     {
 

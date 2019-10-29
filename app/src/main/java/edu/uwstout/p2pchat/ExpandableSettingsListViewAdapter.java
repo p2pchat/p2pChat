@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import Annotations.NeedComments;
-
 
 public class ExpandableSettingsListViewAdapter extends BaseExpandableListAdapter
 {
@@ -134,8 +132,8 @@ public class ExpandableSettingsListViewAdapter extends BaseExpandableListAdapter
     /**
      * Get the position of child given the parent index.
      * @param generalSetting parent index
-     * @param specificSetting
-     * @return
+     * @param specificSetting specific child index to look at.
+     * @return the child position.
      */
     @Override
     public long getChildId(final int generalSetting, final int specificSetting)
