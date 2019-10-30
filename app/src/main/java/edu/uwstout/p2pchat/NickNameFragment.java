@@ -6,7 +6,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
@@ -213,10 +216,14 @@ public class NickNameFragment extends Fragment
         //sets the dialog to this.
         Dialog mDialog = BUILDER.create();
 
+        //Get the width and height from the screen.
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
 
         //Width and height for screen size.
-        final int WIDTH = 1000;
-        final int HEIGHT = 600;
+        final int WIDTH = displayMetrics.widthPixels;
+        final int HEIGHT = displayMetrics.heightPixels / 3;
 
         //Shows the dialog.
         mDialog.show();
@@ -240,7 +247,7 @@ public class NickNameFragment extends Fragment
 
     /**
      * Checks to make sure that no method has the same name.
-     * @return
+     * @return false.
      */
     private boolean noSameName() {
         return false;
