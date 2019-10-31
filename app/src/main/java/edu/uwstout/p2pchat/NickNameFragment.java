@@ -32,10 +32,7 @@ import java.util.ArrayList;
  */
 public class NickNameFragment extends Fragment
 {
-    /**
-     * The listview that had been initilized in the xml file.
-     */
-    private ListView view;
+
 
     /**
      * context that the nickname fragment will be using.
@@ -69,6 +66,7 @@ public class NickNameFragment extends Fragment
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState)
     {
+        //Creates the mock data.
         setNames();
 
         //Inflate a view.
@@ -86,7 +84,7 @@ public class NickNameFragment extends Fragment
         //Sets the adapter for the listview.
         names.setAdapter(getNickNameAdapter());
 
-
+        //Set the click listeners for each of the lists.
         setClickListener(names);
 
         // Inflate the layout for this fragment
@@ -99,8 +97,6 @@ public class NickNameFragment extends Fragment
     private ArrayAdapter getNickNameAdapter()
     {
 
-
-
         //TODO get number of names from database here.
         int size = 0; //Change later.
 
@@ -110,6 +106,7 @@ public class NickNameFragment extends Fragment
         adapter = (new ArrayAdapter(classContext,
                 android.R.layout.simple_list_item_1,
                 names));
+
 
         //Returns the new arrayadapter.
         return adapter;
@@ -130,7 +127,7 @@ public class NickNameFragment extends Fragment
             {
                 Log.i("LOGGG", String.valueOf(i));
                 //Dialog.
-                PopUp(i);
+                PopUp(i, adapter);
             }
         });
     }
@@ -140,13 +137,15 @@ public class NickNameFragment extends Fragment
      */
     private void setNames() {
         //Set names here.
-        //TODO remove later
+        //TODO read from database here.
+
+
+        //TODO remove everything from the list.
         names.add("Nick");
         names.add("Dr. D");
         names.add("Dr. Mason");
         names.add("Austin");
         names.add("Evan");
-
 
     }
 
@@ -157,91 +156,9 @@ public class NickNameFragment extends Fragment
      * Creates a pop up and sets up onclicklisteners.
      * @param index position of the name being changed.
      */
-    private void PopUp(final int index) {
-
-        //Note: Everything in here is constant and shall not change depending on where it is called.
-        // Creates a builder that will build alert dialogs.
-        final AlertDialog.Builder BUILDER = new AlertDialog.Builder(this.classContext);
-
-        //Sets the nickname.
-        BUILDER.setTitle("Set NickName");
-
-        // Gets the inflator.
-        View view1 = this.getLayoutInflater().inflate(R.layout.rename_dialog, null);
-        final EditText NICKNAME = (EditText) view1.findViewById(R.id.newNickName);
-
-        //Sets the view.
-        BUILDER.setView(view1);
-
-
-        //Sets the button listener for dialog.
-        BUILDER.setPositiveButton("Change", new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(final DialogInterface dialogInterface, final int i)
-            {
-                //TODO later
-                Log.w("Running", NICKNAME.getText().toString());
-
-                //Check if the text is not empty.
-                if (NICKNAME.getText().toString().isEmpty() && noSameName())
-                {
-                    //Cancel.
-                    dialogInterface.dismiss();
-                }
-                else
-                {
-                    //Add the name to the list.
-                    String nName = NICKNAME.getText().toString();
-                    update(nName, index);
-
-
-                }
-            }
-        });
-
-        //Sets the button click listener for canceling.
-        BUILDER.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(final DialogInterface dialogInterface, final int i)
-            {
-                //Logs the cancel onto the screen.
-                Log.i("Cancel", "Cancelling");
-                dialogInterface.cancel();
-            }
-        });
-
-
-        //sets the dialog to this.
-        Dialog mDialog = BUILDER.create();
-
-        //Get the width and height from the screen.
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
-
-        //Width and height for screen size.
-        final int WIDTH = displayMetrics.widthPixels;
-        final int HEIGHT = displayMetrics.heightPixels / 3;
-
-        //Shows the dialog.
-        mDialog.show();
-
-        //Attempt to catch a Null pointer exception.
-        try
-        {
-            mDialog.getWindow().setLayout(WIDTH, HEIGHT);
-        }
-        catch (NullPointerException e)
-        {
-            //Output in console of the null pointer exception.
-            Log.w("Null pointer Exception", "Location: Setting layout size for RenameDialog.java."
-                    +
-                    " More Info: " + e.getMessage());
-            //Let user know.
-            Toast.makeText(classContext, "Error resizing screen.", Toast.LENGTH_SHORT).show();
-        }
+    private void PopUp(final int index, ArrayAdapter adapter) {
+        NickNameModal nick = new NickNameModal(this, adapter, names, index);
+        nick.show();
     }
 
 
@@ -254,15 +171,7 @@ public class NickNameFragment extends Fragment
     }
 
 
-    /**
-     * Updates the names when it is changed.
-     * @param name new name.
-     * @param index index of the new name.
-     */
-    private void update(String name, int index) {
-        names.set(index, name);
-        adapter.notifyDataSetChanged();
-    }
+
 
 
 
