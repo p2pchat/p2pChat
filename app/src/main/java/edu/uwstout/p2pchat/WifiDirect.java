@@ -56,8 +56,11 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
 
         /**
          * Notifies the observer that we have successfully connected to a peer
+
+         * @param device
+         *         specific peer connected
          */
-        void peerConnectionSucceeded();
+        void peerConnectionSucceeded(WifiP2pDevice device);
 
         /**
          * notifies the observer that we were unable to connect to a peer
@@ -211,6 +214,8 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
     {
         this.peerDiscoveryListeners.remove(pdl);
     }
+
+
 
     //////////////////////////////////////////////////
     //
@@ -406,7 +411,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
                 for (PeerDiscoveryListener listener :
                         WifiDirect.getInstance(mContext).peerDiscoveryListeners)
                 {
-                    listener.peerConnectionSucceeded();
+                    listener.peerConnectionSucceeded(device);
                 }
             }
 

@@ -89,6 +89,19 @@ public class ViewModel extends AndroidViewModel
         return repo.getPeers();
     }
 
+    public final boolean peerExists(String address)
+    {
+        for (Peer peer : repo.getPeers())
+        {
+            if (peer.macAddress.equals(address))
+            {
+                return true;
+            }
+
+        }
+        return false;
+    }
+
     public final List<Message> getMessages(final String macAddress)
     {
         return repo.getMessages(macAddress);

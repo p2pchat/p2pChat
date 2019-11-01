@@ -219,9 +219,8 @@ public class HomeFragment extends Fragment
                 errorType = "Peer discovery failed due to an internal error.";
                 break;
             case WifiP2pManager.P2P_UNSUPPORTED:
-                errorType =
-                        "Peer discovery failed because Peer to Peer connections are not supported" +
-                                " on this device.";
+                errorType = "Peer discovery failed because Peer to Peer connections are not supported"
+                                + " on this device.";
                 break;
             case WifiP2pManager.BUSY:
                 errorType =
@@ -245,11 +244,17 @@ public class HomeFragment extends Fragment
      * the user that we successfully connected to a peer.
      */
     @Override
-    public void peerConnectionSucceeded()
+    public void peerConnectionSucceeded(WifiP2pDevice device)
     {
         Toast.makeText(this.getContext(), "Connection succeeded", Toast.LENGTH_LONG).show();
-        Navigation.findNavController(getActivity(), R.id.homeFragment).navigate(
-                R.id.action_homeFragment_to_chatFragment);
+        ViewModel viewModel = new ViewModel(getActivity().getApplication());
+        if(!viewModel.peerExists(device.deviceAddress))
+        {
+            viewModel.insertPeer(device.deviceAddress, "nickname");
+        }
+        
+        Navigation.findNavController(getActivity(), R.id.homeFragment)
+                .navigate(R.id.action_homeFragment_to_chatFragment);
 
 
     }
