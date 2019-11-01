@@ -31,22 +31,26 @@ import java.util.List;
 public class WifiDirect implements WifiP2pManager.ChannelListener
 {
     /**
-        Creating an observer interface so that fragments can subscribe
-        to events that matter to them so that they can respond in the GUI.
+     * Creating an observer interface so that fragments can subscribe
+     * to events that matter to them so that they can respond in the GUI.
      */
     public interface PeerDiscoveryListener
     {
         /**
          * Notifies the observer that the list of peers available has changed
-         * @param wifiP2pDeviceList a list of available peers
+         *
+         * @param wifiP2pDeviceList
+         *         a list of available peers
          */
         void peerListChanged(WifiP2pDeviceList wifiP2pDeviceList);
 
         /**
          * Notifies the observer that peer discovery failed
-         * @param reasonCode the reason for failure. Either WifiP2pManager.ERROR, WifiP2pManager
-         *                   .P2P_UNSUPPORTED, WifiP2pManager.BUSY, WifiP2pManager
-         *                   .NO_SERVICE_REQUESTS
+         *
+         * @param reasonCode
+         *         the reason for failure. Either WifiP2pManager.ERROR, WifiP2pManager
+         *         .P2P_UNSUPPORTED, WifiP2pManager.BUSY, WifiP2pManager
+         *         .NO_SERVICE_REQUESTS
          */
         void peerDiscoveryFailed(int reasonCode);
 
@@ -57,7 +61,9 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
 
         /**
          * notifies the observer that we were unable to connect to a peer
-         * @param reasonCode the reason for failure (list of reasons unknown at this time)
+         *
+         * @param reasonCode
+         *         the reason for failure (list of reasons unknown at this time)
          */
         void peerConnectionFailed(int reasonCode);
     }
@@ -394,20 +400,24 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
             }
 
             @Override
-            public void onSuccess() {
+            public void onSuccess()
+            {
                 Log.i(LOG_TAG, "System reports successful connection");
                 for (PeerDiscoveryListener listener :
-                        WifiDirect.getInstance(mContext).peerDiscoveryListeners) {
+                        WifiDirect.getInstance(mContext).peerDiscoveryListeners)
+                {
                     listener.peerConnectionSucceeded();
                 }
             }
 
             @Override
-            public void onFailure(int reason) {
+            public void onFailure(int reason)
+            {
                 // TODO figure out what the reasons are?
-                Log.e(LOG_TAG,"Connection failure. Reason: " + reason);
+                Log.e(LOG_TAG, "Connection failure. Reason: " + reason);
                 for (PeerDiscoveryListener listener :
-                        WifiDirect.getInstance(mContext).peerDiscoveryListeners) {
+                        WifiDirect.getInstance(mContext).peerDiscoveryListeners)
+                {
                     listener.peerConnectionFailed(reason);
                 }
             }

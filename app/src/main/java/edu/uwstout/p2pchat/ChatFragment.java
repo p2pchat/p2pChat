@@ -30,7 +30,7 @@ public class ChatFragment extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState)
     {
-        binding = FragmentChatBinding.inflate(inflater, container, true);
+        binding = FragmentChatBinding.inflate(inflater, container, false);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         binding.messagesRecyclerView.setLayoutManager(linearLayoutManager);
 

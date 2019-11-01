@@ -39,9 +39,12 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
             binding.chatMsgImageView.setVisibility(GONE);
             binding.chatMsgImageView.setMaxHeight(0);
         }
-        if(message.getStatus().equals("end")){
+        if (message.getStatus().equals("end"))
+        {
             binding.chatMsgLayout.setGravity(Gravity.END);
-        }else {
+        }
+        else
+        {
             binding.chatMsgLayout.setGravity(Gravity.START);
         }
         binding.setTextOutput(message.getText());

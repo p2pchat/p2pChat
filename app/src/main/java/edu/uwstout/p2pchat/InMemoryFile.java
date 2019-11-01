@@ -41,9 +41,13 @@ public class InMemoryFile
 
     /**
      * Constructs based on raw data
-     * @param filenameStr Name of file
-     * @param dataRef Contents of file
-     * @param mimeTypeStr Mime type of file
+     *
+     * @param filenameStr
+     *         Name of file
+     * @param dataRef
+     *         Contents of file
+     * @param mimeTypeStr
+     *         Mime type of file
      */
     public InMemoryFile(final String filenameStr, final byte[] dataRef, final String mimeTypeStr)
     {
@@ -54,9 +58,13 @@ public class InMemoryFile
 
     /**
      * Constructs based on InputStream
-     * @param filenameStr Name of file
-     * @param streamRef InputStream to load data from
-     * @param mimeTypeStr Mime type of file
+     *
+     * @param filenameStr
+     *         Name of file
+     * @param streamRef
+     *         InputStream to load data from
+     * @param mimeTypeStr
+     *         Mime type of file
      */
     public InMemoryFile(final String filenameStr, final InputStream streamRef,
             final String mimeTypeStr)
@@ -76,8 +84,11 @@ public class InMemoryFile
 
     /**
      * Saves this file to storage.
-     * @param context MainActivity context
-     * @param date Current date and time
+     *
+     * @param context
+     *         MainActivity context
+     * @param date
+     *         Current date and time
      * @return ExternalFile reference if successful, otherwise null
      */
     public ExternalFile saveToStorage(final Context context, final Date date)
@@ -86,7 +97,8 @@ public class InMemoryFile
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
         {
             ActivityCompat.requestPermissions((Activity) context,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MainActivity.PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
             return null;
         }
         else
@@ -132,7 +144,9 @@ public class InMemoryFile
 
     /**
      * Compares two InMemoryFiles
-     * @param other Object to compare to
+     *
+     * @param other
+     *         Object to compare to
      * @return true if same value
      */
     public final boolean equals(final InMemoryFile other)

@@ -9,5 +9,17 @@
         android:id="@+id/homeFragment"
         android:name="edu.uwstout.p2pchat.HomeFragment"
         android:label="Home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_chatFragment"
+            app:destination="@id/chatFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popUpTo="@+id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="edu.uwstout.p2pchat.ChatFragment"
+        android:label="Chat"
+        tools:layout="@layout/fragment_chat"/>
 </navigation>

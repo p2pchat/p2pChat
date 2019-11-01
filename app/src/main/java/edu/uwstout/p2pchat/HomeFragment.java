@@ -6,11 +6,6 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,13 +17,19 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+
 import edu.uwstout.p2pchat.databinding.FragmentHomeBinding;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryListener
+public class HomeFragment extends Fragment
+        implements WifiDirect.PeerDiscoveryListener
 {
     // private variables
     private FragmentHomeBinding binding = null;
@@ -44,15 +45,20 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
 
     /**
      * Inflates the fragment view and instantiates essential components of the view for first
-     * time setup
-     * @param inflater a LayoutInflater which handles creating the layout from the XML file
-     * @param container a ViewGroup that the fragment is contained in
-     * @param savedInstanceState a Bundle created by the OS which may contain information from
-     *                           last known state. It provides lifecycle functionality.
+     * time setup.
+     *
+     * @param inflater
+     *         a LayoutInflater which handles creating the layout
+     *         from the XML file
+     * @param container
+     *         a ViewGroup that the fragment is contained in
+     * @param savedInstanceState
+     *         a Bundle created by the OS which may contain information from
+     *         last known state. It provides lifecycle functionality.
      * @return the root of the FragmentHomeBinding object used for data binding.
      */
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
             Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
@@ -63,7 +69,9 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
         {
             // Android Studio might complain that getThisDevice might return a nullPointerException,
             // this try catch block will handle that error, so we can safely ignore the warning.
-            thisDevice = WifiDirect.getInstance(this.getContext()).getThisDevice();
+            thisDevice = WifiDirect
+                    .getInstance(this.getContext())
+                    .getThisDevice();
         }
         catch (Exception e)
         {
@@ -77,7 +85,9 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
         }
         else
         {
-            this.binding.homeMyDeviceInfo.setText(getString(R.string.p2p_not_enabled_error));
+            this.binding
+                    .homeMyDeviceInfo
+                    .setText(getString(R.string.p2p_not_enabled_error));
         }
 
         // Have an options menu so that we can programmatically define it in
@@ -85,15 +95,20 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
         setHasOptionsMenu(true);
 
         // subscribe to the events that we need in this context
-        WifiDirect.getInstance(this.getContext()).subscribePeerDiscoveryListener(this);
+        WifiDirect
+                .getInstance(this.getContext())
+                .subscribePeerDiscoveryListener(this);
 
         return binding.getRoot();
     }
 
     /**
-     * creates an options menu so that we have buttons in the toolbar
-     * @param menu the Menu that we programmatically create
-     * @param inflater a MenuInflater which creates the layout from the XML file
+     * creates an options menu so that we have buttons in the toolbar.
+     *
+     * @param menu
+     *         the Menu that we programmatically create
+     * @param inflater
+     *         a MenuInflater which creates the layout from the XML file
      */
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
@@ -106,7 +121,9 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
 
     /**
      * handles the event when an item in our options menu is clicked
-     * @param item the MenuItem that was clicked
+     *
+     * @param item
+     *         the MenuItem that was clicked
      * @return a boolean indicating if the click was handled or not
      */
     @Override
@@ -128,7 +145,9 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
     /**
      * Required by the WifiDirect.PeerDiscoveryListener, this method updates the view
      * to display all of the available peers for WifiDirect communication
-     * @param wifiP2pDeviceList the list of peers that are available.
+     *
+     * @param wifiP2pDeviceList
+     *         the list of peers that are available.
      */
     @Override
     public void peerListChanged(WifiP2pDeviceList wifiP2pDeviceList)
@@ -184,7 +203,9 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
     /**
      * Required by the WifiDirect.PeerDiscoveryListener interface, this method informs the user
      * that peer discovery failed for some reason.
-     * @param reasonCode the reason for failure
+     *
+     * @param reasonCode
+     *         the reason for failure
      */
     @Override
     public void peerDiscoveryFailed(int reasonCode)
@@ -227,12 +248,18 @@ public class HomeFragment extends Fragment implements WifiDirect.PeerDiscoveryLi
     public void peerConnectionSucceeded()
     {
         Toast.makeText(this.getContext(), "Connection succeeded", Toast.LENGTH_LONG).show();
+        Navigation.findNavController(getActivity(), R.id.homeFragment).navigate(
+                R.id.action_homeFragment_to_chatFragment);
+
+
     }
 
     /**
      * Required by the WifiDirect.PeerDiscoveryListener interface, this method notifies
-     *      * the user that we were unable to connect to a peer.
-     * @param reasonCode the reason for failure (list of reasons unknown at this time)
+     * * the user that we were unable to connect to a peer.
+     *
+     * @param reasonCode
+     *         the reason for failure (list of reasons unknown at this time)
      */
     @Override
     public void peerConnectionFailed(int reasonCode)

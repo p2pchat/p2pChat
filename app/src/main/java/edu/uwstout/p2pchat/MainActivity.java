@@ -1,7 +1,5 @@
 package edu.uwstout.p2pchat;
 
-import androidx.fragment.app.FragmentActivity;
-
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -54,9 +52,12 @@ public class MainActivity extends AppCompatActivity
                     public void onDestinationChanged(@NonNull NavController controller,
                             @NonNull NavDestination destination, @Nullable Bundle arguments)
                     {
-                        if (destination.getId() == navController.getGraph().getStartDestination()) {
+                        if (destination.getId() == navController.getGraph().getStartDestination())
+                        {
                             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                        } else {
+                        }
+                        else
+                        {
                             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                         }
                     }
@@ -102,7 +103,8 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
             case PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
-                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] != PackageManager.PERMISSION_GRANTED)
+                {
                     Log.e(LOG_TAG, "Write access permission not granted.");
                     finish();
                 }
@@ -114,12 +116,14 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Makes it possible to use the up button in the top left corner of the screen
+     *
      * @return a boolean indicating if the fragment can move up on the back stack.
      */
     @Override
     public boolean onSupportNavigateUp()
     {
-        final NavController navController = Navigation.findNavController(this, R.id.mainNavHostFragment);
+        final NavController navController = Navigation.findNavController(this,
+                R.id.mainNavHostFragment);
         return NavigationUI.navigateUp(navController, drawerLayout);
     }
 }
