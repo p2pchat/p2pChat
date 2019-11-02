@@ -8,10 +8,17 @@ import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.AsyncTask;
+import android.renderscript.ScriptGroup;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,7 +75,84 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
         void peerConnectionFailed(int reasonCode);
     }
 
-    // PRIVATE VARIABLES
+    /**
+     * A simple server socket that accepts connection and writes some data on the stream.
+     * Only applicable when this device is acting as the server.
+     * TODO make this bad boy go both ways!
+     */
+    public static class FileServerAsyncTask extends AsyncTask<Void, Void, String>
+    {
+        /**
+         * Application context needed to do tasks
+         */
+        private Context context;
+        /**
+         * Magic number for open port
+         */
+        private static final int MAGIC_PORT = 8988;
+
+        /**
+         * Package-Private Non-Default Constructor
+         * @param c Application context
+         */
+        FileServerAsyncTask(final Context c)
+        {
+            this.context = c;
+        }
+
+        /**
+         * Listens for incoming messages in the background.
+         * @param voids
+         * @return
+         */
+        @Override
+        protected String doInBackground(Void... voids)
+        {
+            try
+            {
+                ServerSocket serverSocket = new ServerSocket(MAGIC_PORT);
+                Log.d(LOG_TAG, "Server: Socket opened");
+                /*
+                    The call to accept is where the black magic of accepting
+                    a connection from a client happens. This method call is
+                    blocking, which is why this must be done in a separate thread.
+                 */
+                Socket client = serverSocket.accept();
+                // Now that we have passed that line, we have accepted a client connection.
+                Log.d(LOG_TAG, "Server: Connection established");
+                InputStream inputStream = client.getInputStream();
+                /*
+                    This is where I would turn the InputStream object into an
+                    InMemoryFile object. Best done if I could do that as
+                    a constructor in the InMemoryFile class.
+                 */
+
+                // TODO find out a good string to return, or maybe change the return type.
+                return null;
+            }
+            catch (IOException e)
+            {
+                Log.e(LOG_TAG, "Error receiving data: " + e.getMessage());
+                return null;
+            }
+        }
+
+        /**
+         * I don't know what this does quite yet.
+         * @param s a String that was the return value of doInBackground()
+         * @see AsyncTask#onPostExecute(Object)
+         */
+        @Override
+        protected void onPostExecute(final String s)
+        {
+            if (s != null)
+            {
+                Log.d(LOG_TAG, "Server returned: " + s);
+                Log.i(LOG_TAG, "Better implementation recommended");
+            }
+        }
+    }
+
     /**
      * Indicates if the device has Wifi P2P connections enabled.
      */
@@ -144,7 +228,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
     /**
      * Globally accessible method provides a reference to the singleton
      * to call its functions.
-     *
+     * @param context a Context for the application on demand
      * @return a reference to the WifiDirect singleton
      */
     static WifiDirect getInstance(@NonNull final Context context)
@@ -173,7 +257,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
     //////////////////////////////////////////////////
 
     /**
-     * Sets the state of Peer to Peer communication being enabled
+     * Sets the state of Peer to Peer communication being enabled.
      *
      * @param enabled
      *         whether or not peer to peer communication is enabled
@@ -184,7 +268,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
     }
 
     /**
-     * Lets us know if peer to peer is enabled
+     * Lets us know if peer to peer is enabled.
      *
      * @return a boolean indicating if peer to peer communication is enabled
      */
@@ -194,7 +278,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
     }
 
     /**
-     * Returns a reference to the WifiP2pDevice that represents this device
+     * Returns a reference to the WifiP2pDevice that represents this device.
      *
      * @return a WifiP2pDevice that is this device, or null if this device doesn't have P2P enabled.
      * @see WifiP2pDevice

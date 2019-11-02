@@ -35,15 +35,15 @@ public class InMemoryFile
     private String mimeType;
 
     /**
-     * Conversion factor between milliseconds since epoch to second since epoch
+     * Conversion factor between milliseconds since epoch to second since epoch.
      */
     private final int oneThousand = 1000;
 
     /**
-     * Constructs based on raw data
-     * @param filenameStr Name of file
-     * @param dataRef Contents of file
-     * @param mimeTypeStr Mime type of file
+     * Constructs based on raw data.
+     * @param filenameStr Name of file.
+     * @param dataRef Contents of file.
+     * @param mimeTypeStr Mime type of file.
      */
     public InMemoryFile(final String filenameStr, final byte[] dataRef, final String mimeTypeStr)
     {
@@ -53,16 +53,17 @@ public class InMemoryFile
     }
 
     /**
-     * Constructs based on InputStream
-     * @param filenameStr Name of file
-     * @param streamRef InputStream to load data from
-     * @param mimeTypeStr Mime type of file
+     * Constructs based on InputStream.
+     * @param filenameStr Name of file.
+     * @param streamRef InputStream to load data from.
+     * @param mimeTypeStr Mime type of file.
      */
     public InMemoryFile(final String filenameStr, final InputStream streamRef,
             final String mimeTypeStr)
     {
         try
         {
+            // TODO ByteStreams has been marked as unstable, is there another way?
             data = ByteStreams.toByteArray(streamRef);
             filename = filenameStr;
             mimeType = mimeTypeStr;
@@ -137,7 +138,7 @@ public class InMemoryFile
      */
     public final boolean equals(final InMemoryFile other)
     {
-        return Arrays.equals(data, other.data) &&
-                filename.equals(other.filename);
+        return Arrays.equals(data, other.data)
+                && filename.equals(other.filename);
     }
 }
