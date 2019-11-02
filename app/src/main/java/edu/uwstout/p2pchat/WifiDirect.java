@@ -28,58 +28,97 @@ import java.util.List;
  *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
-public class WifiDirect implements WifiP2pManager.ChannelListener
+public final class WifiDirect implements WifiP2pManager.ChannelListener
 {
     /**
-        Creating an observer interface so that fragments can subscribe
-        to events that matter to them so that they can respond in the GUI.
+     * Creating an observer interface so that fragments can subscribe
+     * to events that matter to them so that they can respond in the GUI.
      */
     public interface PeerDiscoveryListener
     {
         /**
-         * Notifies the observer that the list of peers available has changed
-         * @param wifiP2pDeviceList a list of available peers
+         * Notifies the observer that the list of peers available has changed.
+         *
+         * @param wifiP2pDeviceList
+         *         a list of available peers
          */
         void peerListChanged(WifiP2pDeviceList wifiP2pDeviceList);
 
         /**
          * Notifies the observer that peer discovery failed
-         * @param reasonCode the reason for failure. Either WifiP2pManager.ERROR, WifiP2pManager
-         *                   .P2P_UNSUPPORTED, WifiP2pManager.BUSY, WifiP2pManager
-         *                   .NO_SERVICE_REQUESTS
+         *
+         * @param reasonCode
+         *         the reason for failure. Either WifiP2pManager.ERROR, WifiP2pManager
+         *         .P2P_UNSUPPORTED, WifiP2pManager.BUSY, WifiP2pManager
+         *         .NO_SERVICE_REQUESTS
          */
         void peerDiscoveryFailed(int reasonCode);
 
         /**
-         * Notifies the observer that we have successfully connected to a peer
+         * Notifies the observer that we have successfully connected to a peer.
          */
         void peerConnectionSucceeded();
 
         /**
-         * notifies the observer that we were unable to connect to a peer
-         * @param reasonCode the reason for failure (list of reasons unknown at this time)
+         * notifies the observer that we were unable to connect to a peer.
+         *
+         * @param reasonCode
+         *         the reason for failure (list of reasons unknown at this time).
          */
         void peerConnectionFailed(int reasonCode);
     }
 
     // PRIVATE VARIABLES
+    /**
+     * Indicates if the device has Wifi P2P connections enabled.
+     */
     private boolean p2pEnabled = false;
-    private static String LOG_TAG = "WifiDirect";
+    /**
+     * constant tag passed to all logging method calls.
+     */
+    private static final String LOG_TAG = "WifiDirect";
+    /**
+     * Intent filter that searches for events related to Wifi Direct.
+     */
     private IntentFilter intentFilter;
+    /**
+     * provides access to the Wifi Direct protocol library.
+     */
     private WifiP2pManager manager;
+    /**
+     * the channel within the WifiP2pManager that we interact with for communication.
+     */
     private WifiP2pManager.Channel channel;
+    /**
+     * listens for intent broadcasts that match our intent filter and responds accordingly.
+     */
     private WifiDirectBroadcastReceiver receiver;
+    /**
+     * Information about this device as a WifiP2pDevice.
+     */
     private WifiP2pDevice thisDevice = null;
+    /**
+     * A list of all the peer discovery listeners subscribed to the events posted by this class.
+     */
     private List<WifiDirect.PeerDiscoveryListener> peerDiscoveryListeners;
+    /**
+     * The instance of this singleton.
+     */
     private static WifiDirect instance;
+    /**
+     * A global, on demand context of the application, needed for literally all Wifi functionality.
+     */
     private final Context context;
 
 
     /**
      * Private constructor for the singleton insures that nobody can
-     * create a second instance of the singleton
+     * create a second instance of the singleton.
+     *
+     * @param context
+     *         the application context that this singleton should use.
      */
-    private WifiDirect(@NonNull Context context)
+    private WifiDirect(@NonNull final Context context)
     {
         this.context = context.getApplicationContext();
         // set up P2P framework and helper class.
@@ -108,7 +147,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
      *
      * @return a reference to the WifiDirect singleton
      */
-    public static WifiDirect getInstance(@NonNull Context context)
+    static WifiDirect getInstance(@NonNull final Context context)
     {
         // double-check locking implemented for multi-threaded environments
         WifiDirect localInstance = instance;
@@ -119,7 +158,8 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
                 localInstance = instance;
                 if (localInstance == null)
                 {
-                    instance = localInstance = new WifiDirect(context);
+                    localInstance = new WifiDirect(context);
+                    instance = localInstance;
                 }
             }
         }
@@ -138,7 +178,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
      * @param enabled
      *         whether or not peer to peer communication is enabled
      */
-    public void setP2pEnabled(boolean enabled)
+    void setP2pEnabled(final boolean enabled)
     {
         this.p2pEnabled = enabled;
     }
@@ -148,7 +188,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
      *
      * @return a boolean indicating if peer to peer communication is enabled
      */
-    public boolean isP2pEnabled()
+    boolean isP2pEnabled()
     {
         return p2pEnabled;
     }
@@ -156,24 +196,24 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
     /**
      * Returns a reference to the WifiP2pDevice that represents this device
      *
-     * @return a WifiP2pDevice that is this device, or null if this device doesn't have P2P enabled
+     * @return a WifiP2pDevice that is this device, or null if this device doesn't have P2P enabled.
      * @see WifiP2pDevice
      */
-    public WifiP2pDevice getThisDevice()
+    WifiP2pDevice getThisDevice()
     {
         // ternary operator
         return (this.isP2pEnabled()) ? this.thisDevice : null;
     }
 
     /**
-     * Sets the details of the WifiP2pDevice that represents this device
+     * Sets the details of the WifiP2pDevice that represents this device.
      *
-     * @param thisDevice
+     * @param device
      *         a WifiP2pDevice that is this device
      */
-    public void setThisDevice(WifiP2pDevice thisDevice)
+    void setThisDevice(final WifiP2pDevice device)
     {
-        this.thisDevice = thisDevice;
+        this.thisDevice = device;
     }
 
     /**
@@ -184,7 +224,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
      *         a PeerDiscoveryListener that wants to be notified
      * @see WifiDirect.PeerDiscoveryListener
      */
-    public void subscribePeerDiscoveryListener(WifiDirect.PeerDiscoveryListener pdl)
+    void subscribePeerDiscoveryListener(final WifiDirect.PeerDiscoveryListener pdl)
     {
         // check to make sure that there are no repeats
         if (!this.peerDiscoveryListeners.contains(pdl))
@@ -201,7 +241,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
      *         a PeerDiscoveryListener that no longer wants to be notified
      * @see WifiDirect.PeerDiscoveryListener
      */
-    public void unsubscribePeerDiscoveryListener(WifiDirect.PeerDiscoveryListener pdl)
+    void unsubscribePeerDiscoveryListener(final WifiDirect.PeerDiscoveryListener pdl)
     {
         this.peerDiscoveryListeners.remove(pdl);
     }
@@ -226,7 +266,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
      *
      * @see android.app.Activity
      */
-    public void resume()
+    void resume()
     {
         receiver = new WifiDirectBroadcastReceiver(manager, channel);
         context.registerReceiver(receiver, intentFilter);
@@ -239,7 +279,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
      * @see android.app.Activity
      * @see edu.uwstout.p2pchat.WifiDirectBroadcastReceiver
      */
-    public void pause()
+    void pause()
     {
         context.unregisterReceiver(receiver);
     }
@@ -264,11 +304,9 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
     }
 
     /**
-     * starts a call to WifiP2pManager.discoverPeers() and describes the behavior
-     * of the callback.
-     * Each activity must handle their own errors in the GUI, thus this method is abstract.
+     * starts a call to WifiP2pManager.discoverPeers() and describes the behavior of the callback.
      */
-    public void discoverPeers()
+    void discoverPeers()
     {
         // Create a local class which will handle the callbacks. Class created here because
         // we needed to be able to handle context, which is an incredibly important concept
@@ -278,9 +316,9 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
 
             private Context mContext;
 
-            private ActionListenerWithContext(Context context)
+            private ActionListenerWithContext(final Context c)
             {
-                mContext = context;
+                mContext = c;
             }
 
             @Override
@@ -295,7 +333,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
             }
 
             @Override
-            public void onFailure(int reasonCode)
+            public void onFailure(final int reasonCode)
             {
                 // Turn the error code into a human readable message.
                 // Other error handling may occur in this code.
@@ -307,21 +345,18 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
                         break;
                     case WifiP2pManager.P2P_UNSUPPORTED:
                         errorType =
-                                "Operation failed because Peer to Peer connections are not " +
-                                        "supported on this device.";
+                                "Operation failed because Peer to Peer connections are not supported on this device.";
                         break;
                     case WifiP2pManager.BUSY:
                         errorType =
-                                "Operation failed because the framework is busy and is unable to " +
-                                        "service the request.";
+                                "Operation failed because the framework is busy and is unable to service the request.";
                         break;
                     case WifiP2pManager.NO_SERVICE_REQUESTS:
                         errorType =
                                 "Operation failed because no service channel requests were added.";
                         break;
                     default:
-                        errorType = "Operation failed due to an unknown error. Reason Code: " +
-                                reasonCode;
+                        errorType = "Operation failed due to an unknown error. Reason Code: " + reasonCode;
                         break;
                 }
                 // log the error with a description of what went wrong.
@@ -346,7 +381,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
      * @param wifiP2pDeviceList
      *         the new list of peers available.
      */
-    public void peersHaveChanged(WifiP2pDeviceList wifiP2pDeviceList)
+    void peersHaveChanged(final WifiP2pDeviceList wifiP2pDeviceList)
     {
         for (WifiDirect.PeerDiscoveryListener pdl : this.peerDiscoveryListeners)
         {
@@ -357,13 +392,13 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
     /**
      * Notifies all listeners which have subscribed to events relating
      * to when peer discovery failed, and gives them the error code as to why.
-     * The reason code are static constants from the WifiP2pManager class, namely
+     * The reason code are static constants from the WifiP2pManager class, namely:
      * ERROR, P2P_UNSUPPORTED, BUSY, or NO_SERVICE_REQUESTS
      *
      * @param reasonCode
      *         The reason peer discovery failed.
      */
-    public void peerDiscoveryFailed(int reasonCode)
+    private void peerDiscoveryFailed(final int reasonCode)
     {
         for (PeerDiscoveryListener pdl : this.peerDiscoveryListeners)
         {
@@ -372,13 +407,12 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
     }
 
     /**
-     * Makes a Wifi Direct connection to the device passed as input
+     * Makes a Wifi Direct connection to the device passed as input.
      *
      * @param device
      *         a WifiP2pDevice that we wish to connect to.
-     * @return a boolean indicating if the connection was successful.
      */
-    public void connectToDevice(WifiP2pDevice device)
+    void connectToDevice(final WifiP2pDevice device)
     {
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = device.deviceAddress;
@@ -388,26 +422,30 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
 
             private Context mContext;
 
-            private ActionListenerWithContext(Context context)
+            private ActionListenerWithContext(final Context c)
             {
-                mContext = context;
+                mContext = c;
             }
 
             @Override
-            public void onSuccess() {
+            public void onSuccess()
+            {
                 Log.i(LOG_TAG, "System reports successful connection");
-                for (PeerDiscoveryListener listener :
-                        WifiDirect.getInstance(mContext).peerDiscoveryListeners) {
+                for (PeerDiscoveryListener listener
+                        : WifiDirect.getInstance(mContext).peerDiscoveryListeners)
+                {
                     listener.peerConnectionSucceeded();
                 }
             }
 
             @Override
-            public void onFailure(int reason) {
+            public void onFailure(final int reason)
+            {
                 // TODO figure out what the reasons are?
-                Log.e(LOG_TAG,"Connection failure. Reason: " + reason);
-                for (PeerDiscoveryListener listener :
-                        WifiDirect.getInstance(mContext).peerDiscoveryListeners) {
+                Log.e(LOG_TAG, "Connection failure. Reason: " + reason);
+                for (PeerDiscoveryListener listener
+                        : WifiDirect.getInstance(mContext).peerDiscoveryListeners)
+                {
                     listener.peerConnectionFailed(reason);
                 }
             }
@@ -433,7 +471,7 @@ public class WifiDirect implements WifiP2pManager.ChannelListener
      * meant to be displayed on the GUI for the user.
      * @see WifiP2pDevice
      */
-    public static String summarizeP2pDevice(WifiP2pDevice device)
+    static String summarizeP2pDevice(final WifiP2pDevice device)
     {
         String summary = device.deviceName + "\n"
                 + device.deviceAddress + "\n"
