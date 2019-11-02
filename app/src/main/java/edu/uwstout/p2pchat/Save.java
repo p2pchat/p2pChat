@@ -4,25 +4,28 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 
-
-
+/**
+ * A class for saving and loading theme option.
+ * Relatable only for HomeFragment.
+ *
+ */
 public class Save
 {
     /**
      * The default name that will be used as a key to store information.
      */
-    private final String KEYPACKAGE = "edu.uwstout.p2pchat";
+    private final static String KEYPACKAGE = "edu.uwstout.p2pchat";
 
     /**
      * The key that will retrieve and send the title of the expandable
      * list item for theme color.
      */
-    private final String THEME = "themeString";
+    private final static String THEME = "themeString";
 
     /**
      * The key needed to get and save the integer for theme color options.
      */
-    private final String THEMEPOSITION = "themeColorOption";
+    private final static String THEMEPOSITION = "themeColorOption";
 
     /**
      * The sharedpreferences variable used

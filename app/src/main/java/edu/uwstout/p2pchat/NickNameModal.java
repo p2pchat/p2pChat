@@ -52,6 +52,8 @@ public class NickNameModal
 
         // Extract activity from fragment.
         Context context = fragment.getContext();
+
+        //Activity being used.
         mActivity = fragment.getActivity();
 
         // Creates a builder that will build alert dialogs.

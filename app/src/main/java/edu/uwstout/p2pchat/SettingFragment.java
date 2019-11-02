@@ -21,6 +21,7 @@ public class SettingFragment extends Fragment
 {
 
 
+
     /**
      * Default constructor. Nothing will be used in here.
      */
@@ -63,19 +64,13 @@ public class SettingFragment extends Fragment
         {
             //New Listview-adapter instance.
             @Nullable ExpandableSettingsListViewAdapter adapter =
-                    new ExpandableSettingsListViewAdapter(context, this.getActivity(),
-                            this.getActivity().getSupportFragmentManager());
+                    new ExpandableSettingsListViewAdapter(context, this.getActivity());
 
             //Sets the adapter for Expandable list view.
             m.setAdapter(adapter);
         }
         catch (NullPointerException error)
         {
-            //If an error occurs log it into the console as a warning.
-            Log.w("Null Pointer Issue",
-                    "Null for getSupportFragmentManager() " +
-                    "ExpandableSettingsListViewAdapter: " + error.getMessage());
-
             //Make a toast that something went wrong.
             Toast.makeText(context, "Error with ExpandableSettingsListViewAdapter, please report " +
                             "this as a bug. Sorry for your inconvience.",

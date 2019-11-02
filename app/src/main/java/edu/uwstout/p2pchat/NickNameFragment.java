@@ -75,9 +75,6 @@ public class NickNameFragment extends Fragment
         //Get the context from the view.
         classContext = view.getContext();
 
-        //Put out on the screen that this is lauching.
-        Log.i("Launching", "Nickname view had launched");
-
         //Inilizes listview for nicknames here.
         ListView names = (ListView) view.findViewById(R.id.nameListView);
 
@@ -85,7 +82,14 @@ public class NickNameFragment extends Fragment
         names.setAdapter(getNickNameAdapter());
 
         //Set the click listeners for each of the lists.
-        setClickListener(names);
+        names.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
+            {
+                PopUp(i, adapter);
+            }
+        });
 
         // Inflate the layout for this fragment
         return view;
@@ -113,24 +117,6 @@ public class NickNameFragment extends Fragment
     }
 
 
-    /**
-     * Seperate method to set the click listener for the.
-     */
-    private void setClickListener(ListView view)
-    {
-        //Onclick listener for all values of the list.
-        view.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(final AdapterView<?> adapterView, View view, final int i,
-                    final long l)
-            {
-                Log.i("LOGGG", String.valueOf(i));
-                //Dialog.
-                PopUp(i, adapter);
-            }
-        });
-    }
 
     /**
      * Assigns all names to the arraylist.
