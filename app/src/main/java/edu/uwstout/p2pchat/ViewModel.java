@@ -91,7 +91,7 @@ public class ViewModel extends AndroidViewModel
 
     public final boolean peerExists(String address)
     {
-        for (Peer peer : repo.getPeers())
+        for (Peer peer : getPeers())
         {
             if (peer.macAddress.equals(address))
             {

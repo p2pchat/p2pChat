@@ -11,15 +11,25 @@
         android:label="Home"
         tools:layout="@layout/fragment_home" >
         <action
-            android:id="@+id/action_homeFragment_to_chatFragment"
+            android:id="@+id/chat_action"
             app:destination="@id/chatFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
-            app:popUpTo="@+id/homeFragment" />
+            app:popUpTo="@+id/homeFragment" >
+            <argument
+                android:name="address"
+                android:defaultValue="default"
+                app:argType="string"/>
+        </action>
     </fragment>
     <fragment
         android:id="@+id/chatFragment"
         android:name="edu.uwstout.p2pchat.ChatFragment"
         android:label="Chat"
-        tools:layout="@layout/fragment_chat"/>
+        tools:layout="@layout/fragment_chat">
+        <argument
+            android:name="address"
+            android:defaultValue="default"
+            app:argType="string"/>
+    </fragment>
 </navigation>
