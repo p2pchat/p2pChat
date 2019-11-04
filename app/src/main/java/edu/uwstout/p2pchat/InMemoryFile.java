@@ -13,13 +13,14 @@ import com.google.common.io.ByteStreams;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
 
 /**
  * Represents a file that has been loaded into memory.
  */
-public class InMemoryFile
+public class InMemoryFile implements Serializable
 {
     /**
      * Byte array containing contents of file.
@@ -33,6 +34,10 @@ public class InMemoryFile
      * Mime type of the file loaded into memory.
      */
     private String mimeType;
+    /**
+     * Mime type for text messages.
+     */
+    public static final String MESSAGE_MIME_TYPE = "text/message";
 
     /**
      * Conversion factor between milliseconds since epoch to second since epoch.
@@ -50,6 +55,18 @@ public class InMemoryFile
         filename = filenameStr;
         data = dataRef;
         mimeType = mimeTypeStr;
+    }
+
+    /**
+     * Converts a text message into a InMemoryFile that we can transmit.
+     * @param textMessage a text message.
+     */
+    InMemoryFile(final String textMessage)
+    {
+        this.filename = null;
+        this.mimeType = MESSAGE_MIME_TYPE;
+        // convert the string into an array of bytes.
+        this.data = textMessage.getBytes();
     }
 
     /**
@@ -83,6 +100,10 @@ public class InMemoryFile
      */
     public ExternalFile saveToStorage(final Context context, final Date date)
     {
+        if (this.mimeType == MESSAGE_MIME_TYPE)
+        {
+            return null;
+        }
         if (ContextCompat.checkSelfPermission(context,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
         {
@@ -140,5 +161,17 @@ public class InMemoryFile
     {
         return Arrays.equals(data, other.data)
                 && filename.equals(other.filename);
+    }
+
+    /**
+     * Returns the data in this object as a string text message
+     * if and only if the file is a text message. Null otherwise.
+     * @return A string that is this objects data,
+     *      null if it isn't a text message.
+     */
+    public final String getTextMessage()
+    {
+        return (this.mimeType.equals(MESSAGE_MIME_TYPE))
+                ? new String(this.data) : null;
     }
 }

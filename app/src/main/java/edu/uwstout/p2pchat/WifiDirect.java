@@ -76,84 +76,6 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
     }
 
     /**
-     * A simple server socket that accepts connection and writes some data on the stream.
-     * Only applicable when this device is acting as the server.
-     * TODO make this bad boy go both ways!
-     */
-    public static class FileServerAsyncTask extends AsyncTask<Void, Void, String>
-    {
-        /**
-         * Application context needed to do tasks
-         */
-        private Context context;
-        /**
-         * Magic number for open port
-         */
-        private static final int MAGIC_PORT = 8988;
-
-        /**
-         * Package-Private Non-Default Constructor
-         * @param c Application context
-         */
-        FileServerAsyncTask(final Context c)
-        {
-            this.context = c;
-        }
-
-        /**
-         * Listens for incoming messages in the background.
-         * @param voids
-         * @return
-         */
-        @Override
-        protected String doInBackground(Void... voids)
-        {
-            try
-            {
-                ServerSocket serverSocket = new ServerSocket(MAGIC_PORT);
-                Log.d(LOG_TAG, "Server: Socket opened");
-                /*
-                    The call to accept is where the black magic of accepting
-                    a connection from a client happens. This method call is
-                    blocking, which is why this must be done in a separate thread.
-                 */
-                Socket client = serverSocket.accept();
-                // Now that we have passed that line, we have accepted a client connection.
-                Log.d(LOG_TAG, "Server: Connection established");
-                InputStream inputStream = client.getInputStream();
-                /*
-                    This is where I would turn the InputStream object into an
-                    InMemoryFile object. Best done if I could do that as
-                    a constructor in the InMemoryFile class.
-                 */
-
-                // TODO find out a good string to return, or maybe change the return type.
-                return null;
-            }
-            catch (IOException e)
-            {
-                Log.e(LOG_TAG, "Error receiving data: " + e.getMessage());
-                return null;
-            }
-        }
-
-        /**
-         * I don't know what this does quite yet.
-         * @param s a String that was the return value of doInBackground()
-         * @see AsyncTask#onPostExecute(Object)
-         */
-        @Override
-        protected void onPostExecute(final String s)
-        {
-            if (s != null)
-            {
-                Log.d(LOG_TAG, "Server returned: " + s);
-                Log.i(LOG_TAG, "Better implementation recommended");
-            }
-        }
-    }
-
-    /**
      * Indicates if the device has Wifi P2P connections enabled.
      */
     private boolean p2pEnabled = false;
@@ -170,11 +92,13 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
      */
     private WifiP2pManager manager;
     /**
-     * the channel within the WifiP2pManager that we interact with for communication.
+     * the channel within the WifiP2pManager
+     * that we interact with for communication.
      */
     private WifiP2pManager.Channel channel;
     /**
-     * listens for intent broadcasts that match our intent filter and responds accordingly.
+     * listens for intent broadcasts that match
+     * our intent filter and responds accordingly.
      */
     private WifiDirectBroadcastReceiver receiver;
     /**
@@ -182,7 +106,12 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
      */
     private WifiP2pDevice thisDevice = null;
     /**
-     * A list of all the peer discovery listeners subscribed to the events posted by this class.
+     * Information about the peer that we are connected to as a WifiP2pDevice.
+     */
+    private WifiP2pDevice peerDevice = null;
+    /**
+     * A list of all the peer discovery listeners
+     * subscribed to the events posted by this class.
      */
     private List<WifiDirect.PeerDiscoveryListener> peerDiscoveryListeners;
     /**
@@ -190,7 +119,8 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
      */
     private static WifiDirect instance;
     /**
-     * A global, on demand context of the application, needed for literally all Wifi functionality.
+     * A global, on demand context of the application,
+     * needed for literally all Wifi functionality.
      */
     private final Context context;
 
@@ -199,14 +129,15 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
      * Private constructor for the singleton insures that nobody can
      * create a second instance of the singleton.
      *
-     * @param context
-     *         the application context that this singleton should use.
+     * @param c
+     *         the application c that this singleton should use.
      */
-    private WifiDirect(@NonNull final Context context)
+    private WifiDirect(@NonNull final Context c)
     {
-        this.context = context.getApplicationContext();
+        this.context = c.getApplicationContext();
         // set up P2P framework and helper class.
-        this.manager = (WifiP2pManager) this.context.getSystemService(Context.WIFI_P2P_SERVICE);
+        this.manager = (WifiP2pManager) this.context
+                .getSystemService(Context.WIFI_P2P_SERVICE);
         this.channel = manager.initialize(this.context, getMainLooper(), null);
         this.receiver = new WifiDirectBroadcastReceiver(this.manager, this.channel);
 
@@ -231,7 +162,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
      * @param context a Context for the application on demand
      * @return a reference to the WifiDirect singleton
      */
-    static WifiDirect getInstance(@NonNull final Context context)
+    public static WifiDirect getInstance(@NonNull final Context context)
     {
         // double-check locking implemented for multi-threaded environments
         WifiDirect localInstance = instance;
@@ -298,6 +229,16 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
     void setThisDevice(final WifiP2pDevice device)
     {
         this.thisDevice = device;
+    }
+
+    /**
+     * Returns the peer we are connected to as a WifiP2pDevice,
+     * or null if we aren't connected yet.
+     * @return a WifiP2pDevice that is our connected peer.
+     */
+    public WifiP2pDevice getPeerDevice()
+    {
+        return this.peerDevice;
     }
 
     /**
@@ -537,6 +478,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
         }
 
         manager.connect(channel, config, new ActionListenerWithContext(this.context));
+        this.peerDevice = device;
     }
 
     //////////////////////////////////////////////////

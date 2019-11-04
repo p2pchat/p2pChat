@@ -38,8 +38,7 @@ final class FileTransferService extends IntentService
      */
     public static final String ACTION_SEND_FILE = "edu.uwstout.p2pchat.SEND_FILE";
     /**
-     * Yeah, I don't know what this one does yet.
-     * TODO figure that out.
+     * provides a
      */
     public static final String EXTRAS_FILE_PATH = "file_url";
     /**
@@ -86,13 +85,13 @@ final class FileTransferService extends IntentService
                 String fileUri = intent.getExtras().getString(EXTRAS_FILE_PATH);
                 String host = intent.getExtras().getString(EXTRAS_GROUP_OWNER_ADDRESS);
                 Socket socket = new Socket();
-                final int port = intent.getExtras().getInt(EXTRAS_GROUP_OWNER_PORT);
+                final int PORT = intent.getExtras().getInt(EXTRAS_GROUP_OWNER_PORT);
 
                 try
                 {
                     Log.d(LOG_TAG, "Opening client socket");
                     socket.bind(null);
-                    socket.connect((new InetSocketAddress(host, port)), SOCKET_TIMEOUT);
+                    socket.connect((new InetSocketAddress(host, PORT)), SOCKET_TIMEOUT);
 
                     Log.d(LOG_TAG, "Client socket connected: " + socket.isConnected());
                     OutputStream outputStream = socket.getOutputStream();
@@ -107,12 +106,6 @@ final class FileTransferService extends IntentService
                     {
                         Log.e(LOG_TAG, "404 Error: " + e.getMessage());
                     }
-
-                    /*
-                        This is where I ought to turn that input stream
-                        into an in memory file...
-                        I think?
-                     */
                 }
                 catch (IOException e)
                 {
