@@ -48,7 +48,7 @@ public class RoomTesting
     }
 
     @Test
-    public void createAndDestroyPeer()
+    public void createRetrieveUpdateDestroyPeer()
     {
         DataAccessObject dao = database.dataAccessObject();
         assertEquals(dao.getPeers().size(), 0);
@@ -76,6 +76,17 @@ public class RoomTesting
         dao.deletePeers(peer2);
 
         assertEquals(dao.getPeers().size(), 0);
+
+        Peer peer3 = new Peer("7b:f2:42:c2:69:10");
+        peer3.nickname = "Krista Lenz";
+        database.dataAccessObject().insertPeers(peer3);
+
+        assertEquals(dao.getPeers().get(0).nickname, "Krista Lenz");
+
+        database.dataAccessObject().updatePeerNickname(peer3.macAddress, "Historia Reiss");
+
+        assertEquals(dao.getPeers().get(0).nickname, "Historia Reiss");
+
     }
 
     @Test
