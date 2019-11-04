@@ -1,5 +1,6 @@
 package edu.uwstout.p2pchat;
 
+import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -22,7 +23,8 @@ import edu.uwstout.p2pchat.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity
 {
     // Necessary for consistency between methods
-    private static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1001;
+    public static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1001;
+    public static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1002;
     private static final String LOG_TAG = "MainActivity";
 
     // private ActivityMainBinding binding;
@@ -60,8 +62,6 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
         NavigationUI.setupWithNavController(binding.mainNavView, navController);
-        // TODO this is causing an app crash, revisit this in a future sprint since this wasn't
-        //  an explicit goal of this sprint
         // Check if the app has permissions to use location data, and ask for it if we don't.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                 && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -101,6 +101,12 @@ public class MainActivity extends AppCompatActivity
                     finish(); // closes the activity
                 }
                 break;
+            case PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
+                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    Log.e(LOG_TAG, "Write access permission not granted.");
+                    finish();
+                }
+                // TODO: Handle case where file write failed, and needs to be retried
             default:
                 Log.e(LOG_TAG, "Unhandled permissions result: " + requestCode);
         }

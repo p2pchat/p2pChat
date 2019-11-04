@@ -21,24 +21,7 @@ import java.util.Map;
  * A expandable-list-view-adapter for the Settings Fragment.
  * ------------INSTRUCTIONS TO ADD A SETTING--------.
  * 1. ADD NEW NAME IN: "parentNames".
- *
- * Example:
- *          String[] parentNames = {
- *                 "My Device Info", "Theme Color: Light", "Set Device Nickname", "Help",
- *                 "Name Goes Here"
- *         };
  * 2. ADD ANY CHILD IN "childNames".
- *
- * Example:
- *          String[][] childNames = {
- *                 {
- *                         "Creator: ", "Device Address: ", "Device Name: ",
- *                         "Primary Device Type: ", "Secondary Device Type: ", "Status: "
- *                 },
- *                 {"Light", "Majestic", "Dark"}, {}, {}, {"Sub settings goes here"}.
- *         };
- *
- *
  * 3. ADD ANY ON CLICK LISTENERS IN: "getGroupView()" method for any;
  *      actions you want for the parentName tab.
  * 4. ADD ANY ON CLICK LISTENERS IN: "getChildView()" method for any;

@@ -13,18 +13,22 @@ import static com.google.common.truth.Truth.assertThat;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-public class ExampleUnitTest {
+public class ExampleUnitTest
+{
     @Test
-    public void addition_isCorrect() {
+    public void addition_isCorrect()
+    {
         assertThat(4).isEqualTo(2 + 2);
     }
+
     @Test
     public void verify_uuid_unique()
     {
 
 
         UUID[] uuids = new UUID[500];
-        for(int i = 0; i < 500; i++) {
+        for (int i = 0; i < 500; i++)
+        {
             uuids[i] = UUID.randomUUID();
         }
         HashSet<UUID> isUnique = new HashSet<UUID>(Arrays.asList(uuids));
