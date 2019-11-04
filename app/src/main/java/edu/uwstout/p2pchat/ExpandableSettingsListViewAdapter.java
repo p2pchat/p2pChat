@@ -105,7 +105,8 @@ public class ExpandableSettingsListViewAdapter extends BaseExpandableListAdapter
         //TODO Add name here.
         //Assign all parent names the following.
         String[] parentNames = {
-                "My Device Info", "Theme Color: Light", "Set Device Nickname", "Help"
+                "My Device Info", "Theme Color: Light", "Set Device Nickname", "Refresh Database",
+                "Help"
         };
 
         //Todo Add empty set here(for adding another setting).
@@ -115,7 +116,7 @@ public class ExpandableSettingsListViewAdapter extends BaseExpandableListAdapter
                         "Creator: ", "Device Address: ", "Device Name: ",
                         "Primary Device Type: ", "Secondary Device Type: ", "Status: "
                 },
-                {"Light", "Majestic", "Dark"}, {}, {}
+                {"Light", "Majestic", "Dark"}, {}, {}, {}
         };
 
 
@@ -315,6 +316,22 @@ public class ExpandableSettingsListViewAdapter extends BaseExpandableListAdapter
                 break;
             case 4:
                 //TODO Clear all database goes here.
+
+                currentView.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        //TODO clear database here.
+
+                    }
+                });
+
+
+                break;
+
+            case 5:
+
                 break;
 
         }
@@ -409,7 +426,6 @@ public class ExpandableSettingsListViewAdapter extends BaseExpandableListAdapter
     private String getKeyParent(int parent)
     {
         //String builder is quicker than string concatenation.
-
         //Create a string builder.
         StringBuilder builder = new StringBuilder();
 
