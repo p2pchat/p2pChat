@@ -34,6 +34,7 @@ public class ExampleInstrumentedTest
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.uwstout.p2pchat", appContext.getPackageName());
+        assertEquals("edu.uwstout.p2pchat", appContext.getPackageName());
     }
+
 }
