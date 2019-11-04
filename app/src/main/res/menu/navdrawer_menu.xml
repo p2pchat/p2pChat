@@ -4,13 +4,16 @@
     <!-- TODO add an icon to each item later -->
     <item
         android:id="@+id/chatHistoryFragment"
-        android:title="@string/chat_history"/>
+        android:icon="@android:drawable/sym_action_chat"
+        android:title="@string/chat_history" />
 
     <item
         android:id="@+id/settingFragment"
-        android:title="@string/settings"/>
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="@string/settings" />
 
     <item
         android:id="@+id/helpPageFragment"
-        android:title="@string/help"/>
+        android:icon="@android:drawable/ic_menu_help"
+        android:title="@string/help" />
 </menu>
