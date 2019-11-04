@@ -44,4 +44,12 @@ public class ExampleInstrumentedTest
     public void testHelloWorld() {
         onView(withText("Hello World!")).check(matches(isDisplayed()));
     }
+    @Test
+    public void testHelloWorld() {
+        onView(withText("Hello World!")).check(matches(isDisplayed()));
+    }
+    @Test
+    public void testHelloWorld() {
+        onView(withText("Hello World!")).check(matches(isDisplayed()));
+    }
 }
