@@ -3,10 +3,12 @@ package edu.uwstout.p2pchat;
 import static android.os.Looper.getMainLooper;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.renderscript.ScriptGroup;
@@ -22,6 +24,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uwstout.p2pchat.FileTransfer.FileTransferService;
+import edu.uwstout.p2pchat.FileTransfer.ServerAsyncTask;
+
 /**
  * WifiDirect is a Singleton which handles the process of communicating
  * with other devices via WifiDirect protocols. WifiDirect handles events
@@ -35,7 +40,7 @@ import java.util.List;
  *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
-public final class WifiDirect implements WifiP2pManager.ChannelListener
+public final class WifiDirect implements WifiP2pManager.ChannelListener, WifiP2pManager.ConnectionInfoListener
 {
     /**
      * Creating an observer interface so that fragments can subscribe
@@ -109,6 +114,10 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
      * Information about the peer that we are connected to as a WifiP2pDevice.
      */
     private WifiP2pDevice peerDevice = null;
+    /**
+     * The information about the current connection state.
+     */
+    private WifiP2pInfo info = null;
     /**
      * A list of all the peer discovery listeners
      * subscribed to the events posted by this class.
@@ -329,6 +338,30 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
     }
 
     /**
+     * Required by the ConnectionInfoListener interface, this function
+     * informs us when there is connection information that we need to know.
+     * @param wifiP2pInfo the connection information we are interested in.
+     */
+    @Override
+    public void onConnectionInfoAvailable(final WifiP2pInfo wifiP2pInfo)
+    {
+        this.info = wifiP2pInfo;
+
+        /* Determine if this device is the group host. */
+        if (this.info.groupFormed && this.info.isGroupOwner)
+        {
+            // ServerAsyncTask handles the process of receiving information.
+            new ServerAsyncTask(this.context);
+        }
+//        else if (info.groupFormed)
+//        {
+//            // We are the client, and I think that if two way communication
+//            // were to be made possible, the client would have to set up some
+//            // listener as well.
+//        }
+    }
+
+    /**
      * starts a call to WifiP2pManager.discoverPeers() and describes the behavior of the callback.
      */
     void discoverPeers()
@@ -510,5 +543,22 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener
         }
 
         return summary;
+    }
+
+    /**
+     * Sends an InMemoryFile to the host assuming that we are the client.
+     * TODO refactor to intelligently determine which way to send the data (client/host).
+     * @param inMemoryFile The data that we want to send.
+     */
+    void sendInMemoryFileToHost(final InMemoryFile inMemoryFile)
+    {
+        Intent serviceIntent = new Intent(this.context, FileTransferService.class);
+        serviceIntent.setAction(FileTransferService.ACTION_SEND_FILE);
+        serviceIntent.putExtra(FileTransferService.EXTRAS_IN_MEMORY_FILE, inMemoryFile);
+        serviceIntent.putExtra(FileTransferService.EXTRAS_GROUP_OWNER_ADDRESS,
+                info.groupOwnerAddress.getHostAddress());
+        serviceIntent.putExtra(FileTransferService.EXTRAS_GROUP_OWNER_PORT,
+                ServerAsyncTask.MAGIC_PORT);
+        this.context.startService(serviceIntent);
     }
 }

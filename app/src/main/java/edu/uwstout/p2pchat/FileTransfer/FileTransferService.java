@@ -1,10 +1,7 @@
 package edu.uwstout.p2pchat.FileTransfer;
 
 import android.app.IntentService;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -29,10 +26,10 @@ import edu.uwstout.p2pchat.InMemoryFile;
  *
  * TODO is this sucker one-way? cause that needs to change!
  */
-final class FileTransferService extends IntentService
+public final class FileTransferService extends IntentService
 {
     /**
-     * A tag for logging
+     * A tag for logging.
      */
     private static final String LOG_TAG = "FileTransferService";
     /**
@@ -44,17 +41,16 @@ final class FileTransferService extends IntentService
      */
     public static final String ACTION_SEND_FILE = "edu.uwstout.p2pchat.SEND_FILE";
     /**
-     * provides a
+     * provides a constant for accessing the
+     * InMemoryFile parceled in the intent.
      */
     public static final String EXTRAS_IN_MEMORY_FILE = "imf";
     /**
-     * I don't know what this one does either.
-     * TODO figure that out.
+     * A constant for accessing information about the host we send data to.
      */
     public static final String EXTRAS_GROUP_OWNER_ADDRESS = "go_host";
     /**
-     * Nor this one.
-     * TODO figure that out.
+     * A constant for accessing information about the port we send data to.
      */
     public static final String EXTRAS_GROUP_OWNER_PORT = "go_port";
 
@@ -80,8 +76,7 @@ final class FileTransferService extends IntentService
     /**
      * Handle an intent sent from within this class.
      *
-     * @param intent
-     *         *shrugs* only god knows.
+     * @param intent An Intent that contains information that we want to send.
      * @see IntentService#onHandleIntent(Intent)
      */
     @Override
@@ -116,7 +111,7 @@ final class FileTransferService extends IntentService
                         inputStream = new BufferedInputStream(inputStream);
                         inputStream = new ObjectInputStream(inputStream);
                         // this is where the data is sent
-                        copyFile(inputStream, outputStream);
+                        transferStreams(inputStream, outputStream);
                         Log.d(LOG_TAG, "Client: Data Written");
                     }
                     catch (FileNotFoundException e)
@@ -157,18 +152,23 @@ final class FileTransferService extends IntentService
         }
     }
 
-    public static void copyFile(InputStream inputStream, OutputStream out)
+    /**
+     * Writes the contents of the InputStream to the OutputStream
+     * @param in The InputStream full of data.
+     * @param out The OutputStream that needs the data.
+     */
+    public static void transferStreams(final InputStream in, final OutputStream out)
     {
         byte[] buf = new byte[1024];
         int len;
         try
         {
-            while ((len = inputStream.read(buf)) != -1)
+            while ((len = in.read(buf)) != -1)
             {
                 out.write(buf, 0, len);
             }
             out.close();
-            inputStream.close();
+            in.close();
         }
         catch (IOException e)
         {

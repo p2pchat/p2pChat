@@ -22,7 +22,7 @@ import java.util.Date;
 /**
  * Represents a file that has been loaded into memory.
  */
-public class InMemoryFile implements Serializable, Parcelable
+public class InMemoryFile implements Serializable
 {
     /**
      * Byte array containing contents of file.
@@ -192,71 +192,5 @@ public class InMemoryFile implements Serializable, Parcelable
     {
         return (this.mimeType.equals(MESSAGE_MIME_TYPE))
                 ? new String(this.data) : null;
-    }
-
-    // REQUIRED FOR IMPLEMENTING THE PARCELABLE INTERFACE.
-
-    /**
-     * We can safely ignore this and return 0.
-     *
-     * @return the number 0.
-     */
-    @Override
-    public int describeContents()
-    {
-        return 0;
-    }
-
-    /**
-     * Writes our data to the passed-in parcel
-     *
-     * @param parcel
-     *         the parcel we want to write to.
-     * @param i
-     *         a flag that we ignore.
-     */
-    @Override
-    public void writeToParcel(final Parcel parcel, final int i)
-    {
-        parcel.writeString(this.filename);
-        parcel.writeString(this.mimeType);
-        // have to declare the length so I know how to read it in.
-        parcel.writeInt(this.data.length);
-        parcel.writeByteArray(this.data);
-    }
-
-    /**
-     * Regenerates InMemoryFile objects from parcels.
-     */
-    public static final Parcelable.Creator<InMemoryFile> CREATOR =
-            new Parcelable.Creator<InMemoryFile>()
-            {
-                public InMemoryFile createFromParcel(final Parcel in)
-                {
-                    return new InMemoryFile(in);
-                }
-
-                public InMemoryFile[] newArray(final int size)
-                {
-                    return new InMemoryFile[size];
-                }
-            };
-
-    /**
-     * Takes a parcel from the Parcelable.Creator and
-     * creates a InMemoryFile.
-     *
-     * @param in
-     *         a Parcel containing an InMemoryFile
-     */
-    private InMemoryFile(final Parcel in)
-    {
-        // has to be in the same order as writeToParcel!!!
-        this.filename = in.readString();
-        this.mimeType = in.readString();
-        // get the length of the array to declare the memory before filling it.
-        int length = in.readInt();
-        this.data = new byte[length];
-        in.readByteArray(this.data);
     }
 }

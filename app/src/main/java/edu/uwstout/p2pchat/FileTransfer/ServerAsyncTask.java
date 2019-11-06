@@ -22,7 +22,7 @@ import edu.uwstout.p2pchat.WifiDirect;
  * some data on the stream.
  * Only applicable when this device is acting as the server.
  */
-class ServerAsyncTask extends AsyncTask<Void, Void, String>
+public class ServerAsyncTask extends AsyncTask<Void, Void, String>
 {
     /**
      * Application context needed to do tasks.
@@ -32,7 +32,7 @@ class ServerAsyncTask extends AsyncTask<Void, Void, String>
     /**
      * Magic number for open port.
      */
-    private static final int MAGIC_PORT = 8988;
+    public static final int MAGIC_PORT = 8988;
     /**
      * The tag for logging.
      */
@@ -44,7 +44,7 @@ class ServerAsyncTask extends AsyncTask<Void, Void, String>
      * @param c
      *         Application context.
      */
-    ServerAsyncTask(final Context c)
+    public ServerAsyncTask(final Context c)
     {
         this.context = c.getApplicationContext();
     }
