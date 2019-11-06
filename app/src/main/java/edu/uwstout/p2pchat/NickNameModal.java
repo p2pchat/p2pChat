@@ -92,6 +92,7 @@ public class NickNameModal
                 final String NICKNAME =
                         ((EditText)view.findViewById(R.id.newNickName)).getText().toString();
 
+
                 //TODO update the database here with NICKNAME.
 
                 //updates the names from the listview.

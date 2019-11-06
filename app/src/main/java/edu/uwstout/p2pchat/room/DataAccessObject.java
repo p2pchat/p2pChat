@@ -1,9 +1,11 @@
 package edu.uwstout.p2pchat.room;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Dao;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import java.util.List;
@@ -18,7 +20,7 @@ public interface DataAccessObject
      * Inserts new Peer values into the peer table.
      * @param peers values to be inserted
      */
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertPeers(Peer... peers);
 
     /**
@@ -56,12 +58,12 @@ public interface DataAccessObject
      * @return List of Messages associated with a MAC Address.
      */
     @Query("SELECT * FROM message WHERE macAddress = :macAddress")
-    List<Message> getMessagesFromPeer(String macAddress);
+    LiveData<List<Message>> getMessagesFromPeer(String macAddress);
 
     /**
      * Returns a list of all peers in the database.
      * @return List of Peers in database.
      */
     @Query("SELECT * FROM peer")
-    List<Peer> getPeers();
+    LiveData<List<Peer>> getPeers();
 }

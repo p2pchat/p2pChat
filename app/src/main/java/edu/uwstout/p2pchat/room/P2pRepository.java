@@ -3,6 +3,11 @@ package edu.uwstout.p2pchat.room;
 import android.app.Application;
 import android.os.AsyncTask;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+
 import java.util.List;
 
 /**
@@ -167,7 +172,7 @@ public class P2pRepository
      * @param macAddress MAC Address of peer.
      * @return List of Messages
      */
-    public final List<Message> getMessages(final String macAddress)
+    public final LiveData<List<Message>> getMessages(final String macAddress)
     {
         return dao.getMessagesFromPeer(macAddress);
     }
@@ -176,7 +181,7 @@ public class P2pRepository
      * Returns list of all Peers in database
      * @return List of Peers
      */
-    public final List<Peer> getPeers()
+    public final LiveData<List<Peer>> getPeers()
     {
         return dao.getPeers();
     }

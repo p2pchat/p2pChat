@@ -20,9 +20,14 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import edu.uwstout.p2pchat.room.Peer;
+import kotlin.jvm.Throws;
 
 
 /**
@@ -44,6 +49,7 @@ public class NickNameFragment extends Fragment
      */
     private ArrayList<String> names = new ArrayList<>();
 
+    private LiveData<List<Peer>> peers;
 
     private ArrayAdapter adapter;
     /**
@@ -66,9 +72,6 @@ public class NickNameFragment extends Fragment
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState)
     {
-        //Creates the mock data.
-        setNames();
-
         //Inflate a view.
         View view = inflater.inflate(R.layout.fragment_nick_name, container, false);
 
@@ -111,32 +114,28 @@ public class NickNameFragment extends Fragment
                 android.R.layout.simple_list_item_1,
                 names));
 
+        ViewModel viewModel = new ViewModel(getActivity().getApplication());
+        if(peers == null) {
+            peers = viewModel.getPeers();
+            peers.observeForever(new Observer<List<Peer>>()
+            {
+                @Override
+                public void onChanged(List<Peer> peers)
+                {
+                    if(peers != null) {
+                        names.clear();
+                        for(int i = 0;i<peers.size();i++) {
+                            names.add(peers.get(i).nickname);
+                        }
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            });
+        }
 
         //Returns the new arrayadapter.
         return adapter;
     }
-
-
-
-    /**
-     * Assigns all names to the arraylist.
-     */
-    private void setNames() {
-        //Set names here.
-        //TODO read from database here.
-
-
-        //TODO remove everything from the list.
-        names.add("Nick");
-        names.add("Dr. D");
-        names.add("Dr. Mason");
-        names.add("Austin");
-        names.add("Evan");
-
-    }
-
-
-
 
     /**
      * Creates a pop up and sets up onclicklisteners.
