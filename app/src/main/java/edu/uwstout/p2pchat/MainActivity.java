@@ -126,4 +126,6 @@ public class MainActivity extends AppCompatActivity
                 R.id.mainNavHostFragment);
         return NavigationUI.navigateUp(navController, drawerLayout);
     }
+
+
 }

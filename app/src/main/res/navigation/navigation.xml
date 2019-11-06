@@ -32,4 +32,21 @@
             android:defaultValue="default"
             app:argType="string"/>
     </fragment>
+
+    <fragment
+        android:id="@+id/nickNameFragment"
+        android:name="edu.uwstout.p2pchat.NickNameFragment"
+        android:label="fragment_nick_name"
+        tools:layout="@layout/fragment_nick_name" />
+    <fragment
+        android:id="@+id/settingFragment"
+        android:name="edu.uwstout.p2pchat.SettingFragment"
+        android:label="fragment_setting"
+        tools:layout="@layout/fragment_setting" >
+        <action
+            android:id="@+id/toNickNameFragment"
+            app:destination="@+id/nickNameFragment"
+            app:popUpTo="@id/nickNameFragment" />
+    </fragment>
+
 </navigation>
