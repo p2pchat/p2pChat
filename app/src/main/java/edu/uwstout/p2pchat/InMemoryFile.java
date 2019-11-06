@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -20,7 +22,7 @@ import java.util.Date;
 /**
  * Represents a file that has been loaded into memory.
  */
-public class InMemoryFile implements Serializable
+public class InMemoryFile implements Serializable, Parcelable
 {
     /**
      * Byte array containing contents of file.
@@ -46,9 +48,13 @@ public class InMemoryFile implements Serializable
 
     /**
      * Constructs based on raw data.
-     * @param filenameStr Name of file.
-     * @param dataRef Contents of file.
-     * @param mimeTypeStr Mime type of file.
+     *
+     * @param filenameStr
+     *         Name of file.
+     * @param dataRef
+     *         Contents of file.
+     * @param mimeTypeStr
+     *         Mime type of file.
      */
     public InMemoryFile(final String filenameStr, final byte[] dataRef, final String mimeTypeStr)
     {
@@ -59,7 +65,9 @@ public class InMemoryFile implements Serializable
 
     /**
      * Converts a text message into a InMemoryFile that we can transmit.
-     * @param textMessage a text message.
+     *
+     * @param textMessage
+     *         a text message.
      */
     InMemoryFile(final String textMessage)
     {
@@ -71,9 +79,13 @@ public class InMemoryFile implements Serializable
 
     /**
      * Constructs based on InputStream.
-     * @param filenameStr Name of file.
-     * @param streamRef InputStream to load data from.
-     * @param mimeTypeStr Mime type of file.
+     *
+     * @param filenameStr
+     *         Name of file.
+     * @param streamRef
+     *         InputStream to load data from.
+     * @param mimeTypeStr
+     *         Mime type of file.
      */
     public InMemoryFile(final String filenameStr, final InputStream streamRef,
             final String mimeTypeStr)
@@ -94,8 +106,11 @@ public class InMemoryFile implements Serializable
 
     /**
      * Saves this file to storage.
-     * @param context MainActivity context
-     * @param date Current date and time
+     *
+     * @param context
+     *         MainActivity context
+     * @param date
+     *         Current date and time
      * @return ExternalFile reference if successful, otherwise null
      */
     public ExternalFile saveToStorage(final Context context, final Date date)
@@ -108,7 +123,8 @@ public class InMemoryFile implements Serializable
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
         {
             ActivityCompat.requestPermissions((Activity) context,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MainActivity.PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
             return null;
         }
         else
@@ -154,7 +170,9 @@ public class InMemoryFile implements Serializable
 
     /**
      * Compares two InMemoryFiles
-     * @param other Object to compare to
+     *
+     * @param other
+     *         Object to compare to
      * @return true if same value
      */
     public final boolean equals(final InMemoryFile other)
@@ -166,12 +184,79 @@ public class InMemoryFile implements Serializable
     /**
      * Returns the data in this object as a string text message
      * if and only if the file is a text message. Null otherwise.
+     *
      * @return A string that is this objects data,
-     *      null if it isn't a text message.
+     * null if it isn't a text message.
      */
     public final String getTextMessage()
     {
         return (this.mimeType.equals(MESSAGE_MIME_TYPE))
                 ? new String(this.data) : null;
+    }
+
+    // REQUIRED FOR IMPLEMENTING THE PARCELABLE INTERFACE.
+
+    /**
+     * We can safely ignore this and return 0.
+     *
+     * @return the number 0.
+     */
+    @Override
+    public int describeContents()
+    {
+        return 0;
+    }
+
+    /**
+     * Writes our data to the passed-in parcel
+     *
+     * @param parcel
+     *         the parcel we want to write to.
+     * @param i
+     *         a flag that we ignore.
+     */
+    @Override
+    public void writeToParcel(final Parcel parcel, final int i)
+    {
+        parcel.writeString(this.filename);
+        parcel.writeString(this.mimeType);
+        // have to declare the length so I know how to read it in.
+        parcel.writeInt(this.data.length);
+        parcel.writeByteArray(this.data);
+    }
+
+    /**
+     * Regenerates InMemoryFile objects from parcels.
+     */
+    public static final Parcelable.Creator<InMemoryFile> CREATOR =
+            new Parcelable.Creator<InMemoryFile>()
+            {
+                public InMemoryFile createFromParcel(final Parcel in)
+                {
+                    return new InMemoryFile(in);
+                }
+
+                public InMemoryFile[] newArray(final int size)
+                {
+                    return new InMemoryFile[size];
+                }
+            };
+
+    /**
+     * Takes a parcel from the Parcelable.Creator and
+     * creates a InMemoryFile.
+     *
+     * @param in
+     *         a Parcel containing an InMemoryFile
+     */
+    private InMemoryFile(final Parcel in)
+    {
+        // has to be in the same order as writeToParcel!!!
+        this.filename = in.readString();
+        this.mimeType = in.readString();
+        // get the length of the array to declare the memory before filling it.
+        int length = in.readInt();
+        this.data = new byte[length];
+        in.readByteArray(this.data);
     }
 }
