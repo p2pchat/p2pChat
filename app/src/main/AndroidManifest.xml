@@ -31,7 +31,7 @@
             android:name="edu.uwstout.p2pchat.WifiDirect"
             android:exported="false"/>
         <service android:enabled="true"
-            android:name="edu.uwstout.p2pchat.FileTransfer.FileTransferService" />
+            android:name="edu.uwstout.p2pchat.FileTransfer.SendDataService" />
     </application>
 
 </manifest>

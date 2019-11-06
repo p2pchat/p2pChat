@@ -20,18 +20,16 @@ import java.util.Objects;
 import edu.uwstout.p2pchat.InMemoryFile;
 
 /**
- * A service that processes each file transfer request (Android Intent)
+ * A service that processes each send data request (Android Intent)
  * by opening a socket connection with the WiFi Direct Group owner and
  * writing the file.
- *
- * TODO is this sucker one-way? cause that needs to change!
  */
-public final class FileTransferService extends IntentService
+public final class SendDataService extends IntentService
 {
     /**
      * A tag for logging.
      */
-    private static final String LOG_TAG = "FileTransferService";
+    private static final String LOG_TAG = "SendDataService";
     /**
      * A time limit for the socket.
      */
@@ -39,7 +37,7 @@ public final class FileTransferService extends IntentService
     /**
      * A definition for the action our intents will use.
      */
-    public static final String ACTION_SEND_FILE = "edu.uwstout.p2pchat.SEND_FILE";
+    public static final String ACTION_SEND_DATA = "edu.uwstout.p2pchat.SEND_DATA";
     /**
      * provides a constant for accessing the
      * InMemoryFile parceled in the intent.
@@ -48,18 +46,18 @@ public final class FileTransferService extends IntentService
     /**
      * A constant for accessing information about the host we send data to.
      */
-    public static final String EXTRAS_GROUP_OWNER_ADDRESS = "go_host";
+    public static final String EXTRAS_PEER_ADDRESS = "go_address";
     /**
      * A constant for accessing information about the port we send data to.
      */
-    public static final String EXTRAS_GROUP_OWNER_PORT = "go_port";
+    public static final String EXTRAS_PEER_PORT = "go_port";
 
     /**
      * Default constructor.
      */
-    FileTransferService()
+    SendDataService()
     {
-        super("FileTransferService");
+        super("SendDataService");
     }
 
     /**
@@ -68,7 +66,7 @@ public final class FileTransferService extends IntentService
      * @param name
      *         Used to name the worker thread, useful only for debugging.
      */
-    FileTransferService(final String name)
+    SendDataService(final String name)
     {
         super(name);
     }
@@ -84,14 +82,14 @@ public final class FileTransferService extends IntentService
     {
         try
         {
-            if (intent != null && Objects.equals(intent.getAction(), ACTION_SEND_FILE))
+            if (intent != null && Objects.equals(intent.getAction(), ACTION_SEND_DATA))
             {
                 final InMemoryFile IMF =
                         Objects.requireNonNull(intent.getExtras())
                                 .getParcelable(EXTRAS_IN_MEMORY_FILE);
-                String host = intent.getExtras().getString(EXTRAS_GROUP_OWNER_ADDRESS);
+                String host = intent.getExtras().getString(EXTRAS_PEER_ADDRESS);
                 Socket socket = new Socket();
-                final int PORT = intent.getExtras().getInt(EXTRAS_GROUP_OWNER_PORT);
+                final int PORT = intent.getExtras().getInt(EXTRAS_PEER_PORT);
 
                 try
                 {

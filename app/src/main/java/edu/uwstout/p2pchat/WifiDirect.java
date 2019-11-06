@@ -8,23 +8,17 @@ import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.os.AsyncTask;
-import android.renderscript.ScriptGroup;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uwstout.p2pchat.FileTransfer.FileTransferService;
+import edu.uwstout.p2pchat.FileTransfer.SendDataService;
 import edu.uwstout.p2pchat.FileTransfer.ServerAsyncTask;
 
 /**
@@ -40,7 +34,8 @@ import edu.uwstout.p2pchat.FileTransfer.ServerAsyncTask;
  *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
-public final class WifiDirect implements WifiP2pManager.ChannelListener, WifiP2pManager.ConnectionInfoListener
+public final class WifiDirect implements WifiP2pManager.ChannelListener,
+        WifiP2pManager.GroupInfoListener, WifiP2pManager.ConnectionInfoListener
 {
     /**
      * Creating an observer interface so that fragments can subscribe
@@ -117,6 +112,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener, WifiP2p
     /**
      * The information about the current connection state.
      */
+    private WifiP2pGroup groupInfo = null;
     private WifiP2pInfo info = null;
     /**
      * A list of all the peer discovery listeners
@@ -337,6 +333,21 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener, WifiP2p
         // TODO reimplement so that there is an observer protocol for this
     }
 
+
+    /**
+     * Required by the GroupInfoListener interface, this function
+     * informs us when there is connection information that we need
+     * to know about our WifiConnection information. This information
+     * includes whether or not we are the group owner, and the list
+     * of clients, all of which is necessary for wireless communication.
+     * @param wifiP2pGroup The group information that we are interested in.
+     */
+    @Override
+    public void onGroupInfoAvailable(final WifiP2pGroup wifiP2pGroup)
+    {
+        this.groupInfo = wifiP2pGroup;
+    }
+
     /**
      * Required by the ConnectionInfoListener interface, this function
      * informs us when there is connection information that we need to know.
@@ -347,18 +358,14 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener, WifiP2p
     {
         this.info = wifiP2pInfo;
 
-        /* Determine if this device is the group host. */
+        /* Determine if this device is the group host.
+        *  If so, set up the server to receive connections.
+        */
         if (this.info.groupFormed && this.info.isGroupOwner)
         {
-            // ServerAsyncTask handles the process of receiving information.
+            // ServerAsyncTask handles the process of receiving connections.
             new ServerAsyncTask(this.context);
         }
-//        else if (info.groupFormed)
-//        {
-//            // We are the client, and I think that if two way communication
-//            // were to be made possible, the client would have to set up some
-//            // listener as well.
-//        }
     }
 
     /**
@@ -550,15 +557,38 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener, WifiP2p
      * TODO refactor to intelligently determine which way to send the data (client/host).
      * @param inMemoryFile The data that we want to send.
      */
-    void sendInMemoryFileToHost(final InMemoryFile inMemoryFile)
+    void sendInMemoryFile(final InMemoryFile inMemoryFile)
     {
-        Intent serviceIntent = new Intent(this.context, FileTransferService.class);
-        serviceIntent.setAction(FileTransferService.ACTION_SEND_FILE);
-        serviceIntent.putExtra(FileTransferService.EXTRAS_IN_MEMORY_FILE, inMemoryFile);
-        serviceIntent.putExtra(FileTransferService.EXTRAS_GROUP_OWNER_ADDRESS,
-                info.groupOwnerAddress.getHostAddress());
-        serviceIntent.putExtra(FileTransferService.EXTRAS_GROUP_OWNER_PORT,
-                ServerAsyncTask.MAGIC_PORT);
-        this.context.startService(serviceIntent);
+        if (this.groupInfo != null && this.groupInfo.isGroupOwner())
+        {
+            // send data from host to client
+            Intent serviceIntent = new Intent(this.context, SendDataService.class);
+            serviceIntent.setAction(SendDataService.ACTION_SEND_DATA);
+            serviceIntent.putExtra(SendDataService.EXTRAS_IN_MEMORY_FILE, inMemoryFile);
+            // I can't get the INetAddress information of the clients if I am the host.
+            // TODO either prove myself wrong, or implement a
+            //  one-time send mechanism where clients inform their
+            //  hosts of their INetAddresses so that I can send that
+            //  peer information.
+        }
+        else if (this.info != null)
+        {
+            // send data from client to host
+            Intent serviceIntent = new Intent(this.context, SendDataService.class);
+            serviceIntent.setAction(SendDataService.ACTION_SEND_DATA);
+            serviceIntent.putExtra(SendDataService.EXTRAS_IN_MEMORY_FILE, inMemoryFile);
+            serviceIntent.putExtra(SendDataService.EXTRAS_PEER_ADDRESS,
+                    this.info.groupOwnerAddress.getHostAddress());
+            serviceIntent.putExtra(SendDataService.EXTRAS_PEER_PORT,
+                    ServerAsyncTask.MAGIC_PORT);
+            this.context.startService(serviceIntent);
+        }
+        else
+        {
+            String message = " Connection information was null." + ((this.groupInfo == null)
+                    ? " Group Information was null." : "");
+            Log.e(LOG_TAG, "Attempted to send information before sending information was "
+                    + "available." + message);
+        }
     }
 }
