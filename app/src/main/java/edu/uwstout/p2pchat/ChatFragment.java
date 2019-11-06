@@ -59,6 +59,18 @@ public class ChatFragment extends Fragment
                 binding.textInput.setText("");
             }
         });
+        binding.attachmentButton.setOnClickListener(new View.OnClickListener()
+        {
+            /**
+             *
+             * @param view
+             */
+            @Override
+            public void onClick(View view)
+            {
+
+            }
+        });
 
 
         return binding.getRoot();
