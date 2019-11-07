@@ -31,14 +31,6 @@ public interface DataAccessObject
     void insertMessages(Message... messages);
 
     /**
-     * Changes an existing peer's nickname
-     * @param macAddress MAC Address of the peer you wish to update
-     * @param nickname New nickname to assign to this peer
-     */
-    @Query("UPDATE peer SET nickname = :nickname WHERE macAddress = :macAddress")
-    void updatePeerNickname(String macAddress, String nickname);
-
-    /**
      * Deletes peers from the peer table.
      * @param peers values to be deleted
      */

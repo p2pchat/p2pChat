@@ -125,7 +125,7 @@ public class NickNameFragment extends Fragment
                     if(peers != null) {
                         names.clear();
                         for(int i = 0;i<peers.size();i++) {
-                            names.add(peers.get(i).nickname);
+                            names.add(peers.get(i).macAddress + " - " + peers.get(i).nickname);
                         }
                         adapter.notifyDataSetChanged();
                     }
@@ -142,7 +142,7 @@ public class NickNameFragment extends Fragment
      * @param index position of the name being changed.
      */
     private void PopUp(final int index, ArrayAdapter adapter) {
-        NickNameModal nick = new NickNameModal(this, adapter, names, index);
+        NickNameModal nick = new NickNameModal(this, adapter, peers.getValue(), index);
         nick.show();
     }
 
