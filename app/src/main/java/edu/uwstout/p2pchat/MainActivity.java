@@ -122,4 +122,6 @@ public class MainActivity extends AppCompatActivity
         final NavController navController = Navigation.findNavController(this, R.id.mainNavHostFragment);
         return NavigationUI.navigateUp(navController, drawerLayout);
     }
+
+
 }
