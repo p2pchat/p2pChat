@@ -8,18 +8,20 @@ import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uwstout.p2pchat.FileTransfer.ReceiverAsyncTask;
 import edu.uwstout.p2pchat.FileTransfer.SendDataService;
-import edu.uwstout.p2pchat.FileTransfer.ServerAsyncTask;
+import edu.uwstout.p2pchat.FileTransfer.UpdaterAsyncTask;
 
 /**
  * WifiDirect is a Singleton which handles the process of communicating
@@ -35,7 +37,7 @@ import edu.uwstout.p2pchat.FileTransfer.ServerAsyncTask;
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
 public final class WifiDirect implements WifiP2pManager.ChannelListener,
-        WifiP2pManager.GroupInfoListener, WifiP2pManager.ConnectionInfoListener
+        WifiP2pManager.ConnectionInfoListener
 {
     /**
      * Creating an observer interface so that fragments can subscribe
@@ -110,9 +112,13 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      */
     private WifiP2pDevice peerDevice = null;
     /**
+     * Information about our current client if we are the host.
+     * Necessary for two way communication.
+     */
+    private InetAddress clientAddress = null;
+    /**
      * The information about the current connection state.
      */
-    private WifiP2pGroup groupInfo = null;
     private WifiP2pInfo info = null;
     /**
      * A list of all the peer discovery listeners
@@ -247,6 +253,17 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     }
 
     /**
+     * Sets the INetAddress of our client if this device is the host
+     * of the WifiP2pGroup. Used internally, there is no getter.
+     * @param client The INetAddress of our client.
+     * @see InetAddress
+     */
+    public void setClient(InetAddress client)
+    {
+        this.clientAddress = client;
+    }
+
+    /**
      * Adds a PeerDiscoveryListener to the list of listeners that we
      * will notify based on relevant events.
      *
@@ -333,21 +350,6 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
         // TODO reimplement so that there is an observer protocol for this
     }
 
-
-    /**
-     * Required by the GroupInfoListener interface, this function
-     * informs us when there is connection information that we need
-     * to know about our WifiConnection information. This information
-     * includes whether or not we are the group owner, and the list
-     * of clients, all of which is necessary for wireless communication.
-     * @param wifiP2pGroup The group information that we are interested in.
-     */
-    @Override
-    public void onGroupInfoAvailable(final WifiP2pGroup wifiP2pGroup)
-    {
-        this.groupInfo = wifiP2pGroup;
-    }
-
     /**
      * Required by the ConnectionInfoListener interface, this function
      * informs us when there is connection information that we need to know.
@@ -360,16 +362,46 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
 
         /* Determine if this device is the group host.
         *  If so, set up the server to receive connections.
+        *  If I am the client, send the host my information
+        *  so that they can send me messages.
         */
         if (this.info.groupFormed && this.info.isGroupOwner)
         {
-            // ServerAsyncTask handles the process of receiving connections.
-            new ServerAsyncTask(this.context);
+            // ReceiverAsyncTask handles the process of receiving messages.
+            new ReceiverAsyncTask(this.context);
+            // UpdaterAsyncTask handles the process of
+            // getting client information for two-way communication.
+            new UpdaterAsyncTask(this.context);
+        }
+        else if (this.info.groupFormed)
+        {
+            // ReceiverAsyncTask handles the process of receiving messages.
+            new ReceiverAsyncTask(this.context);
+            try
+            {
+                // Get the INetAddress of the current device.
+                InetAddress localHost = InetAddress.getLocalHost();
+                // Create an intent to send to the server.
+                Intent updateIntent = new Intent(this.context, SendDataService.class);
+                updateIntent.setAction(SendDataService.ACTION_UPDATE_INETADDRESS);
+                updateIntent.putExtra(SendDataService.EXTRAS_INETADDRESS, localHost);
+                updateIntent.putExtra(SendDataService.EXTRAS_PEER_ADDRESS,
+                        this.info.groupOwnerAddress.getHostAddress());
+                updateIntent.putExtra(SendDataService.EXTRAS_PEER_PORT, UpdaterAsyncTask.MAGIC_PORT);
+                this.context.startService(updateIntent);
+            }
+            catch (UnknownHostException e)
+            {
+                // One-way communication is impossible
+                Log.e(LOG_TAG, "Could not resolve localhost. "
+                    + e.getMessage());
+            }
         }
     }
 
     /**
-     * starts a call to WifiP2pManager.discoverPeers() and describes the behavior of the callback.
+     * starts a call to WifiP2pManager.discoverPeers()
+     * and describes the behavior of the callback.
      */
     void discoverPeers()
     {
@@ -554,41 +586,31 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
 
     /**
      * Sends an InMemoryFile to the host assuming that we are the client.
-     * TODO refactor to intelligently determine which way to send the data (client/host).
      * @param inMemoryFile The data that we want to send.
      */
     void sendInMemoryFile(final InMemoryFile inMemoryFile)
     {
-        if (this.groupInfo != null && this.groupInfo.isGroupOwner())
+        if (this.info != null)
         {
-            // send data from host to client
-            Intent serviceIntent = new Intent(this.context, SendDataService.class);
-            serviceIntent.setAction(SendDataService.ACTION_SEND_DATA);
-            serviceIntent.putExtra(SendDataService.EXTRAS_IN_MEMORY_FILE, inMemoryFile);
-            // I can't get the INetAddress information of the clients if I am the host.
-            // TODO either prove myself wrong, or implement a
-            //  one-time send mechanism where clients inform their
-            //  hosts of their INetAddresses so that I can send that
-            //  peer information.
-        }
-        else if (this.info != null)
-        {
-            // send data from client to host
+            // I cannot transmit the data if I don't know where it is going.
+            if (this.info.isGroupOwner && this.clientAddress == null)
+            {
+                Log.e(LOG_TAG, "Attempted to send a message to client"
+                        + " before the INetAddress was collected.");
+                return; // Cancel this impossible operation.
+            }
+            // send data (will work the same for hosts and clients).
             Intent serviceIntent = new Intent(this.context, SendDataService.class);
             serviceIntent.setAction(SendDataService.ACTION_SEND_DATA);
             serviceIntent.putExtra(SendDataService.EXTRAS_IN_MEMORY_FILE, inMemoryFile);
             serviceIntent.putExtra(SendDataService.EXTRAS_PEER_ADDRESS,
-                    this.info.groupOwnerAddress.getHostAddress());
-            serviceIntent.putExtra(SendDataService.EXTRAS_PEER_PORT,
-                    ServerAsyncTask.MAGIC_PORT);
+                    this.clientAddress.getHostAddress());
+            serviceIntent.putExtra(SendDataService.EXTRAS_PEER_PORT, ReceiverAsyncTask.MAGIC_PORT);
             this.context.startService(serviceIntent);
         }
         else
         {
-            String message = " Connection information was null." + ((this.groupInfo == null)
-                    ? " Group Information was null." : "");
-            Log.e(LOG_TAG, "Attempted to send information before sending information was "
-                    + "available." + message);
+            Log.e(LOG_TAG, "Attempted to send information before WifiP2pInfo was available.");
         }
     }
 }

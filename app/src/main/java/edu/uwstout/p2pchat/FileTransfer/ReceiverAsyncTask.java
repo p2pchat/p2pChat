@@ -22,12 +22,12 @@ import edu.uwstout.p2pchat.WifiDirect;
  * some data on the stream.
  * Only applicable when this device is acting as the server.
  */
-public class ServerAsyncTask extends AsyncTask<Void, Void, String>
+public class ReceiverAsyncTask extends AsyncTask
 {
     /**
      * Application context needed to do tasks.
-     */
-    @SuppressLint("StaticFieldLeak") // suppress warnings related to context leak
+     */ // suppress warnings related to context leak.
+    @SuppressLint("StaticFieldLeak")
     private final Context context;
     /**
      * Magic number for open port.
@@ -36,15 +36,15 @@ public class ServerAsyncTask extends AsyncTask<Void, Void, String>
     /**
      * The tag for logging.
      */
-    private static final String LOG_TAG = "ServerAsyncTask";
+    private static final String LOG_TAG = "ReceiverAsyncTask";
 
     /**
-     * Package-Private Non-Default Constructor.
+     * Non-Default Constructor.
      *
      * @param c
      *         Application context.
      */
-    public ServerAsyncTask(final Context c)
+    public ReceiverAsyncTask(final Context c)
     {
         this.context = c.getApplicationContext();
     }
@@ -52,17 +52,16 @@ public class ServerAsyncTask extends AsyncTask<Void, Void, String>
     /**
      * Listens for incoming messages in the background.
      *
-     * @param voids
-     *         yeah I don't know
-     * @return A string which gets passed to onPostExecute
+     * @param objects Required by the superclass, these are unnecessary.
+     * @return An object. Currently null.
      */
     @Override
-    protected String doInBackground(final Void... voids)
+    protected Object doInBackground(final Object[] objects)
     {
         try
         {
             ServerSocket serverSocket = new ServerSocket(MAGIC_PORT);
-            Log.i(LOG_TAG, "Server: Socket opened");
+            Log.i(LOG_TAG, "Receiver: Socket opened");
             /*
                 The call to accept is where the black magic of accepting
                 a connection from a client happens. This method call is
@@ -71,8 +70,8 @@ public class ServerAsyncTask extends AsyncTask<Void, Void, String>
             */
             Socket client = serverSocket.accept();
             // Now that we have passed that line,
-            // we have accepted a client connection.
-            Log.i(LOG_TAG, "Server: Connection established");
+            // we have accepted a connection.
+            Log.i(LOG_TAG, "Receiver: Connection established");
             InputStream inputStream = client.getInputStream();
             ObjectInputStream ois = new ObjectInputStream(inputStream);
             // get the InMemoryFile object from the InputStream
@@ -85,8 +84,8 @@ public class ServerAsyncTask extends AsyncTask<Void, Void, String>
             {
                 Log.d(LOG_TAG,
                         "Could not convert input stream to InMemoryFile.");
-                Log.e(LOG_TAG, "ClassNotFoundException" + e.getMessage());
-                return "Failed to parse";
+                Log.e(LOG_TAG, "ClassNotFoundException: " + e.getMessage());
+                return null;
             }
             // save the InMemoryFile to the database.
             // determine if we are dealing with a text message or a file.
@@ -107,9 +106,6 @@ public class ServerAsyncTask extends AsyncTask<Void, Void, String>
                 new ViewModel((Application) this.context.getApplicationContext())
                         .insertFileMessage(macAddress, new Date(), false, imf, this.context);
             }
-
-            // TODO find out a good string to return,
-            //  or maybe change the return type.
             return null;
         }
         catch (IOException e)
@@ -118,22 +114,4 @@ public class ServerAsyncTask extends AsyncTask<Void, Void, String>
             return null;
         }
     }
-
-    /**
-     * I don't know what this does quite yet.
-     *
-     * @param s
-     *         a String that was the return value of doInBackground()
-     * @see AsyncTask#onPostExecute(Object)
-     */
-    @Override
-    protected void onPostExecute(final String s)
-    {
-        if (s != null)
-        {
-            Log.d(LOG_TAG, "Server returned: " + s);
-            Log.i(LOG_TAG, "Better implementation recommended");
-        }
-    }
-
 }
