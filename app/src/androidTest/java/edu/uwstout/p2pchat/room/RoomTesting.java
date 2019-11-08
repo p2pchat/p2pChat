@@ -83,7 +83,9 @@ public class RoomTesting
 
         assertEquals(dao.getPeers().getValue().get(0).nickname, "Krista Lenz");
 
-        database.dataAccessObject().updatePeerNickname(peer3.macAddress, "Historia Reiss");
+        peer3.nickname = "Historia Reiss";
+
+        database.dataAccessObject().insertPeers(peer3);
 
         assertEquals(dao.getPeers().getValue().get(0).nickname, "Historia Reiss");
 
