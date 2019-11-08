@@ -8,6 +8,7 @@ import android.view.Gravity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import edu.uwstout.p2pchat.databinding.ItemMessageBinding;
+import edu.uwstout.p2pchat.room.Message;
 
 class P2PMessageViewHolder extends RecyclerView.ViewHolder
 {
@@ -26,9 +27,9 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
     /**
      *
      */
-    void bindData(P2PMessage message)
+    void bindData(Message message)
     {
-        if (message.getMessageType().equals("Image"))
+        if (message.mimeType.contains("image"))
         {
             binding.chatMsgTextView.setVisibility(GONE);
             binding.chatMsgTextView.setMaxHeight(0);
@@ -39,13 +40,16 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
             binding.chatMsgImageView.setVisibility(GONE);
             binding.chatMsgImageView.setMaxHeight(0);
         }
-        if(message.getStatus().equals("end")){
+        if (message.sent)
+        {
             binding.chatMsgLayout.setGravity(Gravity.END);
-        }else {
+        }
+        else
+        {
             binding.chatMsgLayout.setGravity(Gravity.START);
         }
-        binding.setTextOutput(message.getText());
-        binding.setTimestamp(message.getTimestamp());
+        binding.setTextOutput(message.content);
+        binding.setTimestamp(message.timestamp.toString());
         binding.executePendingBindings();
     }
 }
