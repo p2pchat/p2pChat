@@ -21,6 +21,7 @@ import edu.uwstout.p2pchat.WifiDirect;
  * A simple server socket that accepts connections and writes
  * some data on the stream.
  * Only applicable when this device is acting as the server.
+ * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
 public class ReceiverAsyncTask extends AsyncTask
 {

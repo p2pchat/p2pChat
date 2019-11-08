@@ -14,6 +14,14 @@ import java.net.Socket;
 
 import edu.uwstout.p2pchat.WifiDirect;
 
+/**
+ * The updaterAsyncTask is run only when this device
+ * is the host of the WifiP2pGroup. It listens for
+ * INetAddress objects which are sent by clients.
+ * The INetAddress informs the server / host on
+ * how to communicate with their clients.
+ * @author VanderHoevenEvan (Evan Vander Hoeven)
+ */
 public class UpdaterAsyncTask extends AsyncTask
 {
     /**

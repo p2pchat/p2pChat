@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.BufferedInputStream;
@@ -24,6 +25,7 @@ import edu.uwstout.p2pchat.InMemoryFile;
  * A service that processes each send data request (Android Intent)
  * by opening a socket connection with the WiFi Direct Group owner and
  * writing the file.
+ * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
 public final class SendDataService extends IntentService
 {
@@ -88,134 +90,32 @@ public final class SendDataService extends IntentService
     /**
      * Handle an intent sent from within this class.
      *
-     * @param intent An Intent that contains information that we want to send.
+     * @param intent
+     *         An Intent that contains information that we want to send.
      * @see IntentService#onHandleIntent(Intent)
      */
     @SuppressWarnings("checkstyle:LineLength")
     @Override
     protected void onHandleIntent(@Nullable final Intent intent)
     {
+        if (intent == null)
+        {
+            // Can't handle the intent if it is null.
+            return;
+        }
         try
         {
-            if (intent != null)
+            if (Objects.equals(intent.getAction(), ACTION_SEND_DATA))
             {
-                if (Objects.equals(intent.getAction(), ACTION_SEND_DATA))
-                {
-                    final InMemoryFile IMF =
-                            Objects.requireNonNull(intent.getExtras())
-                                    .getParcelable(EXTRAS_IN_MEMORY_FILE);
-                    String host = intent.getExtras().getString(EXTRAS_PEER_ADDRESS);
-                    Socket socket = new Socket();
-                    final int PORT = intent.getExtras().getInt(EXTRAS_PEER_PORT);
-
-                    try
-                    {
-                        Log.d(LOG_TAG, "Opening client socket");
-                        socket.bind(null);
-                        socket.connect((new InetSocketAddress(host, PORT)), SOCKET_TIMEOUT);
-
-                        Log.d(LOG_TAG, "Client socket connected: " + socket.isConnected());
-                        OutputStream outputStream = socket.getOutputStream();
-                        InputStream inputStream = null;
-
-                        //noinspection CheckStyle
-                        try
-                        {
-                            // We go through these steps to get to an ObjectInputStream.
-                            // Don't question it, I won't have an answer.
-                            inputStream = new FileInputStream("IMF.ser");
-                            inputStream = new BufferedInputStream(inputStream);
-                            inputStream = new ObjectInputStream(inputStream);
-                            // this is where the data is sent
-                            transferStreams(inputStream, outputStream);
-                            Log.d(LOG_TAG, "Client: Data Written");
-                        }
-                        catch (FileNotFoundException e)
-                        {
-                            Log.e(LOG_TAG, "404 Error: " + e.getMessage());
-                        }
-                    }
-                    catch (IOException e)
-                    {
-                        Log.e(LOG_TAG, "Error: " + e.getMessage());
-                    }
-                    finally
-                    {
-                        if (socket.isConnected())
-                        {
-                            try
-                            {
-                                socket.close();
-                            }
-                            catch (IOException e)
-                            {
-                                // Give up all hope, ye who enter this block!
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
-                else if (Objects.equals(intent.getAction(), ACTION_UPDATE_INETADDRESS))
-                {
-                    // Get the localhost to send to the host server.
-                    final InMemoryFile LOCALHOST =
-                            Objects.requireNonNull(intent.getExtras())
-                                    .getParcelable(EXTRAS_INETADDRESS);
-                    String host = intent.getExtras().getString(EXTRAS_PEER_ADDRESS);
-                    Socket socket = new Socket();
-                    final int PORT = intent.getExtras().getInt(EXTRAS_PEER_PORT);
-
-                    try
-                    {
-                        Log.d(LOG_TAG, "Opening client socket for host update");
-                        socket.bind(null);
-                        socket.connect((new InetSocketAddress(host, PORT)), SOCKET_TIMEOUT);
-
-                        Log.d(LOG_TAG, "Client socket connected: " + socket.isConnected());
-                        OutputStream outputStream = socket.getOutputStream();
-                        InputStream inputStream = null;
-
-                        //noinspection CheckStyle
-                        try
-                        {
-                            // We go through these steps to get to an ObjectInputStream.
-                            // Don't question it, I won't have an answer.
-                            inputStream = new FileInputStream("LOCALHOST.ser");
-                            inputStream = new BufferedInputStream(inputStream);
-                            inputStream = new ObjectInputStream(inputStream);
-                            // this is where the data is sent
-                            transferStreams(inputStream, outputStream);
-                            Log.d(LOG_TAG, "Client: Data written for host update");
-                        }
-                        catch (FileNotFoundException e)
-                        {
-                            Log.e(LOG_TAG, "404 Error: " + e.getMessage());
-                        }
-                    }
-                    catch (IOException e)
-                    {
-                        Log.e(LOG_TAG, "Error: " + e.getMessage());
-                    }
-                    finally
-                    {
-                        if (socket.isConnected())
-                        {
-                            try
-                            {
-                                socket.close();
-                            }
-                            catch (IOException e)
-                            {
-                                // Give up all hope, ye who enter this block!
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    Log.e(LOG_TAG, "Unrecognized action: " + intent.getAction());
-                }
+                transmitInMemoryFile(intent);
+            }
+            else if (Objects.equals(intent.getAction(), ACTION_UPDATE_INETADDRESS))
+            {
+                transmitINetAddress(intent);
+            }
+            else
+            {
+                Log.e(LOG_TAG, "Unrecognized action: " + intent.getAction());
             }
         }
         catch (NullPointerException npe)
@@ -231,13 +131,146 @@ public final class SendDataService extends IntentService
     }
 
     /**
-     * Writes the contents of the InputStream to the OutputStream
-     * @param in The InputStream full of data.
-     * @param out The OutputStream that needs the data.
+     * Sends an InMemoryFile to a peer given information about
+     * how to communicate with the peer.
+     *
+     * @param intent
+     *         a non-null intent whose action is ACTION_SEND_DATA.
      */
-    public static void transferStreams(final InputStream in, final OutputStream out)
+    private void transmitInMemoryFile(@NonNull final Intent intent)
     {
-        byte[] buf = new byte[1024];
+        final InMemoryFile IMF =
+                Objects.requireNonNull(intent.getExtras())
+                        .getParcelable(EXTRAS_IN_MEMORY_FILE);
+        String host = intent.getExtras().getString(EXTRAS_PEER_ADDRESS);
+        Socket socket = new Socket();
+        final int PORT = intent.getExtras().getInt(EXTRAS_PEER_PORT);
+
+        try
+        {
+            Log.d(LOG_TAG, "Opening client socket");
+            socket.bind(null);
+            socket.connect((new InetSocketAddress(host, PORT)), SOCKET_TIMEOUT);
+
+            Log.d(LOG_TAG, "Client socket connected: " + socket.isConnected());
+            OutputStream outputStream = socket.getOutputStream();
+            InputStream inputStream = null;
+
+            try
+            {
+                // We go through these steps to get to an ObjectInputStream.
+                // Don't question it, I won't have an answer.
+                inputStream = new FileInputStream("IMF.ser");
+                inputStream = new BufferedInputStream(inputStream);
+                inputStream = new ObjectInputStream(inputStream);
+                // this is where the data is sent
+                transferStreams(inputStream, outputStream);
+                Log.d(LOG_TAG, "Client: Data Written");
+            }
+            catch (FileNotFoundException e)
+            {
+                Log.e(LOG_TAG, "404 Error: " + e.getMessage());
+            }
+        }
+        catch (IOException e)
+        {
+            Log.e(LOG_TAG, "Error: " + e.getMessage());
+        }
+        finally
+        {
+            if (socket.isConnected())
+            {
+                try
+                {
+                    socket.close();
+                }
+                catch (IOException e)
+                {
+                    // Give up all hope, ye who enter this block!
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * Sends an INetAddress to the host (assume this device
+     * is the client). So that the host knows how to communicate
+     * with this device.
+     *
+     * @param intent
+     *         a non-null intent whose action
+     *         is ACTION_UPDATE_INETADDRESS.
+     */
+    private void transmitINetAddress(@NonNull final Intent intent)
+    {
+        // Get the localhost to send to the host server.
+        final InMemoryFile LOCALHOST =
+                Objects.requireNonNull(intent.getExtras())
+                        .getParcelable(EXTRAS_INETADDRESS);
+        String host = intent.getExtras().getString(EXTRAS_PEER_ADDRESS);
+        Socket socket = new Socket();
+        final int PORT = intent.getExtras().getInt(EXTRAS_PEER_PORT);
+
+        try
+        {
+            Log.d(LOG_TAG, "Opening client socket for host update");
+            socket.bind(null);
+            socket.connect((new InetSocketAddress(host, PORT)), SOCKET_TIMEOUT);
+
+            Log.d(LOG_TAG, "Client socket connected: " + socket.isConnected());
+            OutputStream outputStream = socket.getOutputStream();
+            InputStream inputStream = null;
+
+            try
+            {
+                // We go through these steps to get to an ObjectInputStream.
+                // Don't question it, I won't have an answer.
+                inputStream = new FileInputStream("LOCALHOST.ser");
+                inputStream = new BufferedInputStream(inputStream);
+                inputStream = new ObjectInputStream(inputStream);
+                // this is where the data is sent
+                transferStreams(inputStream, outputStream);
+                Log.d(LOG_TAG, "Client: Data written for host update");
+            }
+            catch (FileNotFoundException e)
+            {
+                Log.e(LOG_TAG, "404 Error: " + e.getMessage());
+            }
+        }
+        catch (IOException e)
+        {
+            Log.e(LOG_TAG, "Error: " + e.getMessage());
+        }
+        finally
+        {
+            if (socket.isConnected())
+            {
+                try
+                {
+                    socket.close();
+                }
+                catch (IOException e)
+                {
+                    // Give up all hope, ye who enter this block!
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * Writes the contents of the InputStream to the OutputStream.
+     *
+     * @param in
+     *         The InputStream full of data.
+     * @param out
+     *         The OutputStream that needs the data.
+     */
+    private static void transferStreams(final InputStream in, final OutputStream out)
+    {
+        final int MAGIC_NUMBER = 1024;
+        byte[] buf = new byte[MAGIC_NUMBER];
         int len;
         try
         {
