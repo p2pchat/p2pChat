@@ -14,12 +14,15 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.uwstout.p2pchat.room.Peer;
 
 /**
  * Sets up and shows the NickName Modal.
@@ -42,11 +45,11 @@ public class NickNameModal
      * action listeners.
      * @param fragment fragment of the screen being displayed.
      * @param adapter listview adapter that is being presently used.
-     * @param names names of the database.
-     * @param index index being updated.(Where the listview has last been touched).
+     * @param peers current list of peers
+     * @param index Index of the peer being updated.
      */
     public NickNameModal(final Fragment fragment, final ArrayAdapter adapter,
-            ArrayList<String> names, final int index) {
+            List<Peer> peers, final int index) {
         //Note: Everything in here is constant and shall not change depending on where it is called.
 
 
@@ -60,16 +63,19 @@ public class NickNameModal
         dialogBuilder = new AlertDialog.Builder(context);
 
         //Gets the view from the xml file.
-        final View view1 = fragment.getLayoutInflater().inflate(R.layout.rename_dialog, null);
+        final View renameView = fragment.getLayoutInflater().inflate(R.layout.rename_dialog, null);
 
         //Sets the view1 onto the dialog.
-        dialogBuilder.setView(view1);
+        dialogBuilder.setView(renameView);
 
         //Sets the nickname.
         dialogBuilder.setTitle("Set NickName");
 
+        TextView editDialog = renameView.findViewById(R.id.newNickName);
+        editDialog.setHint(peers.get(index).nickname);
+
         //Set button listener.
-        SetButtonListeners(view1, adapter, names, index);
+        SetButtonListeners(renameView, adapter, peers, index);
 
         //sets the dialog to this.
         dialog = dialogBuilder.create();
@@ -81,7 +87,7 @@ public class NickNameModal
      * Sets the button listeners.
      */
     private void SetButtonListeners(final View view, final ArrayAdapter adapter,
-            final ArrayList<String> names, final int index) {
+            final List<Peer> peers, final int index) {
 
         // Button: Rename
         dialogBuilder.setPositiveButton("Rename", new DialogInterface.OnClickListener()
@@ -92,14 +98,9 @@ public class NickNameModal
                 final String NICKNAME =
                         ((EditText)view.findViewById(R.id.newNickName)).getText().toString();
 
-                //TODO update the database here with NICKNAME.
+                ViewModel viewModel = new ViewModel(mActivity.getApplication());
 
-                //updates the names from the listview.
-                names.set(index, NICKNAME);
-
-                //Notifies adapter that the data changed, so it is solely
-                //responsible for updating listview.
-                adapter.notifyDataSetChanged();
+                viewModel.insertPeer(peers.get(index).macAddress, NICKNAME);
             }
         });
 

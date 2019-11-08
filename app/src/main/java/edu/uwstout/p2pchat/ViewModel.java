@@ -5,6 +5,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 
 import java.util.Date;
 import java.util.List;
@@ -84,7 +85,7 @@ public class ViewModel extends AndroidViewModel
         repo.deleteMessages(message);
     }
 
-    public final List<Peer> getPeers()
+    public final LiveData<List<Peer>> getPeers()
     {
         return repo.getPeers();
     }
@@ -102,7 +103,7 @@ public class ViewModel extends AndroidViewModel
         return false;
     }
 
-    public final List<Message> getMessages(final String macAddress)
+    public final LiveData<List<Message>> getMessages(final String macAddress)
     {
         return repo.getMessages(macAddress);
     }
