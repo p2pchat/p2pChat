@@ -10,6 +10,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.util.Date;
@@ -23,7 +25,7 @@ import edu.uwstout.p2pchat.testing.MockViewModel;
 public class ChatFragment extends Fragment
 {
     private FragmentChatBinding binding;
-    private List<Message> messages;
+    private LiveData<List<Message>> liveData;
     private P2PMessageAdapter messageAdapter;
 
     /**
@@ -39,9 +41,21 @@ public class ChatFragment extends Fragment
         binding.messagesRecyclerView.setLayoutManager(linearLayoutManager);
         ViewModel viewModel = getViewModel(getActivity().getApplication());
         String address = getPeerMacAddress();
-        messages = viewModel.getMessages(address).getValue(); // TODO: implement this correctly
-        messageAdapter = new P2PMessageAdapter(messages);
+
+        liveData = viewModel.getMessages(address);
+
+        messageAdapter = new P2PMessageAdapter(liveData.getValue());
         binding.messagesRecyclerView.setAdapter(messageAdapter);
+
+        liveData.observeForever(new Observer<List<Message>>() {
+            @Override
+            public void onChanged(List<Message> messages) {
+                messageAdapter = new P2PMessageAdapter(messages);
+                binding.messagesRecyclerView.swapAdapter(messageAdapter, false);
+                binding.messagesRecyclerView.scrollToPosition(messages.size() - 1);
+            }
+        });
+
 
         binding.sendButton.setOnClickListener(new View.OnClickListener()
         {
@@ -54,12 +68,9 @@ public class ChatFragment extends Fragment
             {
                 String text = binding.textInput.getText().toString();
                 Date timestamp = new Date();
+
                 viewModel.insertMessage(address, timestamp, true, "text/message", text);
-                int newMessagePosition = messages.size() - 1;
 
-                messageAdapter.notifyItemInserted(newMessagePosition);
-
-                binding.messagesRecyclerView.scrollToPosition(newMessagePosition);
                 binding.textInput.setText("");
             }
         });

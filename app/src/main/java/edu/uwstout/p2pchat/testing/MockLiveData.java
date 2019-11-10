@@ -31,6 +31,5 @@ public class MockLiveData<T> extends LiveData<T> {
 
     public void update() {
         super.setValue(updater.update());
-        super.notifyAll();
     }
 }
