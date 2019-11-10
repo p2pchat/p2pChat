@@ -1,5 +1,6 @@
 package edu.uwstout.p2pchat;
 
+import android.app.Application;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,8 +35,8 @@ public class ChatFragment extends Fragment
         binding = FragmentChatBinding.inflate(inflater, container, false);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         binding.messagesRecyclerView.setLayoutManager(linearLayoutManager);
-        ViewModel viewModel = new ViewModel(getActivity().getApplication());
-        String address = ChatFragmentArgs.fromBundle(getArguments()).getAddress();
+        ViewModel viewModel = getViewModel(getActivity().getApplication());
+        String address = getPeerMacAddress();
         messages = viewModel.getMessages(address).getValue(); // TODO: implement this correctly
         messageAdapter = new P2PMessageAdapter(messages);
         binding.messagesRecyclerView.setAdapter(messageAdapter);
@@ -75,6 +76,23 @@ public class ChatFragment extends Fragment
 
 
         return binding.getRoot();
+    }
+
+    /**
+     * To be overrided for testing purposes
+     * @param app Current application
+     * @return Application's ViewModel
+     */
+    public ViewModel getViewModel(Application app) {
+        return new ViewModel(app);
+    }
+
+    /**
+     * To be overrided for testing purposes
+     * @return Mac Address of peer currently connected to
+     */
+    public String getPeerMacAddress() {
+        return ChatFragmentArgs.fromBundle(getArguments()).getAddress();
     }
 
 }
