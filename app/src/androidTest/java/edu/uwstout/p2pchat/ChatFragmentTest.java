@@ -37,7 +37,7 @@ public class ChatFragmentTest
         testingString = "Hello";
         FragmentTransaction transaction =
                 activityRule.getActivity().getSupportFragmentManager().beginTransaction();
-        ChatFragment chatFragment = new ChatFragment();
+        TestChatFragment chatFragment = new TestChatFragment();
         transaction.add(chatFragment,"chatFrag");
         transaction.commit();
     }
