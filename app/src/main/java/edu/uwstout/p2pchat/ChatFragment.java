@@ -19,8 +19,6 @@ import java.util.List;
 
 import edu.uwstout.p2pchat.databinding.FragmentChatBinding;
 import edu.uwstout.p2pchat.room.Message;
-import edu.uwstout.p2pchat.testing.MockPeers;
-import edu.uwstout.p2pchat.testing.MockViewModel;
 
 public class ChatFragment extends Fragment
 {
@@ -97,8 +95,7 @@ public class ChatFragment extends Fragment
      * @return Application's ViewModel
      */
     public ViewModel getViewModel(Application app) {
-//        return new ViewModel(app);
-        return new MockViewModel(app);
+        return new ViewModel(app);
     }
 
     /**
@@ -106,8 +103,7 @@ public class ChatFragment extends Fragment
      * @return Mac Address of peer currently connected to
      */
     public String getPeerMacAddress() {
-//        return ChatFragmentArgs.fromBundle(getArguments()).getAddress();
-        return MockPeers.austin.macAddress;
+        return ChatFragmentArgs.fromBundle(getArguments()).getAddress();
     }
 
 }
