@@ -36,7 +36,7 @@ public class ChatFragment extends Fragment
         binding.messagesRecyclerView.setLayoutManager(linearLayoutManager);
         ViewModel viewModel = new ViewModel(getActivity().getApplication());
         String address = ChatFragmentArgs.fromBundle(getArguments()).getAddress();
-        messages = viewModel.getMessages(address);
+        messages = viewModel.getMessages(address).getValue(); // TODO: implement this correctly
         messageAdapter = new P2PMessageAdapter(messages);
         binding.messagesRecyclerView.setAdapter(messageAdapter);
 
