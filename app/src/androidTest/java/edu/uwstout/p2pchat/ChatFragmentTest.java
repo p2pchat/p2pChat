@@ -59,7 +59,8 @@ public class ChatFragmentTest
     }
 
     @Test
-    public void validateImageButtonClicks(){
+    public void validateImageButtonClicks()
+    {
         onView(withId(R.id.attachmentButton)).perform(click()).check(matches(isDisplayed()));
     }
 
