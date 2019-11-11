@@ -65,6 +65,9 @@ public class ChatFragment extends Fragment
             public void onClick(final View view)
             {
                 String text = binding.textInput.getText().toString();
+
+                if(text.equals("")) return;
+
                 Date timestamp = new Date();
 
                 viewModel.insertMessage(address, timestamp, true, "text/message", text);
