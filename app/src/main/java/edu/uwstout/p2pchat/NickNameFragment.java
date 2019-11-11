@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uwstout.p2pchat.room.Peer;
+import edu.uwstout.p2pchat.testing.MockViewModel;
 import kotlin.jvm.Throws;
 
 
@@ -164,7 +165,8 @@ public class NickNameFragment extends Fragment
      * @return
      */
     public ViewModel getViewModel(Application app) {
-        return new ViewModel(app);
+//        return new ViewModel(app);
+        return new MockViewModel(app);
     }
 
 
