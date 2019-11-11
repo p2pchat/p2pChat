@@ -1,12 +1,9 @@
 package edu.uwstout.p2pchat.testing;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
-
-import java.util.function.Function;
 
 public class MockLiveData<T> extends LiveData<T> {
     private MockDataUpdater<T> updater;

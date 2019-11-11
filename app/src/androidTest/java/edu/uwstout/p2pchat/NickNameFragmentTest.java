@@ -9,8 +9,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Date;
-
 import edu.uwstout.p2pchat.testing.MockPeers;
 import edu.uwstout.p2pchat.testing.MockViewModel;
 
