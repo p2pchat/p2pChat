@@ -2,6 +2,7 @@ package edu.uwstout.p2pchat;
 
 
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -49,7 +50,7 @@ public class NickNameFragment extends Fragment
      */
     private ArrayList<String> names = new ArrayList<>();
 
-    private LiveData<List<Peer>> peers;
+    private LiveData<List<Peer>> liveData;
 
     private ArrayAdapter adapter;
     /**
@@ -79,13 +80,18 @@ public class NickNameFragment extends Fragment
         classContext = view.getContext();
 
         //Inilizes listview for nicknames here.
-        ListView names = (ListView) view.findViewById(R.id.nameListView);
+        ListView listView = (ListView) view.findViewById(R.id.nameListView);
 
-        //Sets the adapter for the listview.
-        names.setAdapter(getNickNameAdapter());
+        liveData = getViewModel(getActivity().getApplication()).getPeers();
+        liveData.observeForever(new Observer<List<Peer>>() {
+            @Override
+            public void onChanged(List<Peer> peers) {
+                listView.setAdapter(getNickNameAdapter(peers));
+            }
+        });
 
         //Set the click listeners for each of the lists.
-        names.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
@@ -101,37 +107,18 @@ public class NickNameFragment extends Fragment
     /** Creates an array adapter from the database and returns it.
      * @return a newly created array adapter created from data.
      */
-    private ArrayAdapter getNickNameAdapter()
+    private ArrayAdapter getNickNameAdapter(List<Peer> peers)
     {
 
-        //TODO get number of names from database here.
-        int size = 0; //Change later.
-
-        //TODO extract nicknames from database here.
-
+        List<String> elements = new ArrayList<>();
+        for(Peer peer : peers) {
+            elements.add(peer.macAddress + " - " + peer.nickname);
+        }
         //Adapter that will be used.
         adapter = (new ArrayAdapter(classContext,
                 android.R.layout.simple_list_item_1,
-                names));
+                elements));
 
-        ViewModel viewModel = new ViewModel(getActivity().getApplication());
-        if(peers == null) {
-            peers = viewModel.getPeers();
-            peers.observeForever(new Observer<List<Peer>>()
-            {
-                @Override
-                public void onChanged(List<Peer> peers)
-                {
-                    if(peers != null) {
-                        names.clear();
-                        for(int i = 0;i<peers.size();i++) {
-                            names.add(peers.get(i).macAddress + " - " + peers.get(i).nickname);
-                        }
-                        adapter.notifyDataSetChanged();
-                    }
-                }
-            });
-        }
 
         //Returns the new arrayadapter.
         return adapter;
@@ -142,7 +129,7 @@ public class NickNameFragment extends Fragment
      * @param index position of the name being changed.
      */
     private void PopUp(final int index, ArrayAdapter adapter) {
-        NickNameModal nick = new NickNameModal(this, adapter, peers.getValue(), index);
+        NickNameModal nick = getNickNameModal(this, adapter, liveData.getValue(), index);
         nick.show();
     }
 
@@ -156,7 +143,26 @@ public class NickNameFragment extends Fragment
     }
 
 
+    /**
+     * For testing
+     * @param app
+     * @return
+     */
+    public ViewModel getViewModel(Application app) {
+        return new ViewModel(app);
+    }
 
+    /**
+     * For testing
+     * @param fragment
+     * @param arrayAdapter
+     * @param peers
+     * @param index
+     * @return
+     */
+    public NickNameModal getNickNameModal(Fragment fragment, ArrayAdapter arrayAdapter, List<Peer> peers, final int index) {
+        return new NickNameModal(fragment, arrayAdapter, peers, index);
+    }
 
 
 

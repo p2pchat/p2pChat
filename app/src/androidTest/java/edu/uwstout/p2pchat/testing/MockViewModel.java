@@ -5,7 +5,6 @@ import android.content.Context;
 
 import androidx.lifecycle.LiveData;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -63,6 +62,12 @@ public class MockViewModel extends ViewModel {
     public void insertPeer(String macAddress, String nickname) {
         Peer peer = new Peer(macAddress);
         peer.nickname = nickname;
+        peers.removeIf(new Predicate<Peer>() {
+            @Override
+            public boolean test(Peer p) {
+                return p.macAddress == macAddress;
+            }
+        });
         peers.add(peer);
         updatePeerLiveData();
     }
