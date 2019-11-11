@@ -163,7 +163,8 @@ public class NickNameFragment extends Fragment
      * @return
      */
     public NickNameModal getNickNameModal(Fragment fragment, ArrayAdapter arrayAdapter, List<Peer> peers, final int index) {
-        return new NickNameModal(fragment, arrayAdapter, peers, index);
+//        return new NickNameModal(fragment, arrayAdapter, peers, index);
+        return new TestNickNameModal(fragment, arrayAdapter, peers, index);
     }
 
 
