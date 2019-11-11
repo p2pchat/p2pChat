@@ -10,16 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uwstout.p2pchat.databinding.ItemMessageBinding;
+import edu.uwstout.p2pchat.room.Message;
 
 public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder>
 {
 
-    private List<P2PMessage> messageList;
+    private List<Message> messageList;
 
     /**
      *
      */
-    P2PMessageAdapter(List<P2PMessage> messageList)
+    P2PMessageAdapter(List<Message> messageList)
     {
         this.messageList = messageList;
     }
@@ -44,7 +45,7 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
     @Override
     public void onBindViewHolder(@NonNull P2PMessageViewHolder holder, int position)
     {
-        P2PMessage message = this.messageList.get(position);
+        Message message = this.messageList.get(position);
 
         holder.bindData(message);
     }
@@ -57,7 +58,7 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
     {
         if (messageList == null)
         {
-            messageList = new ArrayList<P2PMessage>();
+            messageList = new ArrayList<Message>();
         }
         return messageList.size();
     }

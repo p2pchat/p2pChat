@@ -9,6 +9,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import androidx.fragment.app.FragmentTransaction;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
@@ -31,9 +32,14 @@ public class ChatFragmentTest
     public ActivityTestRule<MainActivity> activityRule = new ActivityTestRule<>(MainActivity.class);
 
     @Before
-    public void initText()
+    public void initTextandFragment()
     {
         testingString = "Hello";
+        FragmentTransaction transaction =
+                activityRule.getActivity().getSupportFragmentManager().beginTransaction();
+        ChatFragment chatFragment = new ChatFragment();
+        transaction.add(chatFragment,"chatFrag");
+        transaction.commit();
     }
 
     @Test

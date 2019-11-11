@@ -28,7 +28,8 @@ public class ExternalFile
     }
 
     /**
-     * @param mimeTypeStr Mime type setter
+     * @param mimeTypeStr
+     *         Mime type setter
      */
     public final void setMimeType(final String mimeTypeStr)
     {
@@ -37,8 +38,11 @@ public class ExternalFile
 
     /**
      * External File constructor
-     * @param pathRef Path to file
-     * @param mimeTypeStr Mime type of file
+     *
+     * @param pathRef
+     *         Path to file
+     * @param mimeTypeStr
+     *         Mime type of file
      */
     public ExternalFile(final File pathRef, final String mimeTypeStr)
     {
@@ -48,6 +52,7 @@ public class ExternalFile
 
     /**
      * Loads file from storage into memory
+     *
      * @return InMemoryFile of loaded file or null if failed.
      */
     public final InMemoryFile loadIntoMemory()
@@ -67,6 +72,7 @@ public class ExternalFile
 
     /**
      * Deletes this file in storage.
+     *
      * @return true if successful
      */
     public final boolean delete()
