@@ -63,6 +63,12 @@ public class MockViewModel extends ViewModel {
     public void insertPeer(String macAddress, String nickname) {
         Peer peer = new Peer(macAddress);
         peer.nickname = nickname;
+        peers.removeIf(new Predicate<Peer>() {
+            @Override
+            public boolean test(Peer p) {
+                return p.macAddress == macAddress;
+            }
+        });
         peers.add(peer);
         updatePeerLiveData();
     }

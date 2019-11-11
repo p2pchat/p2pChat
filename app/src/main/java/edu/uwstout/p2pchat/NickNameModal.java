@@ -2,6 +2,7 @@ package edu.uwstout.p2pchat;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -98,7 +99,7 @@ public class NickNameModal
                 final String NICKNAME =
                         ((EditText)view.findViewById(R.id.newNickName)).getText().toString();
 
-                ViewModel viewModel = new ViewModel(mActivity.getApplication());
+                ViewModel viewModel = getViewModel(mActivity.getApplication());
 
                 viewModel.insertPeer(peers.get(index).macAddress, NICKNAME);
             }
@@ -132,7 +133,9 @@ public class NickNameModal
     }
 
 
-
+    public ViewModel getViewModel(Application app) {
+        return new ViewModel(app);
+    }
 
 
 
