@@ -2,6 +2,7 @@ package edu.uwstout.p2pchat;
 
 
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -114,7 +115,8 @@ public class NickNameFragment extends Fragment
                 android.R.layout.simple_list_item_1,
                 names));
 
-        ViewModel viewModel = new ViewModel(getActivity().getApplication());
+        ViewModel viewModel = getViewModel(getActivity().getApplication());
+
         if(peers == null) {
             peers = viewModel.getPeers();
             peers.observeForever(new Observer<List<Peer>>()
@@ -156,7 +158,14 @@ public class NickNameFragment extends Fragment
     }
 
 
-
+    /**
+     * For testing
+     * @param app
+     * @return
+     */
+    public ViewModel getViewModel(Application app) {
+        return new ViewModel(app);
+    }
 
 
 
