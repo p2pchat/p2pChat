@@ -10,7 +10,7 @@ import androidx.room.TypeConverters;
 /**
  * Database holding the peer and message tables.
  */
-@Database(entities = {Peer.class, Message.class}, version = 1)
+@Database(entities = {Peer.class, Message.class}, version = 1, exportSchema = false)
 @TypeConverters(Converters.class)
 abstract class P2pDatabase extends RoomDatabase
 {

@@ -4,19 +4,23 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.hasChildCount;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
-import androidx.fragment.app.FragmentTransaction;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
 
-import org.junit.Before;
+import com.android21buttons.fragmenttestrule.FragmentTestRule;
+
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Date;
+
+import edu.uwstout.p2pchat.testing.MockPeers;
+import edu.uwstout.p2pchat.testing.MockViewModel;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -27,43 +31,36 @@ import org.junit.runner.RunWith;
 public class ChatFragmentTest
 {
 
-    private String testingString;
+    String testMessage1 = "This is madness!";
+    String testMessage2 = "Madness? No, this is Sparta!";
+
     @Rule
-    public ActivityTestRule<MainActivity> activityRule = new ActivityTestRule<>(MainActivity.class);
+    public FragmentTestRule<MainActivity, TestChatFragment> fragmentRule = new FragmentTestRule<>(MainActivity.class, TestChatFragment.class);
 
-    @Before
-    public void initTextandFragment()
+    @After
+    public void after()
     {
-        testingString = "Hello";
-        FragmentTransaction transaction =
-                activityRule.getActivity().getSupportFragmentManager().beginTransaction();
-        ChatFragment chatFragment = new ChatFragment();
-        transaction.add(chatFragment,"chatFrag");
-        transaction.commit();
+        MockViewModel.resetModel();
     }
 
     @Test
-    public void validateInputText()
+    public void validateSendAndReceiveMessages()
     {
-        onView(withId(R.id.textInput)).perform(typeText(testingString)).check(
-                matches(withText(testingString)));
-    }
-
-    @Test
-    public void validateSendButtonCreatesMessage()
-    {
+        onView(withId(R.id.textInput)).perform(typeText(testMessage1));
         onView(withId(R.id.sendButton)).perform(click());
-        onView(withId(R.id.messagesRecyclerView)).check(matches(hasChildCount(1)));
-
-    }
-    @Test
-    public void validateEditTextClearsOnButtonPress(){
-        onView(withId(R.id.textInput)).perform(typeText(testingString));
-        onView(withId(R.id.sendButton)).perform(click());
+        onView(withText(testMessage1)).check(matches(isDisplayed()));
         onView(withId(R.id.textInput)).check(matches(withText("")));
+
+        // Simulate received message by adding new message to MockViewModel
+        (new MockViewModel(null)).insertTextMessage(MockPeers.austin.macAddress, new Date(), false, testMessage2);
+
+        onView(withText(testMessage2)).check(matches(isDisplayed()));
+
     }
+
     @Test
-    public void validateImageButtonClicks(){
+    public void validateImageButtonClicks()
+    {
         onView(withId(R.id.attachmentButton)).perform(click()).check(matches(isDisplayed()));
     }
 

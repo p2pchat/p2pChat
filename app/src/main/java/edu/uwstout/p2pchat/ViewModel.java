@@ -5,6 +5,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 
 import java.util.Date;
 import java.util.List;
@@ -24,14 +25,14 @@ public class ViewModel extends AndroidViewModel
         repo = new P2pRepository(application);
     }
 
-    public final void insertPeer(final String macAddress, final String nickname)
+    public void insertPeer(final String macAddress, final String nickname)
     {
         Peer peer = new Peer(macAddress);
         peer.nickname = nickname;
         repo.insertPeers(peer);
     }
 
-    public final void insertMessage(final String macAddress, final Date timestamp,
+    public void insertMessage(final String macAddress, final Date timestamp,
             final Boolean sent, final String mimeType,
             final String content)
     {
@@ -43,7 +44,7 @@ public class ViewModel extends AndroidViewModel
         repo.insertMessages(message);
     }
 
-    public final void insertTextMessage(final String macAddress, final Date timestamp,
+    public void insertTextMessage(final String macAddress, final Date timestamp,
             final Boolean sent, final String message)
     {
         Message newMessage = new Message(macAddress);
@@ -54,7 +55,7 @@ public class ViewModel extends AndroidViewModel
         repo.insertMessages(newMessage);
     }
 
-    public final Boolean insertFileMessage(final String macAddress, final Date timestamp,
+    public Boolean insertFileMessage(final String macAddress, final Date timestamp,
             final Boolean sent,
             final InMemoryFile file, final Context context)
     {
@@ -72,26 +73,29 @@ public class ViewModel extends AndroidViewModel
         return true;
     }
 
-    public final void deletePeer(final String macAddress)
+    public void deletePeer(final String macAddress)
     {
         repo.deletePeers(new Peer(macAddress));
     }
 
-    public final void deleteMessage(final int messageId)
+    public void deleteMessage(final int messageId)
     {
         Message message = new Message("");
         message.id = messageId;
         repo.deleteMessages(message);
     }
 
-    public final List<Peer> getPeers()
+    public LiveData<List<Peer>> getPeers()
     {
         return repo.getPeers();
     }
 
+    //TODO: make sure this function is still valid
     public final boolean peerExists(String address)
     {
-        for (Peer peer : getPeers())
+        List<Peer> peers = getPeers().getValue();
+        if(peers == null) return false;
+        for (Peer peer : getPeers().getValue())
         {
             if (peer.macAddress.equals(address))
             {
@@ -102,7 +106,7 @@ public class ViewModel extends AndroidViewModel
         return false;
     }
 
-    public final List<Message> getMessages(final String macAddress)
+    public LiveData<List<Message>> getMessages(final String macAddress)
     {
         return repo.getMessages(macAddress);
     }

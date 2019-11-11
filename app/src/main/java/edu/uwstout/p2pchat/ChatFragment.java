@@ -1,5 +1,6 @@
 package edu.uwstout.p2pchat;
 
+import android.app.Application;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.util.Date;
@@ -20,7 +23,7 @@ import edu.uwstout.p2pchat.room.Message;
 public class ChatFragment extends Fragment
 {
     private FragmentChatBinding binding;
-    private List<Message> messages;
+    private LiveData<List<Message>> liveData;
     private P2PMessageAdapter messageAdapter;
 
     /**
@@ -34,11 +37,23 @@ public class ChatFragment extends Fragment
         binding = FragmentChatBinding.inflate(inflater, container, false);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         binding.messagesRecyclerView.setLayoutManager(linearLayoutManager);
-        ViewModel viewModel = new ViewModel(getActivity().getApplication());
-        String address = ChatFragmentArgs.fromBundle(getArguments()).getAddress();
-        messages = viewModel.getMessages(address);
-        messageAdapter = new P2PMessageAdapter(messages);
+        ViewModel viewModel = getViewModel(getActivity().getApplication());
+        String address = getPeerMacAddress();
+
+        liveData = viewModel.getMessages(address);
+
+        messageAdapter = new P2PMessageAdapter(liveData.getValue());
         binding.messagesRecyclerView.setAdapter(messageAdapter);
+
+        liveData.observeForever(new Observer<List<Message>>() {
+            @Override
+            public void onChanged(List<Message> messages) {
+                messageAdapter = new P2PMessageAdapter(messages);
+                binding.messagesRecyclerView.swapAdapter(messageAdapter, false);
+                binding.messagesRecyclerView.scrollToPosition(messages.size() - 1);
+            }
+        });
+
 
         binding.sendButton.setOnClickListener(new View.OnClickListener()
         {
@@ -50,13 +65,13 @@ public class ChatFragment extends Fragment
             public void onClick(final View view)
             {
                 String text = binding.textInput.getText().toString();
+
+                if(text.equals("")) return;
+
                 Date timestamp = new Date();
+
                 viewModel.insertMessage(address, timestamp, true, "text/message", text);
-                int newMessagePosition = messages.size() - 1;
 
-                messageAdapter.notifyItemInserted(newMessagePosition);
-
-                binding.messagesRecyclerView.scrollToPosition(newMessagePosition);
                 binding.textInput.setText("");
             }
         });
@@ -75,6 +90,23 @@ public class ChatFragment extends Fragment
 
 
         return binding.getRoot();
+    }
+
+    /**
+     * To be overrided for testing purposes
+     * @param app Current application
+     * @return Application's ViewModel
+     */
+    public ViewModel getViewModel(Application app) {
+        return new ViewModel(app);
+    }
+
+    /**
+     * To be overrided for testing purposes
+     * @return Mac Address of peer currently connected to
+     */
+    public String getPeerMacAddress() {
+        return ChatFragmentArgs.fromBundle(getArguments()).getAddress();
     }
 
 }
