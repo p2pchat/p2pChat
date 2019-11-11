@@ -31,6 +31,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 public class NickNameFragmentTest
 {
 
+    String testNickName = "The Nick";
+
     @Rule
     public FragmentTestRule<MainActivity, TestNickNameFragment> fragmentRule = new FragmentTestRule<>(MainActivity.class, TestNickNameFragment.class);
 
@@ -40,6 +42,13 @@ public class NickNameFragmentTest
         MockViewModel.resetModel();
     }
 
+    @Test
+    public void changeNickname() {
+        onView(withText(MockPeers.nick.macAddress + " - " + MockPeers.nick.nickname)).perform(click());
+        onView(withId(R.id.newNickName)).perform(typeText(testNickName));
+        onView(withText("RENAME")).perform(click());
+        onView(withText(MockPeers.nick.macAddress + " - " + testNickName)).check(matches(isDisplayed()));
+    }
 
 }
 
