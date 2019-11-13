@@ -2,15 +2,18 @@ package edu.uwstout.p2pchat;
 
 
 import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.net.wifi.p2p.WifiP2pManager;
 
 import org.junit.Test;
 
 import static com.google.common.truth.Truth.assertThat;
 
 /**
- * Unit test class for the WifiDirect Singleton
+ * Unit test class for the WifiDirect Singleton.
+ * Note that only the static functions that don't
+ * require context in the WifiDirect singleton
+ * can be unit tested as all other functions
+ * need a context, something that is impossible
+ * within a unit test.
  */
 public class WifiDirectTest
 {
