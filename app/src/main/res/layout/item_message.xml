@@ -13,13 +13,39 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
         <LinearLayout
-            android:id="@+id/chat_msg_layout"
+            android:id="@+id/chat_msg_received"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start">
+            <TextView
+                android:id="@+id/chat_msg_timestamp_received"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textIsSelectable="true"
+                android:text="@{timestamp}"
+                android:background="@color/colorPrimary"
+                android:textColor="@color/colorAccent"
+                android:textSize="8pt"/>
+            <TextView
+                android:id="@+id/chat_msg_text_received"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="@{textOutput}"
+                android:textIsSelectable="true"
+                android:background="@color/colorPrimary"
+                android:textColor="@color/colorAccent"
+                android:textSize="8pt"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/chat_msg_sent"
             android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end">
             <TextView
-                android:id="@+id/chat_msg_timestamp_view"
+                android:id="@+id/chat_msg_timestamp_sent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
@@ -30,7 +56,7 @@
                 android:textSize="8pt"/>
 
             <TextView
-                android:id="@+id/chat_msg_text_view"
+                android:id="@+id/chat_msg_text_sent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
@@ -39,11 +65,6 @@
                 android:background="@color/colorPrimary"
                 android:textColor="@color/colorAccent"
                 android:textSize="8pt"/>
-            <ImageView
-                android:contentDescription="@{textOutput}"
-                android:id="@+id/chat_msg_image_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
 
         </LinearLayout>
     </LinearLayout>
