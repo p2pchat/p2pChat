@@ -21,6 +21,7 @@ import edu.uwstout.p2pchat.WifiDirect;
  * A simple server socket that accepts connections and writes
  * some data on the stream.
  * Only applicable when this device is acting as the server.
+ *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
 public class ReceiverAsyncTask extends AsyncTask
@@ -53,7 +54,8 @@ public class ReceiverAsyncTask extends AsyncTask
     /**
      * Listens for incoming messages in the background.
      *
-     * @param objects Required by the superclass, these are unnecessary.
+     * @param objects
+     *         Required by the superclass, these are unnecessary.
      * @return An object. Currently null.
      */
     @Override
@@ -73,39 +75,29 @@ public class ReceiverAsyncTask extends AsyncTask
             // Now that we have passed that line,
             // we have accepted a connection.
             Log.i(LOG_TAG, "Receiver: Connection established");
-            InputStream inputStream = client.getInputStream();
-            ObjectInputStream ois = new ObjectInputStream(inputStream);
             // get the InMemoryFile object from the InputStream
-            InMemoryFile imf;
-            try
-            {
-                imf = (InMemoryFile) ois.readObject();
-            }
-            catch (ClassNotFoundException e)
-            {
-                Log.d(LOG_TAG,
-                        "Could not convert input stream to InMemoryFile.");
-                Log.e(LOG_TAG, "ClassNotFoundException: " + e.getMessage());
-                return null;
-            }
+            InMemoryFile imf = parseInMemoryFileFromInputStream(client.getInputStream());
             // save the InMemoryFile to the database.
             // determine if we are dealing with a text message or a file.
-            Log.i(LOG_TAG, "Message received, MIME type: " + imf.getMimeType());
-            if (imf.getMimeType().equals(InMemoryFile.MESSAGE_MIME_TYPE))
+            if (imf != null)
             {
-                // add a text message to the database
-                String macAddress = WifiDirect.getInstance(this.context)
-                        .getPeerDevice().deviceAddress;
-                new ViewModel((Application) this.context.getApplicationContext())
-                        .insertTextMessage(macAddress, new Date(), false, imf.getTextMessage());
-            }
-            else
-            {
-                // add a regular file to the database
-                String macAddress = WifiDirect.getInstance(this.context)
-                        .getPeerDevice().deviceAddress;
-                new ViewModel((Application) this.context.getApplicationContext())
-                        .insertFileMessage(macAddress, new Date(), false, imf, this.context);
+                Log.i(LOG_TAG, "Message received, MIME type: " + imf.getMimeType());
+                if (imf.getMimeType().equals(InMemoryFile.MESSAGE_MIME_TYPE))
+                {
+                    // add a text message to the database
+                    String macAddress = WifiDirect.getInstance(this.context)
+                            .getPeerDevice().deviceAddress;
+                    new ViewModel((Application) this.context.getApplicationContext())
+                            .insertTextMessage(macAddress, new Date(), false, imf.getTextMessage());
+                }
+                else
+                {
+                    // add a regular file to the database
+                    String macAddress = WifiDirect.getInstance(this.context)
+                            .getPeerDevice().deviceAddress;
+                    new ViewModel((Application) this.context.getApplicationContext())
+                            .insertFileMessage(macAddress, new Date(), false, imf, this.context);
+                }
             }
             return null;
         }
@@ -114,5 +106,25 @@ public class ReceiverAsyncTask extends AsyncTask
             Log.e(LOG_TAG, "Error receiving data: " + e.getMessage());
             return null;
         }
+    }
+
+    public static InMemoryFile parseInMemoryFileFromInputStream(InputStream inputStream)
+    {
+        try
+        {
+            ObjectInputStream ois = new ObjectInputStream(inputStream);
+            return (InMemoryFile) ois.readObject();
+        }
+        catch (ClassNotFoundException e)
+        {
+            Log.d(LOG_TAG,
+                    "Could not convert input stream to InMemoryFile.");
+            Log.e(LOG_TAG, "ClassNotFoundException: " + e.getMessage());
+        }
+        catch (IOException e)
+        {
+            Log.e(LOG_TAG, "Error creating ObjectInputStream: " + e.getMessage());
+        }
+        return null;
     }
 }

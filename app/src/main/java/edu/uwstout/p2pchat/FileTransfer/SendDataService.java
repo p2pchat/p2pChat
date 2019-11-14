@@ -25,6 +25,7 @@ import edu.uwstout.p2pchat.InMemoryFile;
  * A service that processes each send data request (Android Intent)
  * by opening a socket connection with the WiFi Direct Group owner and
  * writing the file.
+ *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
 public final class SendDataService extends IntentService
@@ -154,23 +155,14 @@ public final class SendDataService extends IntentService
 
             Log.d(LOG_TAG, "Client socket connected: " + socket.isConnected());
             OutputStream outputStream = socket.getOutputStream();
-            InputStream inputStream = null;
+            InputStream inputStream = serializeInMemoryFile(IMF);
 
-            try
+            // this is where the data is sent
+            if (inputStream != null)
             {
-                // We go through these steps to get to an ObjectInputStream.
-                // Don't question it, I won't have an answer.
-                inputStream = new FileInputStream("IMF.ser");
-                inputStream = new BufferedInputStream(inputStream);
-                inputStream = new ObjectInputStream(inputStream);
-                // this is where the data is sent
                 transferStreams(inputStream, outputStream);
-                Log.d(LOG_TAG, "Client: Data Written");
             }
-            catch (FileNotFoundException e)
-            {
-                Log.e(LOG_TAG, "404 Error: " + e.getMessage());
-            }
+            Log.d(LOG_TAG, "Client: Data Written");
         }
         catch (IOException e)
         {
@@ -205,7 +197,7 @@ public final class SendDataService extends IntentService
     private void transmitINetAddress(@NonNull final Intent intent)
     {
         // Get the localhost to send to the host server.
-        final InMemoryFile LOCALHOST =
+        final InetAddress LOCALHOST =
                 Objects.requireNonNull(intent.getExtras())
                         .getParcelable(EXTRAS_INETADDRESS);
         String host = intent.getExtras().getString(EXTRAS_PEER_ADDRESS);
@@ -220,23 +212,14 @@ public final class SendDataService extends IntentService
 
             Log.d(LOG_TAG, "Client socket connected: " + socket.isConnected());
             OutputStream outputStream = socket.getOutputStream();
-            InputStream inputStream = null;
-
-            try
+            InputStream inputStream = serializeINetAddress(LOCALHOST);
+            // this is where the data is sent
+            if (inputStream != null)
             {
-                // We go through these steps to get to an ObjectInputStream.
-                // Don't question it, I won't have an answer.
-                inputStream = new FileInputStream("LOCALHOST.ser");
-                inputStream = new BufferedInputStream(inputStream);
-                inputStream = new ObjectInputStream(inputStream);
-                // this is where the data is sent
                 transferStreams(inputStream, outputStream);
-                Log.d(LOG_TAG, "Client: Data written for host update");
             }
-            catch (FileNotFoundException e)
-            {
-                Log.e(LOG_TAG, "404 Error: " + e.getMessage());
-            }
+            Log.d(LOG_TAG, "Client: Data written for host update");
+
         }
         catch (IOException e)
         {
@@ -260,6 +243,62 @@ public final class SendDataService extends IntentService
     }
 
     /**
+     * Converts an InMemoryFile into an InputStream
+     *
+     * @param imf
+     *         an InMemoryFile that we wish to serialize.
+     * @return an InputStream with a serialized InMemoryFile,
+     * or null if an error occurred.
+     */
+    public static InputStream serializeInMemoryFile(InMemoryFile imf)
+    {
+        try
+        {
+            InputStream inputStream = new FileInputStream("imf.ser");
+            inputStream = new BufferedInputStream(inputStream);
+            inputStream = new ObjectInputStream(inputStream);
+            return inputStream;
+        }
+        catch (FileNotFoundException e)
+        {
+            Log.e(LOG_TAG, "404 Error: " + e.getMessage());
+        }
+        catch (IOException e)
+        {
+            Log.e(LOG_TAG, "Error creating ObjectInputStream: " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Converts an InetAddress into an InputStream
+     *
+     * @param address
+     *         an InetAddress that we wish to serialize
+     * @return an InputStream with a serialized InetAddress,
+     * or null if an error occurred.
+     */
+    public static InputStream serializeINetAddress(InetAddress address)
+    {
+        try
+        {
+            InputStream inputStream = new FileInputStream("address.ser");
+            inputStream = new BufferedInputStream(inputStream);
+            inputStream = new ObjectInputStream(inputStream);
+            return inputStream;
+        }
+        catch (FileNotFoundException e)
+        {
+            Log.e(LOG_TAG, "404 Error: " + e.getMessage());
+        }
+        catch (IOException e)
+        {
+            Log.e(LOG_TAG, "Error creating ObjectInputStream: " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
      * Writes the contents of the InputStream to the OutputStream.
      *
      * @param in
@@ -267,7 +306,7 @@ public final class SendDataService extends IntentService
      * @param out
      *         The OutputStream that needs the data.
      */
-    private static void transferStreams(final InputStream in, final OutputStream out)
+    public static void transferStreams(final InputStream in, final OutputStream out)
     {
         final int MAGIC_NUMBER = 1024;
         byte[] buf = new byte[MAGIC_NUMBER];
