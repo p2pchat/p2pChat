@@ -20,9 +20,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.navigation.Navigation;
 
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import edu.uwstout.p2pchat.databinding.FragmentHomeBinding;
+import edu.uwstout.p2pchat.room.Peer;
 
 
 /**
@@ -33,6 +39,7 @@ public class HomeFragment extends Fragment
 {
     // private variables
     private FragmentHomeBinding binding = null;
+    private LiveData<List<Peer>> liveData = null;
 
     /**
      * The constructor for the class, it is required by java, but is empty
@@ -98,6 +105,8 @@ public class HomeFragment extends Fragment
         WifiDirect
                 .getInstance(this.getContext())
                 .subscribePeerDiscoveryListener(this);
+
+        liveData = getViewModel().getPeers();
 
         return binding.getRoot();
     }
@@ -249,9 +258,17 @@ public class HomeFragment extends Fragment
     {
         Toast.makeText(this.getContext(), "Connection succeeded", Toast.LENGTH_LONG).show();
         ViewModel viewModel = new ViewModel(getActivity().getApplication());
-        if (!viewModel.peerExists(device.deviceAddress))
+
+        if(ifPeerExists(device.deviceAddress) == null)
         {
-            viewModel.insertPeer(device.deviceAddress, "nickname");
+            new Timer().schedule(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    peerConnectionSucceeded(device);
+                }
+            }, 200);
         }
         HomeFragmentDirections.ChatAction action = HomeFragmentDirections.chatAction();
 
@@ -312,4 +329,25 @@ public class HomeFragment extends Fragment
         // won't exist anymore.
         WifiDirect.getInstance(this.getContext()).unsubscribePeerDiscoveryListener(this);
     }
+
+    ViewModel getViewModel()
+    {
+        ViewModel viewModel = new ViewModel(getActivity().getApplication());
+        return viewModel;
+    }
+    Boolean ifPeerExists(String macAddress){
+        if(liveData.getValue() == null)
+        {
+            return null;
+        }else{
+            for(Peer peer: liveData.getValue()){
+                if(macAddress.equals(peer.macAddress))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
 }
