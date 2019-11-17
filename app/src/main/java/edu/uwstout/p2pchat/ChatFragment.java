@@ -81,10 +81,10 @@ public class ChatFragment extends Fragment
 
                 binding.textInput.setText("");
 
-                //An inmemory file.
+                //A new InMemoryFile created with the text.
                 InMemoryFile file = new InMemoryFile(text);
 
-                //Send an in-Memory-File with the new text.
+                //Send an inMemoryFile containing the current text message.
                 WifiDirect.getInstance(context).sendInMemoryFile(file);
 
             }
