@@ -84,6 +84,10 @@ public class UpdaterAsyncTask extends AsyncTask
         {
             Log.e(LOG_TAG, "Error receiving data: " + e.getMessage());
         }
+        catch (ClassNotFoundException e)
+        {
+            Log.e(LOG_TAG, "InputStream does not contain an InetAddress" + e.getMessage());
+        }
         return null;
     }
 
@@ -94,22 +98,13 @@ public class UpdaterAsyncTask extends AsyncTask
      *         an InputStream that must contain an InetAddress
      * @return an InetAddress that was serialized in the InputStream,
      * or null if an error occurred during parsing.
+     * @throws IOException if the parameter InputStream could not be opened.
+     * @throws ClassNotFoundException if the InputStream does not contain an InetAddress.
      */
     public static InetAddress parseInetAddressFromInputStream(InputStream inputStream)
+    throws IOException, ClassNotFoundException
     {
-        try
-        {
-            ObjectInputStream ois = new ObjectInputStream(inputStream);
-            return (InetAddress) ois.readObject();
-        }
-        catch (IOException e)
-        {
-            Log.e(LOG_TAG, "Error creating ObjectInputStream: " + e.getMessage());
-        }
-        catch (ClassNotFoundException e)
-        {
-            Log.e(LOG_TAG, "Error parsing InetAddress from ObjectInputStream: " + e.getMessage());
-        }
-        return null;
+        ObjectInputStream ois = new ObjectInputStream(inputStream);
+        return (InetAddress) ois.readObject();
     }
 }

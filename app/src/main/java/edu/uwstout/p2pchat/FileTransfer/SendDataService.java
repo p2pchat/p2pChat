@@ -249,25 +249,15 @@ public final class SendDataService extends IntentService
      *         an InMemoryFile that we wish to serialize.
      * @return an InputStream with a serialized InMemoryFile,
      * or null if an error occurred.
+     * @throws IOException thrown when there is an issue opening InputStream
      */
     public static InputStream serializeInMemoryFile(InMemoryFile imf)
+        throws IOException
     {
-        try
-        {
-            InputStream inputStream = new FileInputStream("imf.ser");
-            inputStream = new BufferedInputStream(inputStream);
-            inputStream = new ObjectInputStream(inputStream);
-            return inputStream;
-        }
-        catch (FileNotFoundException e)
-        {
-            Log.e(LOG_TAG, "404 Error: " + e.getMessage());
-        }
-        catch (IOException e)
-        {
-            Log.e(LOG_TAG, "Error creating ObjectInputStream: " + e.getMessage());
-        }
-        return null;
+        InputStream inputStream = new FileInputStream("imf.ser");
+        inputStream = new BufferedInputStream(inputStream);
+        inputStream = new ObjectInputStream(inputStream);
+        return inputStream;
     }
 
     /**
@@ -277,25 +267,15 @@ public final class SendDataService extends IntentService
      *         an InetAddress that we wish to serialize
      * @return an InputStream with a serialized InetAddress,
      * or null if an error occurred.
+     * @throws IOException thrown when there is an issue opening InputStream
      */
     public static InputStream serializeINetAddress(InetAddress address)
+        throws IOException
     {
-        try
-        {
-            InputStream inputStream = new FileInputStream("address.ser");
-            inputStream = new BufferedInputStream(inputStream);
-            inputStream = new ObjectInputStream(inputStream);
-            return inputStream;
-        }
-        catch (FileNotFoundException e)
-        {
-            Log.e(LOG_TAG, "404 Error: " + e.getMessage());
-        }
-        catch (IOException e)
-        {
-            Log.e(LOG_TAG, "Error creating ObjectInputStream: " + e.getMessage());
-        }
-        return null;
+        InputStream inputStream = new FileInputStream("address.ser");
+        inputStream = new BufferedInputStream(inputStream);
+        inputStream = new ObjectInputStream(inputStream);
+        return inputStream;
     }
 
     /**

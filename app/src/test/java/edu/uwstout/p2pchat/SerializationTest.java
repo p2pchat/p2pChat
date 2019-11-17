@@ -29,15 +29,22 @@ public class SerializationTest
     {
         // Create the InMemoryFile we want to serialize
         InMemoryFile imf = new InMemoryFile("Hello World!");
-        // serialize it.
-        InputStream inputStream = SendDataService.serializeInMemoryFile(imf);
-        assertThat(inputStream).isNotNull();
-        // deserialize it.
-        InMemoryFile imfRetrieved = ReceiverAsyncTask.parseInMemoryFileFromInputStream(inputStream);
-        assertThat(imfRetrieved).isNotNull();
-        // Check that the contents were preserved.
-        assertThat(imfRetrieved.getMimeType()).isEqualTo(imf.getMimeType());
-        assertThat(imfRetrieved.getTextMessage()).isEqualTo(imf.getTextMessage());
+        try
+        {
+            // serialize it.
+            InputStream inputStream = SendDataService.serializeInMemoryFile(imf);
+            assertThat(inputStream).isNotNull();
+            // deserialize it.
+            InMemoryFile imfRetrieved = ReceiverAsyncTask.parseInMemoryFileFromInputStream(inputStream);
+            assertThat(imfRetrieved).isNotNull();
+            // Check that the contents were preserved.
+            assertThat(imfRetrieved.getMimeType()).isEqualTo(imf.getMimeType());
+            assertThat(imfRetrieved.getTextMessage()).isEqualTo(imf.getTextMessage());
+        }
+        catch (Exception e)
+        {
+            assert(false); // exceptions are bad and should feel bad.
+        }
     }
 
     @Test
@@ -52,16 +59,16 @@ public class SerializationTest
             InputStream inputStream = SendDataService.serializeINetAddress(address);
             assertThat(inputStream).isNotNull();
             // deserialize it.
-            InetAddress recievedAddress =
+            InetAddress receivedAddress =
                     UpdaterAsyncTask.parseInetAddressFromInputStream(inputStream);
-            assertThat(recievedAddress).isNotNull();
+            assertThat(receivedAddress).isNotNull();
             // Check that the contents were preserved.
-            assertThat(recievedAddress.getCanonicalHostName())
+            assertThat(receivedAddress.getCanonicalHostName())
                     .isEqualTo(address.getCanonicalHostName());
         }
-        catch (UnknownHostException e)
+        catch (Exception e)
         {
-            assert(false);
+            assert(false); // exceptions are inherently bad in testing
         }
     }
 }

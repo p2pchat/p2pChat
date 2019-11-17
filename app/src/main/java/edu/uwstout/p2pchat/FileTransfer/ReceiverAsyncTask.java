@@ -99,32 +99,29 @@ public class ReceiverAsyncTask extends AsyncTask
                             .insertFileMessage(macAddress, new Date(), false, imf, this.context);
                 }
             }
-            return null;
         }
         catch (IOException e)
         {
             Log.e(LOG_TAG, "Error receiving data: " + e.getMessage());
-            return null;
-        }
-    }
-
-    public static InMemoryFile parseInMemoryFileFromInputStream(InputStream inputStream)
-    {
-        try
-        {
-            ObjectInputStream ois = new ObjectInputStream(inputStream);
-            return (InMemoryFile) ois.readObject();
         }
         catch (ClassNotFoundException e)
         {
-            Log.d(LOG_TAG,
-                    "Could not convert input stream to InMemoryFile.");
-            Log.e(LOG_TAG, "ClassNotFoundException: " + e.getMessage());
-        }
-        catch (IOException e)
-        {
-            Log.e(LOG_TAG, "Error creating ObjectInputStream: " + e.getMessage());
+            Log.e(LOG_TAG, "InputStream did not contain InMemoryFile. " + e.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Converts an inputStream into an InMemoryFile object.
+     * @param inputStream An InputStream which contains a serialized InMemoryFile object.
+     * @return an InMemoryFile which came from the parameter InputStream.
+     * @throws IOException if the parameter InputStream could not be opened.
+     * @throws ClassNotFoundException if the InputStream does not contain an InMemoryFile.
+     */
+    public static InMemoryFile parseInMemoryFileFromInputStream(InputStream inputStream)
+        throws IOException, ClassNotFoundException
+    {
+        ObjectInputStream ois = new ObjectInputStream(inputStream);
+        return (InMemoryFile) ois.readObject();
     }
 }
