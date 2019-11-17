@@ -84,7 +84,7 @@ public class ChatFragment extends Fragment
                 //An inmemory file.
                 InMemoryFile file = new InMemoryFile(text);
 
-                //Send an in
+                //Send an in-Memory-File with the new text.
                 WifiDirect.getInstance(context).sendInMemoryFile(file);
 
             }
