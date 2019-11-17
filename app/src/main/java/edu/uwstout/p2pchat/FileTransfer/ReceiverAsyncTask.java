@@ -113,15 +113,21 @@ public class ReceiverAsyncTask extends AsyncTask
 
     /**
      * Converts an inputStream into an InMemoryFile object.
-     * @param inputStream An InputStream which contains a serialized InMemoryFile object.
+     *
+     * @param inputStream
+     *         An InputStream which contains a serialized InMemoryFile object.
      * @return an InMemoryFile which came from the parameter InputStream.
-     * @throws IOException if the parameter InputStream could not be opened.
-     * @throws ClassNotFoundException if the InputStream does not contain an InMemoryFile.
+     * @throws IOException
+     *         if the parameter InputStream could not be opened.
+     * @throws ClassNotFoundException
+     *         if the InputStream does not contain an InMemoryFile.
      */
     public static InMemoryFile parseInMemoryFileFromInputStream(InputStream inputStream)
-        throws IOException, ClassNotFoundException
+            throws IOException, ClassNotFoundException
     {
         ObjectInputStream ois = new ObjectInputStream(inputStream);
-        return (InMemoryFile) ois.readObject();
+        InMemoryFile imf = (InMemoryFile) ois.readObject();
+        ois.close();
+        return imf;
     }
 }

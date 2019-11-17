@@ -8,11 +8,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -161,6 +165,7 @@ public final class SendDataService extends IntentService
             if (inputStream != null)
             {
                 transferStreams(inputStream, outputStream);
+                inputStream.close();
             }
             Log.d(LOG_TAG, "Client: Data Written");
         }
@@ -217,6 +222,7 @@ public final class SendDataService extends IntentService
             if (inputStream != null)
             {
                 transferStreams(inputStream, outputStream);
+                inputStream.close();
             }
             Log.d(LOG_TAG, "Client: Data written for host update");
 
@@ -249,15 +255,18 @@ public final class SendDataService extends IntentService
      *         an InMemoryFile that we wish to serialize.
      * @return an InputStream with a serialized InMemoryFile,
      * or null if an error occurred.
-     * @throws IOException thrown when there is an issue opening InputStream
+     * @throws IOException
+     *         thrown when there is an issue opening InputStream
      */
     public static InputStream serializeInMemoryFile(InMemoryFile imf)
-        throws IOException
+            throws IOException
     {
-        InputStream inputStream = new FileInputStream("imf.ser");
-        inputStream = new BufferedInputStream(inputStream);
-        inputStream = new ObjectInputStream(inputStream);
-        return inputStream;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(imf);
+        oos.flush();
+        oos.close();
+        return new ByteArrayInputStream(baos.toByteArray());
     }
 
     /**
@@ -267,15 +276,18 @@ public final class SendDataService extends IntentService
      *         an InetAddress that we wish to serialize
      * @return an InputStream with a serialized InetAddress,
      * or null if an error occurred.
-     * @throws IOException thrown when there is an issue opening InputStream
+     * @throws IOException
+     *         thrown when there is an issue opening InputStream
      */
     public static InputStream serializeINetAddress(InetAddress address)
-        throws IOException
+            throws IOException
     {
-        InputStream inputStream = new FileInputStream("address.ser");
-        inputStream = new BufferedInputStream(inputStream);
-        inputStream = new ObjectInputStream(inputStream);
-        return inputStream;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(address);
+        oos.flush();
+        oos.close();
+        return new ByteArrayInputStream(baos.toByteArray());
     }
 
     /**

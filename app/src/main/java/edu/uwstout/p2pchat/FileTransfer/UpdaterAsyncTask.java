@@ -98,13 +98,17 @@ public class UpdaterAsyncTask extends AsyncTask
      *         an InputStream that must contain an InetAddress
      * @return an InetAddress that was serialized in the InputStream,
      * or null if an error occurred during parsing.
-     * @throws IOException if the parameter InputStream could not be opened.
-     * @throws ClassNotFoundException if the InputStream does not contain an InetAddress.
+     * @throws IOException
+     *         if the parameter InputStream could not be opened.
+     * @throws ClassNotFoundException
+     *         if the InputStream does not contain an InetAddress.
      */
     public static InetAddress parseInetAddressFromInputStream(InputStream inputStream)
-    throws IOException, ClassNotFoundException
+            throws IOException, ClassNotFoundException
     {
         ObjectInputStream ois = new ObjectInputStream(inputStream);
-        return (InetAddress) ois.readObject();
+        InetAddress address = (InetAddress) ois.readObject();
+        ois.close();
+        return address;
     }
 }
