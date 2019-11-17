@@ -1,7 +1,12 @@
 package edu.uwstout.p2pchat;
 
+import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
+import android.content.Intent;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +30,8 @@ public class ChatFragment extends Fragment
     private FragmentChatBinding binding;
     private LiveData<List<Message>> liveData;
     private P2PMessageAdapter messageAdapter;
+
+
 
     /**
      *
@@ -74,25 +81,24 @@ public class ChatFragment extends Fragment
 
                 binding.textInput.setText("");
 
+                //An inmemory file.
                 InMemoryFile file = new InMemoryFile(text);
 
-                //TODO Fix or find alternative way.
-                WifiDirect direct = context.getInstance();
+                //Send an in
+                WifiDirect.getInstance(context).sendInMemoryFile(file);
 
-                //Send in memory file.
-                direct.sendInMemoryFile(file);
             }
         });
         binding.attachmentButton.setOnClickListener(new View.OnClickListener()
         {
             /**
-             *
              * @param view
              */
             @Override
             public void onClick(View view)
             {
                 Toast.makeText(getContext(),"attachment clicked",Toast.LENGTH_SHORT);
+
             }
         });
 
