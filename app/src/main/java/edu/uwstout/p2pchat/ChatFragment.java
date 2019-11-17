@@ -73,6 +73,14 @@ public class ChatFragment extends Fragment
                 viewModel.insertMessage(address, timestamp, true, "text/message", text);
 
                 binding.textInput.setText("");
+
+                InMemoryFile file = new InMemoryFile(text);
+
+                //TODO Fix or find alternative way.
+                WifiDirect direct = context.getInstance();
+
+                //Send in memory file.
+                direct.sendInMemoryFile(file);
             }
         });
         binding.attachmentButton.setOnClickListener(new View.OnClickListener()
