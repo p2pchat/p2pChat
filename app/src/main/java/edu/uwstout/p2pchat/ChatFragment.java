@@ -54,7 +54,7 @@ public class ChatFragment extends Fragment
             }
         });
 
-
+        final Context context = this.getContext();
         binding.sendButton.setOnClickListener(new View.OnClickListener()
         {
             /**
