@@ -13,6 +13,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -499,7 +500,8 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @param reasonCode
      *         The reason peer discovery failed.
      */
-    private void peerDiscoveryFailed(final int reasonCode)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public void peerDiscoveryFailed(final int reasonCode)
     {
         for (PeerDiscoveryListener pdl : this.peerDiscoveryListeners)
         {
@@ -541,7 +543,6 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
             }
 
             @Override
-
             public void onFailure(final int reason)
             {
                 // TODO figure out what the reasons are?
@@ -606,7 +607,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
                 return; // Cancel this impossible operation.
             }
             // send data (will work the same for hosts and clients).
-            Intent serviceIntent = new Intent(this.context, SendDataService.class);
+            Intent serviceIntent = new Intent(this.context, this.senderService);
             serviceIntent.setAction(SendDataService.ACTION_SEND_DATA);
             serviceIntent.putExtra(SendDataService.EXTRAS_IN_MEMORY_FILE, inMemoryFile);
             serviceIntent.putExtra(SendDataService.EXTRAS_PEER_ADDRESS,
@@ -618,5 +619,47 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
         {
             Log.e(LOG_TAG, "Attempted to send information before WifiP2pInfo was available.");
         }
+    }
+
+    //////////////////////////////////////////////////
+    //
+    // DEPENDENCY INJECTION METHODS AND VARIABLES
+    // Do NOT, for ANY reason, use the methods below
+    // except when performing testing on the WifiDirect
+    // class. In all other cases, these methods are
+    // explicitly not intended to be used.
+    //
+    //////////////////////////////////////////////////
+
+    /**
+     * The IntentService class used to send information
+     * to our peer. When mocked, it does not transmit data.
+     * Default is SendDataService, which is the only acceptable
+     * option during production build.
+     */
+    private Class senderService = SendDataService.class;
+
+    /**
+     * Switches out the dependency for the IntentService
+     * used to transmit data.
+     * FOR TESTING PURPOSES ONLY!
+     * @param c the class we wish to inject.
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public void setSenderService(Class c)
+    {
+        this.senderService = c;
+    }
+
+    /**
+     * Clears the list of PeerDiscoveryListeners
+     * so that instrumented testing does not call
+     * other listeners unintentionally.
+     * FOR TESTING PURPOSES ONLY!
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    void clearListenerLists()
+    {
+        this.peerDiscoveryListeners.clear();
     }
 }
