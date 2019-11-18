@@ -6,19 +6,18 @@
             type="String" />
         <variable
             name="timestamp"
-            type="String" />
+            type="String"/>
     </data>
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
         <LinearLayout
-            android:id="@+id/chat_msg_received"
+            android:id="@+id/chat_msg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start">
+            android:orientation="vertical">
             <TextView
-                android:id="@+id/chat_msg_timestamp_received"
+                android:id="@+id/chat_msg_timestamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textIsSelectable="true"
@@ -27,7 +26,7 @@
                 android:textColor="@color/colorAccent"
                 android:textSize="8pt"/>
             <TextView
-                android:id="@+id/chat_msg_text_received"
+                android:id="@+id/chat_msg_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
@@ -38,34 +37,6 @@
                 android:textSize="8pt"/>
 
         </LinearLayout>
-        <LinearLayout
-            android:id="@+id/chat_msg_sent"
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end">
-            <TextView
-                android:id="@+id/chat_msg_timestamp_sent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:textIsSelectable="true"
-                android:text="@{timestamp}"
-                android:background="@color/colorPrimary"
-                android:textColor="@color/colorAccent"
-                android:textSize="8pt"/>
 
-            <TextView
-                android:id="@+id/chat_msg_text_sent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="@{textOutput}"
-                android:textIsSelectable="true"
-                android:background="@color/colorPrimary"
-                android:textColor="@color/colorAccent"
-                android:textSize="8pt"/>
-
-        </LinearLayout>
-    </LinearLayout>
+    </FrameLayout>
 </layout>

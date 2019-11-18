@@ -1,8 +1,6 @@
 package edu.uwstout.p2pchat;
 
 
-import android.view.View;
-
 import androidx.recyclerview.widget.RecyclerView;
 
 import edu.uwstout.p2pchat.databinding.ItemMessageBinding;
@@ -27,14 +25,7 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
      */
     void bindData(Message message)
     {
-        if(message.sent)
-        {
-            binding.chatMsgTextSent.setVisibility(View.GONE);
-        }
-        else
-        {
-            binding.chatMsgReceived.setVisibility(View.GONE);
-        }
+
         binding.setTextOutput(message.content);
         binding.setTimestamp(message.timestamp.toString());
         binding.executePendingBindings();
