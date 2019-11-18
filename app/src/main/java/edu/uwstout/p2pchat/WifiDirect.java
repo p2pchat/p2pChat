@@ -13,6 +13,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -619,4 +620,15 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
             Log.e(LOG_TAG, "Attempted to send information before WifiP2pInfo was available.");
         }
     }
+
+    //////////////////////////////////////////////////
+    //
+    // DEPENDENCY INJECTION METHODS
+    // DO NOT CALL THESE METHODS UNLESS IN A TESTING
+    // CONTEXT OR ELSE THE SYSTEM WILL FAIL!!!
+    //
+    //////////////////////////////////////////////////
+
+    // @VisibleForTesting will make private methods public in a testing context.
+
 }
