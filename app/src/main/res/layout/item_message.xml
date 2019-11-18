@@ -26,7 +26,7 @@
                 android:id="@+id/chat_msg_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginBottom="5dp"
                 android:text="@{textOutput}"
                 android:textIsSelectable="true"
                 android:background="@color/colorPrimary"
