@@ -8,14 +8,11 @@
             name="timestamp"
             type="String"/>
     </data>
-    <FrameLayout
+    <RelativeLayout
+        android:id="@+id/chat_msg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <LinearLayout
-            android:id="@+id/chat_msg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+
             <TextView
                 android:id="@+id/chat_msg_timestamp"
                 android:layout_width="wrap_content"
@@ -34,9 +31,8 @@
                 android:textIsSelectable="true"
                 android:background="@color/colorPrimary"
                 android:textColor="@color/colorAccent"
-                android:textSize="8pt"/>
+                android:textSize="8pt"
+                android:layout_below="@+id/chat_msg_timestamp"/>
 
-        </LinearLayout>
-
-    </FrameLayout>
+    </RelativeLayout>
 </layout>

@@ -1,9 +1,7 @@
 package edu.uwstout.p2pchat;
 
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -49,19 +47,11 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
     {
         Message message = this.messageList.get(position);
 
-        holder.bindData(message);
 
-        FrameLayout.LayoutParams params =
-                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT);
-        if(message.sent)
-        {
-            params.gravity = Gravity.END;
-        }
-        else
-        {
-            params.gravity = Gravity.START;
-        }
+
+
+        holder.bindAlignment(message.sent);
+        holder.bindData(message);
     }
 
     /**
