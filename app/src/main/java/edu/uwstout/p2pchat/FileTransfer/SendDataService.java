@@ -162,11 +162,8 @@ public final class SendDataService extends IntentService
             InputStream inputStream = serializeInMemoryFile(IMF);
 
             // this is where the data is sent
-            if (inputStream != null)
-            {
-                transferStreams(inputStream, outputStream);
-                inputStream.close();
-            }
+            transferStreams(inputStream, outputStream);
+            inputStream.close();
             Log.d(LOG_TAG, "Client: Data Written");
         }
         catch (IOException e)
@@ -219,11 +216,8 @@ public final class SendDataService extends IntentService
             OutputStream outputStream = socket.getOutputStream();
             InputStream inputStream = serializeINetAddress(LOCALHOST);
             // this is where the data is sent
-            if (inputStream != null)
-            {
-                transferStreams(inputStream, outputStream);
-                inputStream.close();
-            }
+            transferStreams(inputStream, outputStream);
+            inputStream.close();
             Log.d(LOG_TAG, "Client: Data written for host update");
 
         }
