@@ -296,8 +296,6 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
         this.peerDiscoveryListeners.remove(pdl);
     }
 
-
-
     //////////////////////////////////////////////////
     //
     // ANDROID LIFECYCLE FUNCTIONS
@@ -501,7 +499,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      *         The reason peer discovery failed.
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    public void peerDiscoveryFailed(final int reasonCode)
+    void peerDiscoveryFailed(final int reasonCode)
     {
         for (PeerDiscoveryListener pdl : this.peerDiscoveryListeners)
         {
@@ -646,9 +644,20 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @param c the class we wish to inject.
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    public void setSenderService(Class c)
+    void setSenderService(Class c)
     {
         this.senderService = c;
+    }
+
+    /**
+     * Resets the dependency for the IntentService
+     * used to transmit data to the default.
+     * FOR TESTING PURPOSES ONLY!
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    void resetSenderService()
+    {
+        this.senderService = SendDataService.class;
     }
 
     /**
