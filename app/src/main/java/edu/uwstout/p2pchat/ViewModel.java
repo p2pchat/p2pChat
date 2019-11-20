@@ -136,6 +136,7 @@ public class ViewModel extends AndroidViewModel
     }
 
 
+
     /**
      *
      * @param macAddress Peer's MacAddress
