@@ -8,9 +8,9 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import edu.uwstout.p2pchat.FileTransfer.ReceiverAsyncTask;
-import edu.uwstout.p2pchat.FileTransfer.SendDataService;
-import edu.uwstout.p2pchat.FileTransfer.UpdaterAsyncTask;
+import edu.uwstout.p2pchat.WifiDirectHelpers.ReceiverAsyncTask;
+import edu.uwstout.p2pchat.WifiDirectHelpers.SendDataService;
+import edu.uwstout.p2pchat.WifiDirectHelpers.UpdaterAsyncTask;
 
 /**
  * Tests the serialization and deserialization

@@ -20,9 +20,10 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uwstout.p2pchat.FileTransfer.ReceiverAsyncTask;
-import edu.uwstout.p2pchat.FileTransfer.SendDataService;
-import edu.uwstout.p2pchat.FileTransfer.UpdaterAsyncTask;
+import edu.uwstout.p2pchat.WifiDirectHelpers.ReceiverAsyncTask;
+import edu.uwstout.p2pchat.WifiDirectHelpers.SendDataService;
+import edu.uwstout.p2pchat.WifiDirectHelpers.UpdaterAsyncTask;
+import edu.uwstout.p2pchat.WifiDirectHelpers.WifiDirectBroadcastReceiver;
 
 /**
  * WifiDirect is a Singleton which handles the process of communicating
@@ -207,7 +208,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @param enabled
      *         whether or not peer to peer communication is enabled
      */
-    void setP2pEnabled(final boolean enabled)
+    public void setP2pEnabled(final boolean enabled)
     {
         this.p2pEnabled = enabled;
     }
@@ -240,7 +241,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @param device
      *         a WifiP2pDevice that is this device
      */
-    void setThisDevice(final WifiP2pDevice device)
+    public void setThisDevice(final WifiP2pDevice device)
     {
         this.thisDevice = device;
     }
@@ -329,7 +330,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * processing time when the app is not in focus.
      *
      * @see android.app.Activity
-     * @see edu.uwstout.p2pchat.WifiDirectBroadcastReceiver
+     * @see WifiDirectBroadcastReceiver
      */
     void pause()
     {
@@ -507,7 +508,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @param wifiP2pDeviceList
      *         the new list of peers available.
      */
-    void peersHaveChanged(final WifiP2pDeviceList wifiP2pDeviceList)
+    public void peersHaveChanged(final WifiP2pDeviceList wifiP2pDeviceList)
     {
         for (WifiDirect.PeerDiscoveryListener pdl : this.peerDiscoveryListeners)
         {

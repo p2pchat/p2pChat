@@ -1,4 +1,4 @@
-package edu.uwstout.p2pchat.FileTransfer;
+package edu.uwstout.p2pchat.WifiDirectHelpers;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
