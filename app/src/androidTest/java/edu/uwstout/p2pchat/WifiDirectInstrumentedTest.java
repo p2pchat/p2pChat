@@ -158,7 +158,6 @@ public class WifiDirectInstrumentedTest
         InMemoryFile testMessage = new InMemoryFile(TEST_STRING);
         // Send the message, which should use our mock service
         instance.sendInMemoryFile(testMessage);
-        // This may create a race condition!!!
         Intent actualIntent = MockSendDataService.await();
         // Make assertions based on if the intent for sending
         // has the proper contents.
@@ -179,7 +178,7 @@ public class WifiDirectInstrumentedTest
         }
         else
         {
-            // A race condition or error occurred when
+            // If we enter this block, an error occurred when
             // awaiting the intent.
             assert(false);
         }
