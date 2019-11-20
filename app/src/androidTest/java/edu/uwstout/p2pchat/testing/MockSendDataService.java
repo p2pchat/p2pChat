@@ -16,6 +16,12 @@ import java.util.concurrent.CountDownLatch;
 public final class MockSendDataService extends IntentService
 {
 
+    private static Intent intent;
+    private static CountDownLatch latch;
+
+    /**
+     * Default constructor
+     */
     public MockSendDataService()
     {
         super("MockSendDataService");
@@ -44,28 +50,30 @@ public final class MockSendDataService extends IntentService
         functionality is an attempt to pass data out
         of thread.
      */
-    private static Intent intent;
-    private static CountDownLatch latch;
 
+    /**
+     * Updates the static intent in a thread safe manner.
+     * @param i the intent to update with.
+     */
     synchronized private static void updateStaticIntent(Intent i)
     {
         intent = i;
         latch.countDown();
     }
 
+    /**
+     * Gets the most recent intent passed to the mock service.
+     * If an intent has not been set yet, this function will
+     * block until the MockSendDataService has been given an intent.
+     * @return an Intent, or null of an Interrupted Exception occured.
+     */
     public static Intent await()
     {
         try
         {
             // wait for the intent to be updated.
             latch.await();
-            // Make a copy of the intent.
-            Intent intentCopy = intent;
-            // reset the original for future use if needed.
-            updateStaticIntent(null);
-            latch = new CountDownLatch(1);
-            // return the copy.
-            return intentCopy;
+            return intent;
         }
         catch (Exception e)
         {
