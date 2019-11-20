@@ -20,6 +20,7 @@ import edu.uwstout.p2pchat.WifiDirect;
  * INetAddress objects which are sent by clients.
  * The INetAddress informs the server / host on
  * how to communicate with their clients.
+ *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
 public class UpdaterAsyncTask extends AsyncTask
@@ -40,7 +41,9 @@ public class UpdaterAsyncTask extends AsyncTask
 
     /**
      * Non-Default Constructor
-     * @param c Application context
+     *
+     * @param c
+     *         Application context
      */
     public UpdaterAsyncTask(final Context c)
     {
@@ -49,7 +52,9 @@ public class UpdaterAsyncTask extends AsyncTask
 
     /**
      * Listens for incoming messages in the background.
-     * @param objects Required by the superclass, these are unnecessary.
+     *
+     * @param objects
+     *         Required by the superclass, these are unnecessary.
      * @return An object. Currently null.
      */
     @Override
@@ -64,30 +69,46 @@ public class UpdaterAsyncTask extends AsyncTask
             Socket client = serverSocket.accept();
             // When we pass that line, we have accepted a connection.
             Log.i(LOG_TAG, "Updater: Connection Established");
-            InputStream inputStream = client.getInputStream();
-            ObjectInputStream ois = new ObjectInputStream(inputStream);
             // get the INetAddress object from the InputStream
-            InetAddress clientLocalHost;
-            try
-            {
-                clientLocalHost = (InetAddress) ois.readObject();
-            }
-            catch (ClassNotFoundException e)
-            {
-                Log.d(LOG_TAG, "Could not convert input stream to InetAddress");
-                Log.e(LOG_TAG, "ClassNotFoundException: " + e.getMessage());
-                return null;
-            }
+            InetAddress clientLocalHost = parseInetAddressFromInputStream(
+                    client.getInputStream());
             // Update the singleton with the new Client information.
-            Log.i(LOG_TAG,
-                    "Client information received. " + clientLocalHost.getCanonicalHostName());
-            WifiDirect.getInstance(this.context).setClient(clientLocalHost);
-            return null;
+            if (clientLocalHost != null)
+            {
+                Log.i(LOG_TAG,
+                        "Client information received. " + clientLocalHost.getCanonicalHostName());
+                WifiDirect.getInstance(this.context).setClient(clientLocalHost);
+            }
         }
         catch (IOException e)
         {
             Log.e(LOG_TAG, "Error receiving data: " + e.getMessage());
-            return null;
         }
+        catch (ClassNotFoundException e)
+        {
+            Log.e(LOG_TAG, "InputStream does not contain an InetAddress" + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Converts an input stream into an InetAddress
+     *
+     * @param inputStream
+     *         an InputStream that must contain an InetAddress
+     * @return an InetAddress that was serialized in the InputStream,
+     * or null if an error occurred during parsing.
+     * @throws IOException
+     *         if the parameter InputStream could not be opened.
+     * @throws ClassNotFoundException
+     *         if the InputStream does not contain an InetAddress.
+     */
+    public static InetAddress parseInetAddressFromInputStream(InputStream inputStream)
+            throws IOException, ClassNotFoundException
+    {
+        ObjectInputStream ois = new ObjectInputStream(inputStream);
+        InetAddress address = (InetAddress) ois.readObject();
+        ois.close();
+        return address;
     }
 }
