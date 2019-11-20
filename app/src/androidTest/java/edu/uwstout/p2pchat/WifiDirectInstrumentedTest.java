@@ -28,6 +28,7 @@ import edu.uwstout.p2pchat.testing.MockSendDataService;
 public class WifiDirectInstrumentedTest
 {
     private Context testContext;
+    private WifiDirect testInstance;
 
     @Rule
     public ActivityTestRule<MainActivity> activityRule = new
@@ -45,10 +46,10 @@ public class WifiDirectInstrumentedTest
         // get context so that we can call WifiDirect.getInstance()
         this.testContext = InstrumentationRegistry
                 .getInstrumentation().getTargetContext();
-        // Get an instance so that we don't have repetitive code.
-        WifiDirect testDirect = WifiDirect.getInstance(this.testContext);
+        // Get a class instance so that we don't have repetitive code in multiple functions.
+        this.testInstance = WifiDirect.getInstance(this.testContext);
         // Disable other listeners so that we don't call things we don't want to call.
-        testDirect.clearListenerLists();
+        this.testInstance.clearListenerLists();
     }
 
     /**
@@ -57,9 +58,7 @@ public class WifiDirectInstrumentedTest
     @After
     public void tearDown()
     {
-        WifiDirect testDirect = WifiDirect.getInstance(this.testContext);
-        // Disable other listeners so that we don't call things we don't want to call.
-        testDirect.resetSenderService();
+        this.testInstance.resetSenderService();
     }
 
     /**
@@ -69,25 +68,23 @@ public class WifiDirectInstrumentedTest
     @Test
     public void gettersAndSetters()
     {
-        // Get an instance so that we aren't repeating the same code.
-        WifiDirect testDirect = WifiDirect.getInstance(this.testContext);
         // Test the isP2pEnabled getters and setters
-        testDirect.setP2pEnabled(true);
-        assert(testDirect.isP2pEnabled());
+        this.testInstance.setP2pEnabled(true);
+        assert(this.testInstance.isP2pEnabled());
 
         WifiP2pDevice mockDevice = new WifiP2pDevice();
         mockDevice.deviceAddress = "test string";
 
         // Test the thisDevice getters and setters
-        testDirect.setThisDevice(mockDevice);
-        WifiP2pDevice retrievedDevice = testDirect.getThisDevice();
+        this.testInstance.setThisDevice(mockDevice);
+        WifiP2pDevice retrievedDevice = this.testInstance.getThisDevice();
 
         assert(retrievedDevice != null && retrievedDevice.deviceAddress
                 .equals(mockDevice.deviceAddress));
 
         // since we haven't attempted to connect to a device,
         // peerDevice should be null
-        assert(testDirect.getPeerDevice() == null);
+        assert(this.testInstance.getPeerDevice() == null);
     }
 
     /**
@@ -126,7 +123,7 @@ public class WifiDirectInstrumentedTest
             }
         }
         // Let's begin the actual testing
-        // First, create a PDL instance
+        // First, create a PDL testInstance
         PDL pdl = new PDL();
         // second, subscribe our listener.
         WifiDirect instance = WifiDirect.getInstance(this.testContext);
@@ -150,7 +147,7 @@ public class WifiDirectInstrumentedTest
     public void sendIntentPackagedCorrectly()
     {
         final String TEST_STRING = "This is a test";
-        // Get an instance of the singleton
+        // Get an testInstance of the singleton
         WifiDirect instance = WifiDirect.getInstance(this.testContext);
         // Change the sender service to the mock
         instance.setSenderService(MockSendDataService.class);
@@ -158,7 +155,7 @@ public class WifiDirectInstrumentedTest
         InMemoryFile testMessage = new InMemoryFile(TEST_STRING);
         // Send the message, which should use our mock service
         instance.sendInMemoryFile(testMessage);
-        Intent actualIntent = MockSendDataService.await();
+        Intent actualIntent = MockSendDataService.awaitIntent();
         // Make assertions based on if the intent for sending
         // has the proper contents.
         if (actualIntent != null)

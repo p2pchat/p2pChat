@@ -67,7 +67,7 @@ public final class MockSendDataService extends IntentService
      * block until the MockSendDataService has been given an intent.
      * @return an Intent, or null of an Interrupted Exception occured.
      */
-    public static Intent await()
+    public static Intent awaitIntent()
     {
         try
         {
