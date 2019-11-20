@@ -3,6 +3,7 @@ package edu.uwstout.p2pchat;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
@@ -106,6 +107,15 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
             // Respond to new connection or disconnections
             // Applications can use requestConnectionInfo(), requestNetworkInfo(), or
             // requestGroupInfo() to retrieve the current connection information.
+            if (manager == null)
+            {
+                // can't do anything without the manager.
+                return;
+            }
+
+            NetworkInfo networkInfo =
+                    (NetworkInfo) intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+            // TODO finish copying this from the WFD prototype and reconfiguring.
         }
         else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action))
         {

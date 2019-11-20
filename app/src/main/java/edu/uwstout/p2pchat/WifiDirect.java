@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
@@ -37,7 +38,7 @@ import edu.uwstout.p2pchat.FileTransfer.UpdaterAsyncTask;
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
 public final class WifiDirect implements WifiP2pManager.ChannelListener,
-        WifiP2pManager.ConnectionInfoListener
+        WifiP2pManager.ConnectionInfoListener, WifiP2pManager.GroupInfoListener
 {
     /**
      * Creating an observer interface so that fragments can subscribe
@@ -371,6 +372,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
         */
         if (this.info.groupFormed && this.info.isGroupOwner)
         {
+            Log.d(LOG_TAG, "Info available informs that this is the server.");
             // ReceiverAsyncTask handles the process of receiving messages.
             new ReceiverAsyncTask(this.context);
             // UpdaterAsyncTask handles the process of
@@ -399,6 +401,29 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
                 // One-way communication is impossible
                 Log.e(LOG_TAG, "Could not resolve localhost. "
                     + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Required by the GroupInfoListener interface, this function
+     * informs us when there is connection information that we need to know.
+     * @param wifiP2pGroup The WifiP2pGroup that this device has become a part of.
+     */
+    @Override
+    public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup)
+    {
+        Log.d(LOG_TAG, "Group information is available");
+        if (wifiP2pGroup.isGroupOwner())
+        {
+            Log.d(LOG_TAG, "This device is the group owner");
+            // We only care to notify server devices that a connection has occurred.
+            // get the peer device (first and only device in the client list)
+            WifiP2pDevice peer = wifiP2pGroup.getClientList().iterator().next();
+            for (PeerDiscoveryListener listener : this.peerDiscoveryListeners)
+            {
+                Log.d(LOG_TAG, "Calling peerConnectionSucceeded");
+                listener.peerConnectionSucceeded(peer);
             }
         }
     }
@@ -532,12 +557,12 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
             public void onSuccess()
             {
                 Log.i(LOG_TAG, "System reports successful connection");
-                for (PeerDiscoveryListener listener :
-                        WifiDirect.getInstance(mContext).peerDiscoveryListeners)
-                {
-                    listener.peerConnectionSucceeded(device);
-
-                }
+//                for (PeerDiscoveryListener listener :
+//                        WifiDirect.getInstance(mContext).peerDiscoveryListeners)
+//                {
+//                    listener.peerConnectionSucceeded(device);
+//
+//                }
             }
 
             @Override
