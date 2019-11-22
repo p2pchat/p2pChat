@@ -495,11 +495,16 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
             // We only care to notify server devices that a connection has occurred.
             // get the peer device (first and only device in the client list)
             WifiP2pDevice peer = wifiP2pGroup.getClientList().iterator().next();
+            this.peerDevice = peer;
             for (PeerDiscoveryListener listener : this.peerDiscoveryListeners)
             {
                 Log.d(LOG_TAG, "Calling peerConnectionSucceeded");
                 listener.peerConnectionSucceeded(peer);
             }
+        }
+        else
+        {
+            this.peerDevice = wifiP2pGroup.getOwner();
         }
     }
 
@@ -596,7 +601,6 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
                 }
             }
         });
-        this.peerDevice = device;
     }
 
     //////////////////////////////////////////////////

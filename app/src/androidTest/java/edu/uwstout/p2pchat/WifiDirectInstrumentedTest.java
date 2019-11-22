@@ -1,9 +1,12 @@
 package edu.uwstout.p2pchat;
 
+import static edu.uwstout.p2pchat.testing.MockSendDataService.awaitIntent;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -18,6 +21,9 @@ import org.junit.runner.RunWith;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 
 import edu.uwstout.p2pchat.WifiDirectHelpers.ReceiverAsyncTask;
@@ -33,8 +39,28 @@ import edu.uwstout.p2pchat.testing.MockUpdaterAsyncTask;
 @RunWith(AndroidJUnit4.class)
 public class WifiDirectInstrumentedTest
 {
+    /**
+     * Enables accessing the singleton on-demand.
+     */
     private Context testContext;
+    /**
+     * Class reference to the singleton that we are testing.
+     */
     private WifiDirect instance;
+    /**
+     * Mock dependency for ReceiverAsyncTask
+     * If a test requires multiple messages, it will have to
+     * create a fresh instance of mockReceiverAsyncTask.
+     */
+    private MockReceiverAsyncTask mockReceiverAsyncTask;
+    /**
+     * Mock dependency for UpdaterAsyncTask
+     */
+    private MockUpdaterAsyncTask mockUpdaterAsyncTask;
+    /**
+     * Mock dependency for LocalHostHelper
+     */
+    private MockLocalHostHelper mockLocalHostHelper;
 
     @Rule
     public ActivityTestRule<MainActivity> activityRule = new
@@ -56,6 +82,15 @@ public class WifiDirectInstrumentedTest
         this.instance = WifiDirect.getInstance(this.testContext);
         // Disable other listeners so that we don't call things we don't want to call.
         this.instance.clearListenerLists();
+
+        // substitute ALL dependencies with Mocks.
+        this.instance.setSenderService(MockSendDataService.class);
+        this.mockReceiverAsyncTask = new MockReceiverAsyncTask(1);
+        this.instance.setMessageReceiver(mockReceiverAsyncTask);
+        this.mockLocalHostHelper = new MockLocalHostHelper();
+        this.instance.setLocalHostResolver(mockLocalHostHelper);
+        this.mockUpdaterAsyncTask = new MockUpdaterAsyncTask();
+        this.instance.setClientUpdateReceiver(mockUpdaterAsyncTask);
     }
 
     /**
@@ -103,8 +138,8 @@ public class WifiDirectInstrumentedTest
     public void peerDiscoveryListenersSubscriptionStatus()
     {
         final int REASON_CODE_TEST = 1;
-        final WifiP2pDevice DEVICE_TEST = new WifiP2pDevice();
-        DEVICE_TEST.deviceAddress = "TEST_STRING";
+        final WifiP2pDevice TEST_DEVICE = new WifiP2pDevice();
+        TEST_DEVICE.deviceAddress = "TEST_STRING";
 
         // Create a mock peerDiscoveryListener that can
         // make assert statements when we want.
@@ -122,12 +157,34 @@ public class WifiDirectInstrumentedTest
             }
             public void peerConnectionSucceeded(WifiP2pDevice device)
             {
-                assert(device.deviceAddress.equals(DEVICE_TEST.deviceAddress));
+                assert(device.deviceAddress.equals(TEST_DEVICE.deviceAddress));
             }
 
             public void peerConnectionFailed(int reasonCode)
             {
                 assert(reasonCode == REASON_CODE_TEST);
+            }
+        }
+        // Create a mock WifiP2pGroup class for testing.
+        class MockGroup extends WifiP2pGroup {
+            @Override
+            public Collection<WifiP2pDevice> getClientList()
+            {
+                ArrayList<WifiP2pDevice> mockList = new ArrayList<>();
+                mockList.add(TEST_DEVICE);
+                return mockList;
+            }
+
+            @Override
+            public boolean isGroupOwner()
+            {
+                return true;
+            }
+
+            @Override
+            public WifiP2pDevice getOwner()
+            {
+                return TEST_DEVICE;
             }
         }
         // Let's begin the actual testing
@@ -139,6 +196,7 @@ public class WifiDirectInstrumentedTest
         // third, call some of the functions that we can test
         instance.peersHaveChanged(new WifiP2pDeviceList());
         instance.peerDiscoveryFailed(REASON_CODE_TEST);
+        instance.onGroupInfoAvailable(new MockGroup());
         // fourth, unsubscribe
         instance.unsubscribePeerDiscoveryListener(pdl);
         // fifth, call the function again, if the PDL
@@ -195,16 +253,29 @@ public class WifiDirectInstrumentedTest
     @Test
     public void sendIntentPackagedCorrectly()
     {
+        this.mockReceiverAsyncTask = new MockReceiverAsyncTask(0);
+        this.instance.setMessageReceiver(this.mockReceiverAsyncTask);
         final String TEST_STRING = "This is a test";
-        // Get an instance of the singleton
-        WifiDirect instance = WifiDirect.getInstance(this.testContext);
-        // Change the sender service to the mock
-        instance.setSenderService(MockSendDataService.class);
+        // Use some mock information to get us going.
+        WifiP2pInfo info = new WifiP2pInfo();
+        info.groupFormed = true;
+        info.isGroupOwner = true;
+        try
+        {
+            info.groupOwnerAddress = InetAddress.getByName("127.0.0.1");
+        }
+        catch (UnknownHostException e)
+        {
+            assert false;
+            return;
+        }
+        // Has to be called before WifiDirect.sendInMemoryFile();
+        this.instance.onConnectionInfoAvailable(info);
         // Create a dummy InMemoryFile for testing.
         InMemoryFile testMessage = new InMemoryFile(TEST_STRING);
         // Send the message, which should use our mock service
         instance.sendInMemoryFile(testMessage);
-        Intent actualIntent = MockSendDataService.awaitIntent();
+        Intent actualIntent = awaitIntent();
         // Make assertions based on if the intent for sending
         // has the proper contents.
         if (actualIntent != null)
@@ -235,14 +306,9 @@ public class WifiDirectInstrumentedTest
      * database from peers.
      */
     @Test
-    public void savesMockedMessageAsClient()
+    public void clientSetsUpAndSendsCorrectly()
     {
-        // Step 1, dependency injection for client devices.
-        this.instance.setSenderService(MockSendDataService.class);
-        MockReceiverAsyncTask mockReceiverAsyncTask = new MockReceiverAsyncTask(1);
-        this.instance.setMessageReceiver(mockReceiverAsyncTask);
-        MockLocalHostHelper mockLocalHostHelper = new MockLocalHostHelper();
-        this.instance.setLocalHostResolver(mockLocalHostHelper);
+        // Step 1, dependency injection for client devices. Handled in setup function.
         // Step 2, create a WifiP2pInfo object where group formed is true,
         // isGroupOwner is false, and GroupOwnerAddress is assigned a variable.
         WifiP2pInfo info = new WifiP2pInfo();
@@ -258,12 +324,98 @@ public class WifiDirectInstrumentedTest
             return;
         }
         this.instance.onConnectionInfoAvailable(info);
-        // Now, Step 3 is incredibly complex.
-        // Make sure that our fake text message was added to the database.
-        // Make sure that our MockSendDataService was sent a properly packaged intent
-        // that is supposed to inform a host about it's InetAddress (taken from MockLocalHostHelper)
-        // Maybe add a thing to the tearDown function that clears the database between tests.
-        assert false; // until full implementation is added.
+        // Step 3, Check that the client sends information about how to contact itself
+        // to the host via our MockSendDataService
+        Intent updateIntent = MockSendDataService.awaitIntent();
+        // We want to check both that the target IP address is the one we mocked,
+        // AND that the intent is packaged correctly, because this is occurring outside
+        // of sendInMemoryFile, which is what the other tests check.
+        if (updateIntent != null && updateIntent.getExtras() != null)
+        {
+            // Check that the client is sending the address to the mock data we gave it.
+            String targetAddress =
+                    updateIntent.getExtras().getString(SendDataService.EXTRAS_PEER_ADDRESS);
+            assert (Objects.requireNonNull(targetAddress)
+                    .equals(info.groupOwnerAddress.getHostAddress()));
+            // Check that the client has the right action associated with the intent.
+            assert(Objects.equals(updateIntent.getAction(),
+                    SendDataService.ACTION_UPDATE_INETADDRESS));
+            // Check that the client has the right port configured.
+            assert(Objects.equals(Objects.requireNonNull(updateIntent.getExtras())
+                            .getInt(SendDataService.EXTRAS_PEER_PORT),
+                    ReceiverAsyncTask.MAGIC_PORT));
+            // extract the InetAddress that is the info wanted to send.
+            InetAddress actualAddr =
+                    Objects.requireNonNull(updateIntent.getExtras()
+                            .getParcelable(SendDataService.EXTRAS_INETADDRESS));
+            // check that the InetAddress matches our mock data.
+            assert(actualAddr == info.groupOwnerAddress);
+        }
+        else
+        {
+            // If we enter this block, something went wrong when awaiting
+            // the intent, or the intent wasn't packaged correctly.
+            assert false;
+        }
+        // Step 4, Check that the received text message was saved to the database.
+
+    }
+
+    /**
+     * Tests that when this device is the host/server, it can
+     * receive information from the client and use it to send
+     * data to the client (essential for two way communication).
+     */
+    @Test
+    public void hostSetsUpAndSendsCorrectly()
+    {
+        // Step 1, dependency injection for client devices handled in setup function.
+        // Step 2, create a WifiP2pInfo object where group formed is true,
+        // groupOwner is true, and groupOwnerAddress is set to something that we
+        // can test against (check) later.
+        WifiP2pInfo info = new WifiP2pInfo();
+        info.groupFormed = true;
+        info.isGroupOwner = true;
+        try
+        {
+            info.groupOwnerAddress = InetAddress.getByName("127.0.0.1");
+        }
+        catch (UnknownHostException e)
+        {
+            assert false;
+            return;
+        }
+        this.instance.onConnectionInfoAvailable(info);
+        // Step 3, verify that the Host persists data from our mocked client.
+        // we know this is true if the host attempts to send data to the
+        // IP address we mocked, which is given to our mock SendDataService.
+        InMemoryFile mockIMF = new InMemoryFile("let me simply add that it's my very good honor " +
+                "to meet you and you may call me V.");
+        this.instance.sendInMemoryFile(mockIMF);
+        Intent sentIntent = MockSendDataService.awaitIntent();
+        /*
+            At this point, several things have occurred:
+            1. Our host has received the clientAddress from our mock.
+            2. Our host has been told to send messages to our mock.
+            3. Because onConnectionInfo was called, we can send a message.
+            It is also worth noting that we don't need to check the contents
+            of the InMemoryFile because that is checked in a different test.
+            We only care about one thing: The address it is attempting to send to.
+         */
+        if (sentIntent != null && sentIntent.getExtras() != null)
+        { // unwrapping for the sake of the linter
+            String targetAddress =
+                    sentIntent.getExtras().getString(SendDataService.EXTRAS_PEER_ADDRESS);
+            assert(Objects.requireNonNull(targetAddress)
+                    .equals(mockUpdaterAsyncTask.getMockClientAddress().getHostAddress()));
+        }
+        else
+        {
+            // If we enter this block, something went wrong when awaiting
+            // the intent, or the intent wasn't packaged correctly.
+            assert false;
+        }
+        // Step 4, check if the database has been updated with the fake message we mocked.
     }
 
     /*

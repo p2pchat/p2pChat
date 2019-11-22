@@ -1,6 +1,7 @@
 package edu.uwstout.p2pchat.testing;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import edu.uwstout.p2pchat.WifiDirectHelpers.InetAddressListener;
@@ -38,6 +39,7 @@ public final class MockLocalHostHelper extends LocalHostHelper
     @Override
     protected InetAddress doInBackground(InetAddressListener... inetAddressListeners)
     {
+        listeners = new ArrayList<>();
         listeners.addAll(Arrays.asList(inetAddressListeners));
         return this.mockLocalHost;
     }

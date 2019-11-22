@@ -1,5 +1,6 @@
 package edu.uwstout.p2pchat.testing;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import edu.uwstout.p2pchat.InMemoryFile;
@@ -48,7 +49,23 @@ public final class MockReceiverAsyncTask extends ReceiverAsyncTask
     protected InMemoryFile doInBackground(
             InMemoryFileReceivedListener... inMemoryFileReceivedListeners)
     {
+        listeners = new ArrayList<>();
         listeners.addAll(Arrays.asList(inMemoryFileReceivedListeners));
         return (this.numberOfMessages-- > 0) ? this.mockFile : null;
+    }
+
+    /**
+     * Notifies all passed in InMemoryFileReceivedListeners of the message received.
+     *
+     * @param inMemoryFile
+     *         the message sent by the our peer.
+     */
+    @Override
+    protected void onPostExecute(InMemoryFile inMemoryFile)
+    {
+        if (inMemoryFile != null)
+        {
+            super.onPostExecute(inMemoryFile);
+        } // Else, do nothing, never return.
     }
 }
