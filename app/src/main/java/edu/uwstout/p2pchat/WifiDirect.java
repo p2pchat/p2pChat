@@ -23,6 +23,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import edu.uwstout.p2pchat.WifiDirectHelpers.InMemoryFileReceivedListener;
 import edu.uwstout.p2pchat.WifiDirectHelpers.InetAddressListener;
@@ -50,7 +51,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
 {
     /**
      * Creating an observer interface so that fragments can subscribe
-     * to events that matter to them so that they can respond in the GUI.
+     * to peer discovery events that matter to them so that they can respond in the GUI.
      */
     public interface PeerDiscoveryListener
     {
@@ -87,6 +88,19 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
          *         the reason for failure (list of reasons unknown at this time).
          */
         void peerConnectionFailed(int reasonCode);
+    }
+
+    /**
+     * Creating an observer interface so that fragments can be notified
+     * if this device gets disconnected from our peer.
+     */
+    interface DisconnectionListener {
+        /**
+         * Notifies the listener that we have disconnected from our peer.
+         * This may or may not be due to a intentional disconnect from our
+         * user.
+         */
+        void onPeerDisconnect();
     }
 
     /**
@@ -138,6 +152,11 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      */
     private List<WifiDirect.PeerDiscoveryListener> peerDiscoveryListeners;
     /**
+     * A list of all the disconnection listeners
+     * subscribed to the events posted by this class.
+     */
+    private List<WifiDirect.DisconnectionListener> disconnectionListeners;
+    /**
      * The instance of this singleton.
      */
     private static WifiDirect instance;
@@ -161,7 +180,8 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
         // set up P2P framework and helper class.
         this.manager = (WifiP2pManager) this.context
                 .getSystemService(Context.WIFI_P2P_SERVICE);
-        this.channel = manager.initialize(this.context, getMainLooper(), null);
+        this.channel = Objects.requireNonNull(manager)
+                .initialize(this.context, getMainLooper(), null);
         this.receiver = new WifiDirectBroadcastReceiver(this.manager, this.channel);
 
         // Get intents for changes related to using WifiDirect
@@ -171,8 +191,14 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
         this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 
-        // Instantiate an empty list of listeners
+        // Instantiate all empty lists of listeners
         this.peerDiscoveryListeners = new ArrayList<>();
+        this.disconnectionListeners = new ArrayList<>();
+
+        // Instantiate dependencies
+        localHostResolver = new LocalHostHelper();
+        messageReceiver = new ReceiverAsyncTask();
+        clientUpdateReceiver = new UpdaterAsyncTask();
 
         // TODO I should re-evaluate how peer discovery should occur.
         //  There is potential to have it be a continuously run process
@@ -268,19 +294,6 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     }
 
     /**
-     * Sets the INetAddress of our client if this device is the host
-     * of the WifiP2pGroup. Used internally, there is no getter.
-     *
-     * @param client
-     *         The INetAddress of our client.
-     * @see InetAddress
-     */
-    public void setClient(InetAddress client)
-    {
-        this.clientAddress = client;
-    }
-
-    /**
      * Adds a PeerDiscoveryListener to the list of listeners that we
      * will notify based on relevant events.
      *
@@ -308,6 +321,26 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     void unsubscribePeerDiscoveryListener(final WifiDirect.PeerDiscoveryListener pdl)
     {
         this.peerDiscoveryListeners.remove(pdl);
+    }
+
+    /**
+     * Adds a Disconnection Listener to the list of listeners that we will notify
+     * in the event that this device disconnects from its peers.
+     * @param disconnectionListener a DisconnectionListener that wants to be notified.
+     * @see WifiDirect.DisconnectionListener
+     */
+    void subscribeDisconnectionListener(final WifiDirect.DisconnectionListener disconnectionListener)
+    {
+        // check to make sure there are no repeats
+        if (!this.disconnectionListeners.contains(disconnectionListener))
+        {
+            this.disconnectionListeners.add(disconnectionListener);
+        }
+    }
+
+    void unSubscribeDisconnectionListener(final WifiDirect.DisconnectionListener disconnectionListener)
+    {
+        this.disconnectionListeners.remove(disconnectionListener);
     }
 
     //////////////////////////////////////////////////
@@ -364,7 +397,10 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     public void onChannelDisconnected()
     {
         Log.e(LOG_TAG, "Channel lost, implementing try again protocol suggested");
-        // TODO reimplement so that there is an observer protocol for this
+        for (DisconnectionListener dl: this.disconnectionListeners)
+        {
+            dl.onPeerDisconnect();
+        }
     }
 
     /**
@@ -404,9 +440,8 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
                                 .insertFileMessage(macAddress, new Date(), false, inMemoryFile, context);
                     }
                 }
-
                 // startup a new ReceiverAsyncTask to listen for the next message.
-                new ReceiverAsyncTask().execute(this);
+                messageReceiver.execute(this);
             }
         }
 
@@ -421,18 +456,18 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
         {
             Log.d(LOG_TAG, "Info available informs that this is the server.");
             // ReceiverAsyncTask handles the process of receiving messages.
-            new ReceiverAsyncTask().execute(new imfrl());
+            messageReceiver.execute(new imfrl());
             // UpdaterAsyncTask handles the process of
             // getting client information for two-way communication.
-            new UpdaterAsyncTask().execute((InetAddressListener) address -> this.clientAddress = address);
+            clientUpdateReceiver.execute((InetAddressListener) address -> this.clientAddress = address);
         }
         else if (this.info.groupFormed)
         {
             // ReceiverAsyncTask handles the process of receiving messages.
-            new ReceiverAsyncTask().execute(new imfrl());
-            new LocalHostHelper().execute((InetAddressListener) address -> {
+            messageReceiver.execute(new imfrl());
+            localHostResolver.execute((InetAddressListener) address -> {
                 // Create an intent to send to the server.
-                Intent updateIntent = new Intent(context, SendDataService.class);
+                Intent updateIntent = new Intent(context, senderService);
                 updateIntent.setAction(SendDataService.ACTION_UPDATE_INETADDRESS);
                 updateIntent.putExtra(SendDataService.EXTRAS_INETADDRESS, address);
                 updateIntent.putExtra(SendDataService.EXTRAS_PEER_ADDRESS,
@@ -494,10 +529,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
                 // log the error with a description of what went wrong.
                 Log.e(LOG_TAG, "Peer Discovery Failure. Error: " + resolveFailureCode(reasonCode));
                 // Tell the PeerDiscoveryListeners that peer discovery has gone wrong.
-                for (PeerDiscoveryListener pdl : peerDiscoveryListeners)
-                {
-                    pdl.peerDiscoveryFailed(reasonCode);
-                }
+                peerDiscoveryFailed(reasonCode);
             }
         });
     }
@@ -684,6 +716,26 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      */
     private Class senderService = SendDataService.class;
 
+    /*
+     * The AsyncTask subclasses are used to handle networking
+     * tasks in a worker thread so that they don't block our
+     * main thread. Because we need to mock them, we will
+     * sacrifice a little extra memory space in order to
+     * implement a little more dependency injection design pattern.
+     */
+    /**
+     * Dependency injection for LocalHost Resolution.
+     */
+    private static LocalHostHelper localHostResolver = null;
+    /**
+     * Dependency injection for message receiving.
+     */
+    private static ReceiverAsyncTask messageReceiver = null;
+    /**
+     * Dependency injection for client INetAddress updates.
+     */
+    private static UpdaterAsyncTask clientUpdateReceiver = null;
+
     /**
      * Switches out the dependency for the IntentService
      * used to transmit data.
@@ -697,14 +749,49 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     }
 
     /**
-     * Resets the dependency for the IntentService
-     * used to transmit data to the default.
+     * Switches out the dependency for the AsyncTask
+     * used to resolve the localhost.
+     * @param lhh the LocalHostHelper we wish to inject.
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    void setLocalHostResolver(LocalHostHelper lhh)
+    {
+        localHostResolver = lhh;
+    }
+
+    /**
+     * Switches out the dependency for the AsyncTask
+     * used to receive messages from clients.
+     * @param rat the ReceiverAsyncTask we wish to inject.
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    void setMessageReceiver(ReceiverAsyncTask rat)
+    {
+        messageReceiver = rat;
+    }
+
+    /**
+     * Switches out the dependency for the AsyncTask
+     * used to get client INetAddress updates.
+     * @param uat the UpdaterAsyncTask we wish to inject.
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    void setClientUpdateReceiver(UpdaterAsyncTask uat)
+    {
+        clientUpdateReceiver = uat;
+    }
+
+    /**
+     * Resets all dependencies of this class.
      * FOR TESTING PURPOSES ONLY!
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    void resetSenderService()
+    void resetDependencies()
     {
         this.senderService = SendDataService.class;
+        localHostResolver = new LocalHostHelper();
+        messageReceiver = new ReceiverAsyncTask();
+        clientUpdateReceiver = new UpdaterAsyncTask();
     }
 
     /**
@@ -717,5 +804,6 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     void clearListenerLists()
     {
         this.peerDiscoveryListeners.clear();
+        this.disconnectionListeners.clear();
     }
 }

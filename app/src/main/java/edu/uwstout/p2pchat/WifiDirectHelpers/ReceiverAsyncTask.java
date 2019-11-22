@@ -4,6 +4,8 @@ import android.app.Application;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -37,7 +39,8 @@ public class ReceiverAsyncTask extends AsyncTask<InMemoryFileReceivedListener, O
     /**
      * Keeps track of all listeners passed into the asynchronous task.
      */
-    private static ArrayList<InMemoryFileReceivedListener> listeners;
+    @VisibleForTesting
+    protected static ArrayList<InMemoryFileReceivedListener> listeners;
 
     /**
      * Listens for incoming messages in the background.

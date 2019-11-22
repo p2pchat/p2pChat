@@ -3,15 +3,17 @@ package edu.uwstout.p2pchat.WifiDirectHelpers;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public final class LocalHostHelper extends AsyncTask<InetAddressListener, Object, InetAddress>
+public class LocalHostHelper extends AsyncTask<InetAddressListener, Object, InetAddress>
 {
-
-    private static ArrayList<InetAddressListener> listeners;
+    @VisibleForTesting
+    protected static ArrayList<InetAddressListener> listeners;
 
     /**
      * Constant for logging.
