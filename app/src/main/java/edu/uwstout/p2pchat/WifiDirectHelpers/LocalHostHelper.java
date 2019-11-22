@@ -8,14 +8,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public final class LocalHostHelper extends AsyncTask<LocalHostHelper.InetAddressListener, Object, InetAddress>
+public final class LocalHostHelper extends AsyncTask<InetAddressListener, Object, InetAddress>
 {
-    public interface InetAddressListener {
-        /**
-         * Notifies the listener that the INetAddress is available.
-         */
-        public void onLocalHostAvailable(InetAddress address);
-    }
 
     private static ArrayList<InetAddressListener> listeners;
 
@@ -24,6 +18,13 @@ public final class LocalHostHelper extends AsyncTask<LocalHostHelper.InetAddress
      */
     private static String LOG_TAG = "LocalHostHelper";
 
+    /**
+     * Handled in an asynchronous fashion, this method determines the
+     * device's InetAddtess.
+     * @param inetAddressListeners A series of InetAddressListeners which will be notified
+     *                             when the InetAddress is ready.
+     * @return The InetAddress of the device.
+     */
     @Override
     protected InetAddress doInBackground(InetAddressListener... inetAddressListeners)
     {
@@ -43,9 +44,15 @@ public final class LocalHostHelper extends AsyncTask<LocalHostHelper.InetAddress
         }
     }
 
+    /**
+     * Notifies all passed in InetAddressListeners of the updated InetAddress.
+     * @param address The InetAddress of the current device.
+     */
     @Override
     protected void onPostExecute(InetAddress address)
     {
+        if (address == null)
+            return;
         for (InetAddressListener listener: listeners)
         {
             listener.onLocalHostAvailable(address);
