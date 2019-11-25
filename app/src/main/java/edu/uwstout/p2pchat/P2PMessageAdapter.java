@@ -40,7 +40,7 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
     }
 
     /**
-     *
+     *Binds the view
      */
     @Override
     public void onBindViewHolder(@NonNull P2PMessageViewHolder holder, int position)
@@ -55,14 +55,14 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
     }
 
     /**
-     *
+     *Gets a count of items.
      */
     @Override
     public int getItemCount()
     {
         if (messageList == null)
         {
-            messageList = new ArrayList<Message>();
+            messageList = new ArrayList<>();
         }
         return messageList.size();
     }
