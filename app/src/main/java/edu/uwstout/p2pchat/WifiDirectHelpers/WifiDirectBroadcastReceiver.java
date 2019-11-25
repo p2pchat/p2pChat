@@ -123,8 +123,8 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver
                 // connection information to find group owner IP.
                 // then pass it along to the WifiDirect Singleton
                 WifiDirect infoListener = WifiDirect.getInstance(context);
-                manager.requestConnectionInfo(this.channel, infoListener);
                 manager.requestGroupInfo(this.channel, infoListener);
+                manager.requestConnectionInfo(this.channel, infoListener);
             }
         }
         else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action))

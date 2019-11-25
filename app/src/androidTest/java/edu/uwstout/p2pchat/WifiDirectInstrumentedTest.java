@@ -62,6 +62,43 @@ public class WifiDirectInstrumentedTest
     public ActivityTestRule<MainActivity> activityRule = new
             ActivityTestRule<>(MainActivity.class);
 
+    // Create a mock WifiP2pGroup class for testing.
+    class MockGroup extends WifiP2pGroup {
+        private WifiP2pDevice mockDevice;
+        private boolean isGroupOwner;
+
+        /**
+         * Creates a mock WifiP2pGroup which returns variables
+         * that this mock is instantiated with.
+         * @param mockPeer The WifiP2pDevice that getOwner() should return and will be the only
+         *                 value in the collection returned by getClientList().
+         * @param isGroupOwner Whether this device is the host / owner of the fake group.
+         */
+        MockGroup(WifiP2pDevice mockPeer, boolean isGroupOwner) {
+            this.mockDevice = mockPeer;
+            this.isGroupOwner = isGroupOwner;
+        }
+        @Override
+        public Collection<WifiP2pDevice> getClientList()
+        {
+            ArrayList<WifiP2pDevice> mockList = new ArrayList<>();
+            mockList.add(this.mockDevice);
+            return mockList;
+        }
+
+        @Override
+        public boolean isGroupOwner()
+        {
+            return this.isGroupOwner;
+        }
+
+        @Override
+        public WifiP2pDevice getOwner()
+        {
+            return this.mockDevice;
+        }
+    }
+
     /**
      * Instantiate the test context variable so that we
      * can call the function WifiDirect.getInstance(),
@@ -184,28 +221,6 @@ public class WifiDirectInstrumentedTest
                 assert(reasonCode == REASON_CODE_TEST);
             }
         }
-        // Create a mock WifiP2pGroup class for testing.
-        class MockGroup extends WifiP2pGroup {
-            @Override
-            public Collection<WifiP2pDevice> getClientList()
-            {
-                ArrayList<WifiP2pDevice> mockList = new ArrayList<>();
-                mockList.add(TEST_DEVICE);
-                return mockList;
-            }
-
-            @Override
-            public boolean isGroupOwner()
-            {
-                return true;
-            }
-
-            @Override
-            public WifiP2pDevice getOwner()
-            {
-                return TEST_DEVICE;
-            }
-        }
         // Let's begin the actual testing
         // First, create a PDL instance
         PDL pdl = new PDL();
@@ -215,7 +230,7 @@ public class WifiDirectInstrumentedTest
         // third, call some of the functions that we can test
         instance.peersHaveChanged(new WifiP2pDeviceList());
         instance.peerDiscoveryFailed(REASON_CODE_TEST);
-        instance.onGroupInfoAvailable(new MockGroup());
+        instance.onGroupInfoAvailable(new MockGroup(TEST_DEVICE, true));
         // fourth, unsubscribe
         instance.unsubscribePeerDiscoveryListener(pdl);
         // fifth, call the function again, if the PDL
@@ -295,6 +310,8 @@ public class WifiDirectInstrumentedTest
             assert false;
             return;
         }
+        // Has to be called before WifiDirect.onConnectionInfoAvailable()
+        this.instance.onGroupInfoAvailable(new MockGroup(new WifiP2pDevice(), false));
         // Has to be called before WifiDirect.sendInMemoryFile();
         this.instance.onConnectionInfoAvailable(info);
         // Create a dummy InMemoryFile for testing.
@@ -349,6 +366,8 @@ public class WifiDirectInstrumentedTest
             assert false;
             return;
         }
+        // onGroupInfoAvailable must be called before onConnectionInfoAvailable
+        this.instance.onGroupInfoAvailable(new MockGroup(new WifiP2pDevice(), false));
         this.instance.onConnectionInfoAvailable(info);
         // Step 3, Check that the client sends information about how to contact itself
         // to the host via our MockSendDataService

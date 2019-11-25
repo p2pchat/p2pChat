@@ -27,7 +27,6 @@ import java.util.Objects;
 
 import edu.uwstout.p2pchat.WifiDirectHelpers.InMemoryFileReceivedListener;
 import edu.uwstout.p2pchat.WifiDirectHelpers.InetAddressListener;
-import edu.uwstout.p2pchat.WifiDirectHelpers.LocalhostAsyncTask;
 import edu.uwstout.p2pchat.WifiDirectHelpers.LocalhostAsyncTaskFactory;
 import edu.uwstout.p2pchat.WifiDirectHelpers.ReceiverAsyncTask;
 import edu.uwstout.p2pchat.WifiDirectHelpers.ReceiverAsyncTaskFactory;
@@ -289,7 +288,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      *
      * @return a WifiP2pDevice that is our connected peer.
      */
-    public WifiP2pDevice getPeerDevice()
+    WifiP2pDevice getPeerDevice()
     {
         return this.peerDevice;
     }
@@ -427,8 +426,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
                     if (inMemoryFile.getMimeType().equals(InMemoryFile.MESSAGE_MIME_TYPE))
                     {
                         // add a text message to the database
-                        String macAddress = WifiDirect.getInstance(context)
-                                .getPeerDevice().deviceAddress;
+                        String macAddress = peerDevice.deviceAddress;
                         viewModel.insertTextMessage(macAddress, new Date(), false,
                                         inMemoryFile.getTextMessage());
                     }
@@ -443,9 +441,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
                     }
                 }
                 // execute a fresh AsyncTask to listen for the next message.
-                InMemoryFileReceivedListener self = this;
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(() -> messageReceiver.newReceiverTask().execute(self));
+                messageReceiver.newReceiverTask().execute(this);
             }
         }
 
@@ -463,7 +459,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
             messageReceiver.newReceiverTask().execute(new imfrl());
             // UpdaterAsyncTask handles the process of
             // getting client information for two-way communication.
-            new UpdaterAsyncTask().execute(
+            clientUpdateReceiver.newUpdateTask().execute(
                     (InetAddressListener) address -> this.clientAddress = address);
         }
         else if (this.info.groupFormed)
@@ -500,20 +496,19 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
             Log.d(LOG_TAG, "This device is the group owner");
             // We only care to notify server devices that a connection has occurred.
             // get the peer device (first and only device in the client list)
-            WifiP2pDevice peer = wifiP2pGroup.getClientList().iterator().next();
-            this.peerDevice = peer;
+            this.peerDevice = wifiP2pGroup.getClientList().iterator().next();
             for (PeerDiscoveryListener listener : this.peerDiscoveryListeners)
             {
-                listener.peerConnectionSucceeded(peer);
+                listener.peerConnectionSucceeded(this.peerDevice);
             }
         }
         else // we are the client
         {
             Log.d(LOG_TAG, "This device is the client");
-            WifiP2pDevice peerHost = wifiP2pGroup.getOwner();
+            this.peerDevice = wifiP2pGroup.getOwner();
             for (PeerDiscoveryListener listener : this.peerDiscoveryListeners)
             {
-                listener.peerConnectionSucceeded(peerHost);
+                listener.peerConnectionSucceeded(this.peerDevice);
             }
         }
     }
@@ -652,7 +647,8 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      *         An int which cam from a WifiP2pManager.ActionListener callback.
      * @return A string which describes an error code.
      */
-    static String resolveFailureCode(int failureCode)
+    @SuppressWarnings("WeakerAccess")
+    public static String resolveFailureCode(int failureCode)
     {
         // Turn the error code into a human readable message.
         String errorType;
