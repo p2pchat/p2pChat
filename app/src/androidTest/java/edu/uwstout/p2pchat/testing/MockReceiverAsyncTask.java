@@ -9,7 +9,12 @@ import edu.uwstout.p2pchat.WifiDirectHelpers.ReceiverAsyncTask;
 
 public final class MockReceiverAsyncTask extends ReceiverAsyncTask
 {
-    private InMemoryFile mockFile;
+    /**
+     * The mock behavior always returns this mock file,
+     * though it has a setter if certain tests request it.
+     */
+    private static InMemoryFile mockFile = new InMemoryFile("In the beginning God created the universe. This was "
+            + "widely regarded as a very bad move.");
     /**
      * Because the implementation is setup to receive an infinite number
      * of text messages, we don't want to flood our database with test
@@ -25,25 +30,23 @@ public final class MockReceiverAsyncTask extends ReceiverAsyncTask
     public MockReceiverAsyncTask(int numMessages)
     {
         this.numberOfMessages = numMessages;
-        this.mockFile = new InMemoryFile("In the beginning God created the universe. This was "
-                + "widely regarded as a very bad move.");
     }
 
     /**
      * Setter for the mock InMemory file for comparison in our tests.
      */
-    public void setMockFile(InMemoryFile imf)
+    public static synchronized void setMockFile(InMemoryFile imf)
     {
-        this.mockFile = imf;
+        mockFile = imf;
     }
 
     /**
      * Getter for the mock InMemoryFile for comparison in our tests.
      * @return The InMemoryFile which this AsyncTask sends to InMemoryFileReceivedListeners.
      */
-    public InMemoryFile getMockFile()
+    public static synchronized InMemoryFile getMockFile()
     {
-        return this.mockFile;
+        return mockFile;
     }
 
     /**
@@ -60,7 +63,7 @@ public final class MockReceiverAsyncTask extends ReceiverAsyncTask
     {
         listeners = new ArrayList<>();
         listeners.addAll(Arrays.asList(inMemoryFileReceivedListeners));
-        return (this.numberOfMessages-- > 0) ? this.mockFile : null;
+        return (this.numberOfMessages-- > 0) ? mockFile : null;
     }
 
     /**

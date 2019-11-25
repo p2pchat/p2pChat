@@ -5,26 +5,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import edu.uwstout.p2pchat.WifiDirectHelpers.InetAddressListener;
-import edu.uwstout.p2pchat.WifiDirectHelpers.LocalHostHelper;
+import edu.uwstout.p2pchat.WifiDirectHelpers.LocalhostAsyncTask;
 
-public final class MockLocalHostHelper extends LocalHostHelper
+public final class MockLocalhostAsyncTask extends LocalhostAsyncTask
 {
-    private final InetAddress mockLocalHost;
-
-    /**
-     * Non-Default constructor.
-     */
-    public MockLocalHostHelper()
-    {
-        this.mockLocalHost = InetAddress.getLoopbackAddress();
-    }
+    private static final InetAddress mockLocalHost = InetAddress.getLoopbackAddress();
 
     /**
      * Getter for the mockLocalHost for comparison in our tests.
      */
-    public InetAddress getMockLocalHost()
+    public static InetAddress getMockLocalHost()
     {
-        return this.mockLocalHost;
+        return mockLocalHost;
     }
 
     /**
@@ -41,6 +33,6 @@ public final class MockLocalHostHelper extends LocalHostHelper
     {
         listeners = new ArrayList<>();
         listeners.addAll(Arrays.asList(inetAddressListeners));
-        return this.mockLocalHost;
+        return mockLocalHost;
     }
 }

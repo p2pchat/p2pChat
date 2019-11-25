@@ -10,7 +10,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class LocalHostHelper extends AsyncTask<InetAddressListener, Object, InetAddress>
+public class LocalhostAsyncTask extends AsyncTask<InetAddressListener, Object, InetAddress>
 {
     @VisibleForTesting
     protected static ArrayList<InetAddressListener> listeners;
@@ -18,7 +18,7 @@ public class LocalHostHelper extends AsyncTask<InetAddressListener, Object, Inet
     /**
      * Constant for logging.
      */
-    private static String LOG_TAG = "LocalHostHelper";
+    private static String LOG_TAG = "LocalhostAsyncTask";
 
     /**
      * Handled in an asynchronous fashion, this method determines the

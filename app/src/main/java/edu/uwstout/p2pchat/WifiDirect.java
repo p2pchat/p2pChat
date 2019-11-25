@@ -12,7 +12,6 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -21,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,10 +27,13 @@ import java.util.Objects;
 
 import edu.uwstout.p2pchat.WifiDirectHelpers.InMemoryFileReceivedListener;
 import edu.uwstout.p2pchat.WifiDirectHelpers.InetAddressListener;
-import edu.uwstout.p2pchat.WifiDirectHelpers.LocalHostHelper;
+import edu.uwstout.p2pchat.WifiDirectHelpers.LocalhostAsyncTask;
+import edu.uwstout.p2pchat.WifiDirectHelpers.LocalhostAsyncTaskFactory;
 import edu.uwstout.p2pchat.WifiDirectHelpers.ReceiverAsyncTask;
+import edu.uwstout.p2pchat.WifiDirectHelpers.ReceiverAsyncTaskFactory;
 import edu.uwstout.p2pchat.WifiDirectHelpers.SendDataService;
 import edu.uwstout.p2pchat.WifiDirectHelpers.UpdaterAsyncTask;
+import edu.uwstout.p2pchat.WifiDirectHelpers.UpdaterAsyncTaskFactory;
 import edu.uwstout.p2pchat.WifiDirectHelpers.WifiDirectBroadcastReceiver;
 
 /**
@@ -198,10 +199,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
         this.disconnectionListeners = new ArrayList<>();
 
         // Instantiate dependencies
-        localHostResolver = new LocalHostHelper();
-        messageReceiver = new ReceiverAsyncTask();
-        clientUpdateReceiver = new UpdaterAsyncTask();
-        viewModel = new ViewModel((Application) context.getApplicationContext());
+        this.resetDependencies();
 
         // TODO I should re-evaluate how peer discovery should occur.
         //  There is potential to have it be a continuously run process
@@ -443,9 +441,9 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
                     }
                 }
                 // execute a fresh AsyncTask to listen for the next message.
-                InMemoryFileReceivedListener imfrl = this;
+                InMemoryFileReceivedListener self = this;
                 Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(() -> messageReceiver.execute(imfrl));
+                handler.post(() -> messageReceiver.newReceiverTask().execute(self));
             }
         }
 
@@ -460,16 +458,17 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
         {
             Log.d(LOG_TAG, "Info available informs that this is the server.");
             // ReceiverAsyncTask handles the process of receiving messages.
-            messageReceiver.execute(new imfrl());
+            messageReceiver.newReceiverTask().execute(new imfrl());
             // UpdaterAsyncTask handles the process of
             // getting client information for two-way communication.
-            clientUpdateReceiver.execute((InetAddressListener) address -> this.clientAddress = address);
+            clientUpdateReceiver.newUpdateTask().execute((InetAddressListener) address
+                    -> this.clientAddress = address);
         }
         else if (this.info.groupFormed)
         {
             // ReceiverAsyncTask handles the process of receiving messages.
-            messageReceiver.execute(new imfrl());
-            localHostResolver.execute((InetAddressListener) address -> {
+            messageReceiver.newReceiverTask().execute(new imfrl());
+            localHostResolver.newLocalhostTask().execute((InetAddressListener) address -> {
                 // Create an intent to send to the server.
                 Intent updateIntent = new Intent(context, senderService);
                 updateIntent.setAction(SendDataService.ACTION_UPDATE_INETADDRESS);
@@ -734,15 +733,15 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     /**
      * Dependency injection for LocalHost Resolution.
      */
-    private static LocalHostHelper localHostResolver = null;
+    private static LocalhostAsyncTaskFactory localHostResolver = null;
     /**
      * Dependency injection for message receiving.
      */
-    private static ReceiverAsyncTask messageReceiver = null;
+    private static ReceiverAsyncTaskFactory messageReceiver = null;
     /**
      * Dependency injection for client INetAddress updates.
      */
-    private static UpdaterAsyncTask clientUpdateReceiver = null;
+    private static UpdaterAsyncTaskFactory clientUpdateReceiver = null;
     /**
      * Dependency injection for the ViewModel to make database testing possible.
      */
@@ -764,7 +763,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * Switches out the dependency for the IntentService
      * used to transmit data.
      * FOR TESTING PURPOSES ONLY!
-     * @param c the class we wish to inject.
+     * @param c An IntentService we wish to inject.
      */
     @VisibleForTesting
     void setSenderService(Class c)
@@ -775,34 +774,37 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     /**
      * Switches out the dependency for the AsyncTask
      * used to resolve the localhost.
-     * @param lhh the LocalHostHelper we wish to inject.
+     * @param lhhf the LocalhostAsyncTaskFactory which builds
+     *            the kind of LocalhostAsyncTask we wish to inject.
      */
     @VisibleForTesting
-    void setLocalHostResolver(LocalHostHelper lhh)
+    void setLocalHostResolver(LocalhostAsyncTaskFactory lhhf)
     {
-        localHostResolver = lhh;
+        localHostResolver = lhhf;
     }
 
     /**
      * Switches out the dependency for the AsyncTask
      * used to receive messages from clients.
-     * @param rat the ReceiverAsyncTask we wish to inject.
+     * @param ratf the ReceiverAsyncTaskFactory which builds
+     *            the kind of ReceiverAsyncTask we wish to inject.
      */
     @VisibleForTesting
-    void setMessageReceiver(ReceiverAsyncTask rat)
+    void setMessageReceiver(ReceiverAsyncTaskFactory ratf)
     {
-        messageReceiver = rat;
+        messageReceiver = ratf;
     }
 
     /**
      * Switches out the dependency for the AsyncTask
      * used to get client INetAddress updates.
-     * @param uat the UpdaterAsyncTask we wish to inject.
+     * @param uatf the UpdaterAsyncTaskFactory which builds
+     *            the kind of UpdaterAsyncTask we wish to inject.
      */
     @VisibleForTesting
-    void setClientUpdateReceiver(UpdaterAsyncTask uat)
+    void setClientUpdateReceiver(UpdaterAsyncTaskFactory uatf)
     {
-        clientUpdateReceiver = uat;
+        clientUpdateReceiver = uatf;
     }
 
     /**
@@ -812,10 +814,11 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     @VisibleForTesting
     void resetDependencies()
     {
+        // All factories have a default implementation that we want here.
         this.senderService = SendDataService.class;
-        localHostResolver = new LocalHostHelper();
-        messageReceiver = new ReceiverAsyncTask();
-        clientUpdateReceiver = new UpdaterAsyncTask();
+        localHostResolver = new LocalhostAsyncTaskFactory() {};
+        messageReceiver = new ReceiverAsyncTaskFactory() {};
+        clientUpdateReceiver = new UpdaterAsyncTaskFactory() {};
         viewModel = new ViewModel((Application) context.getApplicationContext());
     }
 

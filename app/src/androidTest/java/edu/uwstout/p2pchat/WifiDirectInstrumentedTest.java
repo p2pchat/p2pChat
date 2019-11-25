@@ -23,13 +23,17 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
 
+import edu.uwstout.p2pchat.WifiDirectHelpers.LocalhostAsyncTask;
+import edu.uwstout.p2pchat.WifiDirectHelpers.LocalhostAsyncTaskFactory;
 import edu.uwstout.p2pchat.WifiDirectHelpers.ReceiverAsyncTask;
+import edu.uwstout.p2pchat.WifiDirectHelpers.ReceiverAsyncTaskFactory;
 import edu.uwstout.p2pchat.WifiDirectHelpers.SendDataService;
+import edu.uwstout.p2pchat.WifiDirectHelpers.UpdaterAsyncTask;
+import edu.uwstout.p2pchat.WifiDirectHelpers.UpdaterAsyncTaskFactory;
 import edu.uwstout.p2pchat.room.Message;
-import edu.uwstout.p2pchat.testing.MockLocalHostHelper;
+import edu.uwstout.p2pchat.testing.MockLocalhostAsyncTask;
 import edu.uwstout.p2pchat.testing.MockReceiverAsyncTask;
 import edu.uwstout.p2pchat.testing.MockSendDataService;
 import edu.uwstout.p2pchat.testing.MockUpdaterAsyncTask;
@@ -49,20 +53,6 @@ public class WifiDirectInstrumentedTest
      * Class reference to the singleton that we are testing.
      */
     private WifiDirect instance;
-    /**
-     * Mock dependency for ReceiverAsyncTask
-     * If a test requires multiple messages, it will have to
-     * create a fresh instance of mockReceiverAsyncTask.
-     */
-    private MockReceiverAsyncTask mockReceiverAsyncTask;
-    /**
-     * Mock dependency for UpdaterAsyncTask
-     */
-    private MockUpdaterAsyncTask mockUpdaterAsyncTask;
-    /**
-     * Mock dependency for LocalHostHelper
-     */
-    private MockLocalHostHelper mockLocalHostHelper;
     /**
      * Mock dependency for the Database ViewModel
      */
@@ -89,14 +79,35 @@ public class WifiDirectInstrumentedTest
         // Disable other listeners so that we don't call things we don't want to call.
         this.instance.clearListenerLists();
 
-        // substitute ALL dependencies with Mocks.
+        // substitute ALL dependencies with Mocks using a modified factory pattern
+        // alongside the dependency injection pattern.
         this.instance.setSenderService(MockSendDataService.class);
-        this.mockReceiverAsyncTask = new MockReceiverAsyncTask(1);
-        this.instance.setMessageReceiver(mockReceiverAsyncTask);
-        this.mockLocalHostHelper = new MockLocalHostHelper();
-        this.instance.setLocalHostResolver(mockLocalHostHelper);
-        this.mockUpdaterAsyncTask = new MockUpdaterAsyncTask();
-        this.instance.setClientUpdateReceiver(mockUpdaterAsyncTask);
+        this.instance.setMessageReceiver(new ReceiverAsyncTaskFactory()
+        {
+            @Override
+            public ReceiverAsyncTask newReceiverTask()
+            {
+                // Default to one method, but some tests may want to make
+                // this zero or more than one message.
+                return new MockReceiverAsyncTask(1);
+            }
+        });
+        this.instance.setLocalHostResolver(new LocalhostAsyncTaskFactory()
+        {
+            @Override
+            public LocalhostAsyncTask newLocalhostTask()
+            {
+                return new MockLocalhostAsyncTask();
+            }
+        });
+        this.instance.setClientUpdateReceiver(new UpdaterAsyncTaskFactory()
+        {
+            @Override
+            public UpdaterAsyncTask newUpdateTask()
+            {
+                return new MockUpdaterAsyncTask();
+            }
+        });
         this.mockViewModel = new MockViewModel(null);
         this.instance.setViewModel(this.mockViewModel);
     }
@@ -261,8 +272,15 @@ public class WifiDirectInstrumentedTest
     @Test
     public void sendIntentPackagedCorrectly()
     {
-        this.mockReceiverAsyncTask = new MockReceiverAsyncTask(0);
-        this.instance.setMessageReceiver(this.mockReceiverAsyncTask);
+        // This test shouldn't "receive" any messages for the database.
+        this.instance.setMessageReceiver(new ReceiverAsyncTaskFactory()
+        {
+            @Override
+            public ReceiverAsyncTask newReceiverTask()
+            {
+                return new MockReceiverAsyncTask(0);
+            }
+        });
         final String TEST_STRING = "This is a test";
         // Use some mock information to get us going.
         WifiP2pInfo info = new WifiP2pInfo();
@@ -367,7 +385,7 @@ public class WifiDirectInstrumentedTest
         }
         // Step 4, Check that the received text message was saved to the database.
         boolean messageFound = false;
-        String targetTextMessage = mockReceiverAsyncTask.getMockFile().getTextMessage();
+        String targetTextMessage = MockReceiverAsyncTask.getMockFile().getTextMessage();
         for (Message message :
                 Objects.requireNonNull(
                         mockViewModel.getMessages(info.groupOwnerAddress.getHostAddress())
@@ -427,7 +445,7 @@ public class WifiDirectInstrumentedTest
             String targetAddress =
                     sentIntent.getExtras().getString(SendDataService.EXTRAS_PEER_ADDRESS);
             assert(Objects.requireNonNull(targetAddress)
-                    .equals(mockUpdaterAsyncTask.getMockClientAddress().getHostAddress()));
+                    .equals(MockUpdaterAsyncTask.getMockClientAddress().getHostAddress()));
         }
         else
         {
@@ -438,7 +456,7 @@ public class WifiDirectInstrumentedTest
         // Step 4, check if the database has been updated with the fake message we mocked.
         // Specifically check messages that we received, since we can't check the one we sent.
         boolean messageFound = false;
-        String targetTextMessage = mockReceiverAsyncTask.getMockFile().getTextMessage();
+        String targetTextMessage = MockReceiverAsyncTask.getMockFile().getTextMessage();
         for (Message message :
                 Objects.requireNonNull(
                         mockViewModel.getMessages(info.groupOwnerAddress.getHostAddress())

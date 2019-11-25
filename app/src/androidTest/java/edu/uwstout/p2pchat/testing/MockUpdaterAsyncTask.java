@@ -9,22 +9,14 @@ import edu.uwstout.p2pchat.WifiDirectHelpers.UpdaterAsyncTask;
 
 public final class MockUpdaterAsyncTask extends UpdaterAsyncTask
 {
-    private final InetAddress mockClientAddress;
-
-    /**
-     * Default Constructor.
-     */
-    public MockUpdaterAsyncTask()
-    {
-        this.mockClientAddress = InetAddress.getLoopbackAddress();
-    }
+    private static final InetAddress mockClientAddress = InetAddress.getLoopbackAddress();
 
     /**
      * Getter for the mockClientAddress for comparison in our tests.
      */
-    public InetAddress getMockClientAddress()
+    public static InetAddress getMockClientAddress()
     {
-        return this.mockClientAddress;
+        return mockClientAddress;
     }
 
     /**
