@@ -28,10 +28,12 @@ import java.util.Objects;
 
 import edu.uwstout.p2pchat.WifiDirectHelpers.ReceiverAsyncTask;
 import edu.uwstout.p2pchat.WifiDirectHelpers.SendDataService;
+import edu.uwstout.p2pchat.room.Message;
 import edu.uwstout.p2pchat.testing.MockLocalHostHelper;
 import edu.uwstout.p2pchat.testing.MockReceiverAsyncTask;
 import edu.uwstout.p2pchat.testing.MockSendDataService;
 import edu.uwstout.p2pchat.testing.MockUpdaterAsyncTask;
+import edu.uwstout.p2pchat.testing.MockViewModel;
 
 /**
  * Instrumented testing of the WifiDirect Singleton
@@ -61,6 +63,10 @@ public class WifiDirectInstrumentedTest
      * Mock dependency for LocalHostHelper
      */
     private MockLocalHostHelper mockLocalHostHelper;
+    /**
+     * Mock dependency for the Database ViewModel
+     */
+    private MockViewModel mockViewModel;
 
     @Rule
     public ActivityTestRule<MainActivity> activityRule = new
@@ -91,6 +97,8 @@ public class WifiDirectInstrumentedTest
         this.instance.setLocalHostResolver(mockLocalHostHelper);
         this.mockUpdaterAsyncTask = new MockUpdaterAsyncTask();
         this.instance.setClientUpdateReceiver(mockUpdaterAsyncTask);
+        this.mockViewModel = new MockViewModel(null);
+        this.instance.setViewModel(this.mockViewModel);
     }
 
     /**
@@ -358,7 +366,19 @@ public class WifiDirectInstrumentedTest
             assert false;
         }
         // Step 4, Check that the received text message was saved to the database.
-
+        boolean messageFound = false;
+        String targetTextMessage = mockReceiverAsyncTask.getMockFile().getTextMessage();
+        for (Message message :
+                Objects.requireNonNull(
+                        mockViewModel.getMessages(info.groupOwnerAddress.getHostAddress())
+                                .getValue()))
+        {
+            if (!message.isFile() && message.content.equals(targetTextMessage))
+            {
+                messageFound = true;
+            }
+        }
+        assert(messageFound);
     }
 
     /**
@@ -416,6 +436,20 @@ public class WifiDirectInstrumentedTest
             assert false;
         }
         // Step 4, check if the database has been updated with the fake message we mocked.
+        // Specifically check messages that we received, since we can't check the one we sent.
+        boolean messageFound = false;
+        String targetTextMessage = mockReceiverAsyncTask.getMockFile().getTextMessage();
+        for (Message message :
+                Objects.requireNonNull(
+                        mockViewModel.getMessages(info.groupOwnerAddress.getHostAddress())
+                                .getValue()))
+        {
+            if (!message.isFile() && message.content.equals(targetTextMessage))
+            {
+                messageFound = true;
+            }
+        }
+        assert(messageFound);
     }
 
     /*

@@ -65,7 +65,7 @@ public final class MockSendDataService extends IntentService
      * Gets the most recent intent passed to the mock service.
      * If an intent has not been set yet, this function will
      * block until the MockSendDataService has been given an intent.
-     * @return an Intent, or null of an Interrupted Exception occured.
+     * @return an Intent, or null of an Interrupted Exception occurred.
      */
     public static Intent awaitIntent()
     {

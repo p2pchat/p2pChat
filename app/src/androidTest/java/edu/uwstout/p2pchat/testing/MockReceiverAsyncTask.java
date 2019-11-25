@@ -30,11 +30,20 @@ public final class MockReceiverAsyncTask extends ReceiverAsyncTask
     }
 
     /**
-     * Getter for the mock InMemory file for comparison in our tests.
+     * Setter for the mock InMemory file for comparison in our tests.
      */
     public void setMockFile(InMemoryFile imf)
     {
         this.mockFile = imf;
+    }
+
+    /**
+     * Getter for the mock InMemoryFile for comparison in our tests.
+     * @return The InMemoryFile which this AsyncTask sends to InMemoryFileReceivedListeners.
+     */
+    public InMemoryFile getMockFile()
+    {
+        return this.mockFile;
     }
 
     /**

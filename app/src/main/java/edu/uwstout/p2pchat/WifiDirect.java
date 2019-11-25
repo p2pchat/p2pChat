@@ -13,6 +13,8 @@ import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -199,6 +201,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
         localHostResolver = new LocalHostHelper();
         messageReceiver = new ReceiverAsyncTask();
         clientUpdateReceiver = new UpdaterAsyncTask();
+        viewModel = new ViewModel((Application) context.getApplicationContext());
 
         // TODO I should re-evaluate how peer discovery should occur.
         //  There is potential to have it be a continuously run process
@@ -427,8 +430,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
                         // add a text message to the database
                         String macAddress = WifiDirect.getInstance(context)
                                 .getPeerDevice().deviceAddress;
-                        new ViewModel((Application) context.getApplicationContext())
-                                .insertTextMessage(macAddress, new Date(), false,
+                        viewModel.insertTextMessage(macAddress, new Date(), false,
                                         inMemoryFile.getTextMessage());
                     }
                     else
@@ -436,12 +438,14 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
                         // add a regular file to the database
                         String macAddress = WifiDirect.getInstance(context)
                                 .getPeerDevice().deviceAddress;
-                        new ViewModel((Application) context.getApplicationContext())
-                                .insertFileMessage(macAddress, new Date(), false, inMemoryFile, context);
+                        viewModel.insertFileMessage(macAddress, new Date(), false, inMemoryFile,
+                                context);
                     }
                 }
-                // startup a new ReceiverAsyncTask to listen for the next message.
-                messageReceiver.execute(this);
+                // execute a fresh AsyncTask to listen for the next message.
+                InMemoryFileReceivedListener imfrl = this;
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(() -> messageReceiver.execute(imfrl));
             }
         }
 
@@ -563,7 +567,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @param reasonCode
      *         The reason peer discovery failed.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     void peerDiscoveryFailed(final int reasonCode)
     {
         for (PeerDiscoveryListener pdl : this.peerDiscoveryListeners)
@@ -739,6 +743,22 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * Dependency injection for client INetAddress updates.
      */
     private static UpdaterAsyncTask clientUpdateReceiver = null;
+    /**
+     * Dependency injection for the ViewModel to make database testing possible.
+     */
+    private static ViewModel viewModel = null;
+
+    /**
+     * Switches out the dependency for the database
+     * ViewModel.
+     * FOR TESTING PURPOSES ONLY!
+     * @param vm The ViewModel we wish to inject.
+     */
+    @VisibleForTesting
+    void setViewModel(ViewModel vm)
+    {
+        viewModel = vm;
+    }
 
     /**
      * Switches out the dependency for the IntentService
@@ -746,7 +766,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * FOR TESTING PURPOSES ONLY!
      * @param c the class we wish to inject.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     void setSenderService(Class c)
     {
         this.senderService = c;
@@ -757,7 +777,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * used to resolve the localhost.
      * @param lhh the LocalHostHelper we wish to inject.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     void setLocalHostResolver(LocalHostHelper lhh)
     {
         localHostResolver = lhh;
@@ -768,7 +788,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * used to receive messages from clients.
      * @param rat the ReceiverAsyncTask we wish to inject.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     void setMessageReceiver(ReceiverAsyncTask rat)
     {
         messageReceiver = rat;
@@ -779,7 +799,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * used to get client INetAddress updates.
      * @param uat the UpdaterAsyncTask we wish to inject.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     void setClientUpdateReceiver(UpdaterAsyncTask uat)
     {
         clientUpdateReceiver = uat;
@@ -789,13 +809,14 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * Resets all dependencies of this class.
      * FOR TESTING PURPOSES ONLY!
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     void resetDependencies()
     {
         this.senderService = SendDataService.class;
         localHostResolver = new LocalHostHelper();
         messageReceiver = new ReceiverAsyncTask();
         clientUpdateReceiver = new UpdaterAsyncTask();
+        viewModel = new ViewModel((Application) context.getApplicationContext());
     }
 
     /**
@@ -804,7 +825,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * other listeners unintentionally.
      * FOR TESTING PURPOSES ONLY!
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     void clearListenerLists()
     {
         this.peerDiscoveryListeners.clear();
