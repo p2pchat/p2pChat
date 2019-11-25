@@ -265,7 +265,7 @@ public class HomeFragment extends Fragment
            {
               if(!peerExists(peers,device.deviceAddress))
               {
-                  viewModel.insertPeer(device.deviceAddress,"Nick");
+                  viewModel.insertPeer(device.deviceAddress,null);
               }
                HomeFragmentDirections.ChatAction action = HomeFragmentDirections.chatAction();
 
