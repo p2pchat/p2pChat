@@ -5,6 +5,9 @@ android {
     dataBinding {
         enabled = true
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {

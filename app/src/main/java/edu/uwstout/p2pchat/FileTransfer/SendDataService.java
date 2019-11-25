@@ -32,7 +32,7 @@ import edu.uwstout.p2pchat.InMemoryFile;
  *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
-public final class SendDataService extends IntentService
+public class SendDataService extends IntentService
 {
     /**
      * A tag for logging.
@@ -76,7 +76,7 @@ public final class SendDataService extends IntentService
     /**
      * Default constructor.
      */
-    SendDataService()
+    public SendDataService()
     {
         super("SendDataService");
     }
@@ -90,6 +90,15 @@ public final class SendDataService extends IntentService
     SendDataService(final String name)
     {
         super(name);
+    }
+
+    /**
+     * Calls onHandleIntent for testing purposes
+     * @param intent
+     */
+    public void testHandleIntent(@Nullable final Intent intent)
+    {
+        onHandleIntent(intent);
     }
 
     /**
@@ -148,7 +157,7 @@ public final class SendDataService extends IntentService
                 Objects.requireNonNull(intent.getExtras())
                         .getParcelable(EXTRAS_IN_MEMORY_FILE);
         String host = intent.getExtras().getString(EXTRAS_PEER_ADDRESS);
-        Socket socket = new Socket();
+        Socket socket = getSocket();
         final int PORT = intent.getExtras().getInt(EXTRAS_PEER_PORT);
 
         try
@@ -188,6 +197,13 @@ public final class SendDataService extends IntentService
     }
 
     /**
+     * Get a new Socket. Overridden for testing
+     */
+    public Socket getSocket() {
+        return new Socket();
+    }
+
+    /**
      * Sends an INetAddress to the host (assume this device
      * is the client). So that the host knows how to communicate
      * with this device.
@@ -203,7 +219,7 @@ public final class SendDataService extends IntentService
                 Objects.requireNonNull(intent.getExtras())
                         .getParcelable(EXTRAS_INETADDRESS);
         String host = intent.getExtras().getString(EXTRAS_PEER_ADDRESS);
-        Socket socket = new Socket();
+        Socket socket = getSocket();
         final int PORT = intent.getExtras().getInt(EXTRAS_PEER_PORT);
 
         try
