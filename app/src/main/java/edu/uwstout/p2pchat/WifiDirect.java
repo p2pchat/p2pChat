@@ -414,7 +414,8 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     @Override
     public void onConnectionInfoAvailable(final WifiP2pInfo wifiP2pInfo)
     {
-        class imfrl implements InMemoryFileReceivedListener {
+        class imfrl implements InMemoryFileReceivedListener
+        {
             @Override
             public void onInMemoryFileAvailable(InMemoryFile inMemoryFile)
             {
@@ -436,8 +437,9 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
                         // add a regular file to the database
                         String macAddress = WifiDirect.getInstance(context)
                                 .getPeerDevice().deviceAddress;
-                        viewModel.insertFileMessage(macAddress, new Date(), false, inMemoryFile,
-                                context);
+                        new ViewModel((Application) context.getApplicationContext())
+                                .insertFileMessage(macAddress, new Date(), false, inMemoryFile,
+                                        context);
                     }
                 }
                 // execute a fresh AsyncTask to listen for the next message.
@@ -461,8 +463,8 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
             messageReceiver.newReceiverTask().execute(new imfrl());
             // UpdaterAsyncTask handles the process of
             // getting client information for two-way communication.
-            clientUpdateReceiver.newUpdateTask().execute((InetAddressListener) address
-                    -> this.clientAddress = address);
+            new UpdaterAsyncTask().execute(
+                    (InetAddressListener) address -> this.clientAddress = address);
         }
         else if (this.info.groupFormed)
         {
@@ -475,7 +477,8 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
                 updateIntent.putExtra(SendDataService.EXTRAS_INETADDRESS, address);
                 updateIntent.putExtra(SendDataService.EXTRAS_PEER_ADDRESS,
                         info.groupOwnerAddress.getHostAddress());
-                updateIntent.putExtra(SendDataService.EXTRAS_PEER_PORT, UpdaterAsyncTask.MAGIC_PORT);
+                updateIntent.putExtra(SendDataService.EXTRAS_PEER_PORT,
+                        UpdaterAsyncTask.MAGIC_PORT);
                 context.startService(updateIntent);
             });
         }
@@ -501,13 +504,17 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
             this.peerDevice = peer;
             for (PeerDiscoveryListener listener : this.peerDiscoveryListeners)
             {
-                Log.d(LOG_TAG, "Calling peerConnectionSucceeded");
                 listener.peerConnectionSucceeded(peer);
             }
         }
-        else
+        else // we are the client
         {
-            this.peerDevice = wifiP2pGroup.getOwner();
+            Log.d(LOG_TAG, "This device is the client");
+            WifiP2pDevice peerHost = wifiP2pGroup.getOwner();
+            for (PeerDiscoveryListener listener : this.peerDiscoveryListeners)
+            {
+                listener.peerConnectionSucceeded(peerHost);
+            }
         }
     }
 
@@ -640,10 +647,13 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     /**
      * Turns error codes passed from WifiP2pManager.ActionListener#onFailure
      * into a human readable String.
-     * @param failureCode An int which cam from a WifiP2pManager.ActionListener callback.
+     *
+     * @param failureCode
+     *         An int which cam from a WifiP2pManager.ActionListener callback.
      * @return A string which describes an error code.
      */
-    static String resolveFailureCode(int failureCode) {
+    static String resolveFailureCode(int failureCode)
+    {
         // Turn the error code into a human readable message.
         String errorType;
         switch (failureCode)
