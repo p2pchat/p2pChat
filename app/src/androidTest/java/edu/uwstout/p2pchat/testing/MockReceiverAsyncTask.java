@@ -22,15 +22,7 @@ public final class MockReceiverAsyncTask extends ReceiverAsyncTask
      * fake before we simply make the MockReceiverAsyncTask unresponsive
      * and never use the callbacks again.
      */
-    private int numberOfMessages;
-
-    /**
-     * Non-Default constructor
-     */
-    public MockReceiverAsyncTask(int numMessages)
-    {
-        this.numberOfMessages = numMessages;
-    }
+    public static int numberOfMessages = 1;
 
     /**
      * Setter for the mock InMemory file for comparison in our tests.
@@ -63,7 +55,7 @@ public final class MockReceiverAsyncTask extends ReceiverAsyncTask
     {
         listeners = new ArrayList<>();
         listeners.addAll(Arrays.asList(inMemoryFileReceivedListeners));
-        return (this.numberOfMessages-- > 0) ? mockFile : null;
+        return (numberOfMessages-- > 0) ? mockFile : null;
     }
 
     /**

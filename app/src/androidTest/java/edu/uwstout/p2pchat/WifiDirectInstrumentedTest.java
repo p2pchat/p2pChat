@@ -9,7 +9,6 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 
-import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -34,7 +33,6 @@ import edu.uwstout.p2pchat.WifiDirectHelpers.ReceiverAsyncTaskFactory;
 import edu.uwstout.p2pchat.WifiDirectHelpers.SendDataService;
 import edu.uwstout.p2pchat.WifiDirectHelpers.UpdaterAsyncTask;
 import edu.uwstout.p2pchat.WifiDirectHelpers.UpdaterAsyncTaskFactory;
-import edu.uwstout.p2pchat.room.LiveDataPromise;
 import edu.uwstout.p2pchat.room.Message;
 import edu.uwstout.p2pchat.testing.MockLocalhostAsyncTask;
 import edu.uwstout.p2pchat.testing.MockReceiverAsyncTask;
@@ -64,11 +62,6 @@ public class WifiDirectInstrumentedTest
     @Rule
     public ActivityTestRule<MainActivity> activityRule = new
             ActivityTestRule<>(MainActivity.class);
-
-    private <T> T await(LiveData<T> liveData) {
-        LiveDataPromise<T> liveDataPromise = new LiveDataPromise<>(liveData);
-        return liveDataPromise.await();
-    }
 
     // Create a mock WifiP2pGroup class for testing.
     class MockGroup extends WifiP2pGroup {
@@ -127,14 +120,15 @@ public class WifiDirectInstrumentedTest
         // substitute ALL dependencies with Mocks using a modified factory pattern
         // alongside the dependency injection pattern.
         this.instance.setSenderService(MockSendDataService.class);
+        // Default to one message, but some tests may want to make
+        // this zero or more than one message.
+        MockReceiverAsyncTask.numberOfMessages = 1;
         this.instance.setMessageReceiver(new ReceiverAsyncTaskFactory()
         {
             @Override
             public ReceiverAsyncTask newReceiverTask()
             {
-                // Default to one method, but some tests may want to make
-                // this zero or more than one message.
-                return new MockReceiverAsyncTask(1);
+                return new MockReceiverAsyncTask();
             }
         });
         this.instance.setLocalHostResolver(new LocalhostAsyncTaskFactory()
@@ -154,11 +148,12 @@ public class WifiDirectInstrumentedTest
             }
         });
         this.mockViewModel = new MockViewModel(null);
+        MockViewModel.resetModel();
         this.instance.setViewModel(this.mockViewModel);
     }
 
     /**
-     * Resets the WifiDirectSingleton between tests.
+     * Resets the WifiDirectSingleton and the MockViewModel between tests.
      */
     @After
     public void tearDown()
@@ -166,6 +161,7 @@ public class WifiDirectInstrumentedTest
         this.instance.resetDependencies();
         // remove any listeners added from the tests.
         this.instance.clearListenerLists();
+        MockViewModel.resetModel();
     }
 
     /**
@@ -296,14 +292,7 @@ public class WifiDirectInstrumentedTest
     public void sendIntentPackagedCorrectly()
     {
         // This test shouldn't "receive" any messages for the database.
-        this.instance.setMessageReceiver(new ReceiverAsyncTaskFactory()
-        {
-            @Override
-            public ReceiverAsyncTask newReceiverTask()
-            {
-                return new MockReceiverAsyncTask(0);
-            }
-        });
+        MockReceiverAsyncTask.numberOfMessages = 1;
         final String TEST_STRING = "This is a test";
         // Use some mock information to get us going.
         WifiP2pInfo info = new WifiP2pInfo();
@@ -374,6 +363,7 @@ public class WifiDirectInstrumentedTest
             assert false;
             return;
         }
+        this.mockViewModel.insertPeer(info.groupOwnerAddress.getHostAddress(), "My Peer");
         // onGroupInfoAvailable must be called before onConnectionInfoAvailable
         this.instance.onGroupInfoAvailable(new MockGroup(new WifiP2pDevice(), false));
         this.instance.onConnectionInfoAvailable(info);
@@ -413,10 +403,9 @@ public class WifiDirectInstrumentedTest
         // Step 4, Check that the received text message was saved to the database.
         boolean messageFound = false;
         String targetTextMessage = MockReceiverAsyncTask.getMockFile().getTextMessage();
-        for (Message message :
-                Objects.requireNonNull(
-                        mockViewModel.getMessages(info.groupOwnerAddress.getHostAddress())
-                                .getValue()))
+        List<Message> messageList =
+                mockViewModel.getRawMessages(info.groupOwnerAddress.getHostAddress());
+        for (Message message : messageList)
         {
             if (!message.isFile() && message.content.equals(targetTextMessage))
             {
@@ -488,7 +477,7 @@ public class WifiDirectInstrumentedTest
         boolean messageFound = false;
         String targetTextMessage = MockReceiverAsyncTask.getMockFile().getTextMessage();
         List<Message> messageList =
-                await(mockViewModel.getMessages(info.groupOwnerAddress.getHostAddress()));
+                mockViewModel.getRawMessages(info.groupOwnerAddress.getHostAddress());
         for (Message message : messageList)
         {
             if (!message.isFile() && message.content.equals(targetTextMessage))

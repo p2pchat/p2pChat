@@ -433,8 +433,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
                         // add a regular file to the database
                         String macAddress = WifiDirect.getInstance(context)
                                 .getPeerDevice().deviceAddress;
-                        new ViewModel((Application) context.getApplicationContext())
-                                .insertFileMessage(macAddress, new Date(), false, inMemoryFile,
+                        viewModel.insertFileMessage(macAddress, new Date(), false, inMemoryFile,
                                         context);
                     }
                 }
