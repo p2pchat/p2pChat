@@ -134,6 +134,20 @@ public class MockViewModel extends ViewModel {
         return mockLiveData;
     }
 
+    public List<Peer> getRawPeers() {
+        return peers;
+    }
+
+    public List<Message> getRawMessages(String macAddress) {
+        List<Message> result = new ArrayList<Message>();
+        for(Message m : messages) {
+            if(m.macAddress.equals(macAddress)) {
+                result.add(m);
+            }
+        }
+        return result;
+    }
+
     @Override
     public LiveData<List<Message>> getMessages(String macAddress) {
         MockLiveData<List<Message>> mockLiveData = new MockLiveData<>(new MockDataUpdater<List<Message>>() {
