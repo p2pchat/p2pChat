@@ -9,6 +9,7 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 
+import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -23,6 +24,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 import edu.uwstout.p2pchat.WifiDirectHelpers.LocalhostAsyncTask;
@@ -32,6 +34,7 @@ import edu.uwstout.p2pchat.WifiDirectHelpers.ReceiverAsyncTaskFactory;
 import edu.uwstout.p2pchat.WifiDirectHelpers.SendDataService;
 import edu.uwstout.p2pchat.WifiDirectHelpers.UpdaterAsyncTask;
 import edu.uwstout.p2pchat.WifiDirectHelpers.UpdaterAsyncTaskFactory;
+import edu.uwstout.p2pchat.room.LiveDataPromise;
 import edu.uwstout.p2pchat.room.Message;
 import edu.uwstout.p2pchat.testing.MockLocalhostAsyncTask;
 import edu.uwstout.p2pchat.testing.MockReceiverAsyncTask;
@@ -61,6 +64,11 @@ public class WifiDirectInstrumentedTest
     @Rule
     public ActivityTestRule<MainActivity> activityRule = new
             ActivityTestRule<>(MainActivity.class);
+
+    private <T> T await(LiveData<T> liveData) {
+        LiveDataPromise<T> liveDataPromise = new LiveDataPromise<>(liveData);
+        return liveDataPromise.await();
+    }
 
     // Create a mock WifiP2pGroup class for testing.
     class MockGroup extends WifiP2pGroup {
@@ -442,6 +450,9 @@ public class WifiDirectInstrumentedTest
             assert false;
             return;
         }
+        WifiP2pDevice device = new WifiP2pDevice();
+        device.deviceAddress = info.groupOwnerAddress.getHostAddress();
+        this.instance.onGroupInfoAvailable(new MockGroup(device, true));
         this.instance.onConnectionInfoAvailable(info);
         // Step 3, verify that the Host persists data from our mocked client.
         // we know this is true if the host attempts to send data to the
@@ -476,10 +487,9 @@ public class WifiDirectInstrumentedTest
         // Specifically check messages that we received, since we can't check the one we sent.
         boolean messageFound = false;
         String targetTextMessage = MockReceiverAsyncTask.getMockFile().getTextMessage();
-        for (Message message :
-                Objects.requireNonNull(
-                        mockViewModel.getMessages(info.groupOwnerAddress.getHostAddress())
-                                .getValue()))
+        List<Message> messageList =
+                await(mockViewModel.getMessages(info.groupOwnerAddress.getHostAddress()));
+        for (Message message : messageList)
         {
             if (!message.isFile() && message.content.equals(targetTextMessage))
             {
