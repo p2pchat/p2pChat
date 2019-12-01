@@ -56,14 +56,6 @@ public class TestSettings
             new FragmentTestRule<>(MainActivity.class, SettingFragment.class);
 
 
-    /**
-     * Only Run for entering the data into the app.
-     */
-    @Test
-    public void Insert() {
-        ViewModel viewModel = new ViewModel(fragmentRule.getActivity().getApplication());
-        viewModel.insertPeer("EEEE", "EEEE");
-    }
 
     /**
      * Test to make sure expandable list view is showing.
@@ -196,7 +188,15 @@ public class TestSettings
         {
             Log.w("Explaination: ", e.getLocalizedMessage());
         }
+    }
 
+    /**
+     * Only Run for entering the data into the app.
+     */
+    @Test
+    public void Insert() {
+        ViewModel viewModel = new ViewModel(fragmentRule.getActivity().getApplication());
+        viewModel.insertPeer("EEEE", "EEEE");
     }
 
 
