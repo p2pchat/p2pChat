@@ -1,9 +1,7 @@
 package edu.uwstout.p2pchat;
 
 
-import static android.view.View.GONE;
-
-import android.view.Gravity;
+import android.widget.RelativeLayout;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,27 +28,32 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
      */
     void bindData(Message message)
     {
-        if (message.mimeType.contains("image"))
-        {
-            binding.chatMsgTextView.setVisibility(GONE);
-            binding.chatMsgTextView.setMaxHeight(0);
 
-        }
-        else
-        {
-            binding.chatMsgImageView.setVisibility(GONE);
-            binding.chatMsgImageView.setMaxHeight(0);
-        }
-        if (message.sent)
-        {
-            binding.chatMsgLayout.setGravity(Gravity.END);
-        }
-        else
-        {
-            binding.chatMsgLayout.setGravity(Gravity.START);
-        }
         binding.setTextOutput(message.content);
         binding.setTimestamp(message.timestamp.toString());
         binding.executePendingBindings();
     }
+
+    void bindAlignment(boolean sent){
+        RelativeLayout.LayoutParams lp1 =
+                (RelativeLayout.LayoutParams) binding.chatMsgText.getLayoutParams();
+        RelativeLayout.LayoutParams lp2 =
+                (RelativeLayout.LayoutParams) binding.chatMsgTimestamp.getLayoutParams();
+        if(sent)
+        {
+            lp1.addRule(RelativeLayout.ALIGN_PARENT_END);
+            lp2.addRule(RelativeLayout.ALIGN_PARENT_END);
+        }
+        else
+        {
+            lp1.addRule(RelativeLayout.ALIGN_PARENT_START);
+            lp2.addRule(RelativeLayout.ALIGN_PARENT_START);
+        }
+        binding.chatMsgText.setLayoutParams(lp1);
+        binding.chatMsgTimestamp.setLayoutParams(lp2);
+
+
+    }
+
+
 }
