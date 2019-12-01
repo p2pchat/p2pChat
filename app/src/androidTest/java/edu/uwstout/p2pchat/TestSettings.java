@@ -100,7 +100,7 @@ public class TestSettings
         String[] child =
                 fragmentRule.getFragment().getResources().getStringArray(R.array.themeColor);
 
-        ViewModel viewModel = new ViewModel(fragmentRule.getActivity().getApplication());
+        MockViewModel viewModel = new MockViewModel(fragmentRule.getActivity().getApplication());
         viewModel.insertPeer("e-e-e-e-e", "e-e-e-e-e");
         viewModel.insertPeer("ek-e-45-e-e", "ek-e-45-e-e");
 
@@ -191,7 +191,7 @@ public class TestSettings
     }
 
     /**
-     * Only Run for entering the data into the app.
+     * Only Run for entering the data into the app, to show for an example.
      */
     @Test
     public void Insert() {

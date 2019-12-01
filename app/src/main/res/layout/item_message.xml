@@ -21,7 +21,6 @@
             android:layout_height="wrap_content"
             android:textIsSelectable="true"
             android:text="@{timestamp}"
-            android:background="@color/selectedBackgroundColor"
             android:textColor="@color/black"
             android:textSize="8pt"/>
         <TextView
@@ -31,7 +30,6 @@
             android:layout_marginBottom="5dp"
             android:text="@{textOutput}"
             android:textIsSelectable="true"
-            android:background="@color/selectedBackgroundColor"
             android:textColor="@color/black"
             android:textSize="8pt"
             android:layout_below="@+id/chat_msg_timestamp"/>
