@@ -106,6 +106,12 @@ public class ViewModel extends AndroidViewModel
         return false;
     }
 
+
+    public void deleteEverything() {
+        repo.deleteEverything();
+    }
+
+
     public LiveData<List<Message>> getMessages(final String macAddress)
     {
         return repo.getMessages(macAddress);

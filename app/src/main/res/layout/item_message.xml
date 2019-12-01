@@ -17,7 +17,12 @@
             android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@color/selectedBackgroundColor"
+            android:layout_marginVertical="10dp"
             android:layout_gravity="end">
+
+
+
             <TextView
                 android:id="@+id/chat_msg_timestamp_view"
                 android:layout_width="wrap_content"
@@ -25,8 +30,8 @@
                 android:layout_margin="5dp"
                 android:textIsSelectable="true"
                 android:text="@{timestamp}"
-                android:background="@color/colorPrimary"
-                android:textColor="@color/colorAccent"
+                android:background="@color/selectedBackgroundColor"
+                android:textColor="@color/black"
                 android:textSize="8pt"/>
 
             <TextView
@@ -36,14 +41,15 @@
                 android:layout_margin="10dp"
                 android:text="@{textOutput}"
                 android:textIsSelectable="true"
-                android:background="@color/colorPrimary"
-                android:textColor="@color/colorAccent"
+                android:background="@color/selectedBackgroundColor"
+                android:textColor="@color/black"
                 android:textSize="8pt"/>
             <ImageView
                 android:contentDescription="@{textOutput}"
                 android:id="@+id/chat_msg_image_view"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:background="@color/selectedBackgroundColor" />
 
         </LinearLayout>
     </LinearLayout>
