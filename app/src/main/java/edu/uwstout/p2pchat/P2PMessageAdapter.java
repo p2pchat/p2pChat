@@ -47,6 +47,10 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
     {
         Message message = this.messageList.get(position);
 
+
+
+
+        holder.bindAlignment(message.sent);
         holder.bindData(message);
     }
 
