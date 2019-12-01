@@ -6,7 +6,7 @@
             type="String" />
         <variable
             name="timestamp"
-            type="String" />
+            type="String"/>
     </data>
     <RelativeLayout
         android:id="@+id/chat_msg"
