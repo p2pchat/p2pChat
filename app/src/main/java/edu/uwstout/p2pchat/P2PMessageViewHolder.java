@@ -24,6 +24,7 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
 
     }
 
+    
     /**
      *
      */
