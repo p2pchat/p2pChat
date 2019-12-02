@@ -330,13 +330,23 @@ public class HomeFragment extends Fragment
         WifiDirect.getInstance(this.getContext()).unsubscribePeerDiscoveryListener(this);
     }
 
-    ViewModel getViewModel()
+    /**
+     * Returns the View Model.
+     * @return View Model
+     */
+    private ViewModel getViewModel()
     {
         ViewModel viewModel = new ViewModel(getActivity().getApplication());
         return viewModel;
     }
 
-    boolean peerExists(List<Peer> peers, String address)
+    /**
+     * Returns a boolean for peer existence.
+     * @param peers a list of peers
+     * @param address macAddress of peers
+     * @return boolean
+     */
+    private boolean peerExists(List<Peer> peers, String address)
     {
         for(Peer peer:peers)
         {
