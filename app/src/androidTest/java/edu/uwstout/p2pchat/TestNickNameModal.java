@@ -1,8 +1,10 @@
 package edu.uwstout.p2pchat;
 
 import android.app.Application;
+import android.content.Context;
 import android.widget.ArrayAdapter;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import java.util.List;

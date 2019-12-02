@@ -13,17 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.fragment.app.Fragment;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import edu.uwstout.p2pchat.room.Peer;
 
 /**
  * Sets up and shows the NickName Modal.
@@ -31,67 +21,29 @@ import edu.uwstout.p2pchat.room.Peer;
  */
 public class NickNameModal
 {
-    //Activity being used.
-    private Activity mActivity;
-
-    //Builder of AlertDialogs.
-    private AlertDialog.Builder dialogBuilder;
-
-    // Alert dialog.
-    private AlertDialog dialog;
-
+    /**
+     * A global AlertDialog.
+     */
+    AlertDialog dialog;
 
     /**
-     * Requires 4 parameters. Will set up dialog here and
-     * action listeners.
-     * @param fragment fragment of the screen being displayed.
-     * @param adapter listview adapter that is being presently used.
-     * @param peers current list of peers
-     * @param index Index of the peer being updated.
+     * Builds a nickname modal.
+     * @param context context being used.
+     * @param macAddress mac address that needs to be changed.
      */
-    public NickNameModal(final Fragment fragment, final ArrayAdapter adapter,
-            List<Peer> peers, final int index) {
-        //Note: Everything in here is constant and shall not change depending on where it is called.
+    public NickNameModal(Context context, String macAddress)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(R.string.setNickName);
 
+        // Assign the inflated view to a view.
+        View view = View.inflate(context, R.layout.rename_dialog, null);
 
-        // Extract activity from fragment.
-        Context context = fragment.getContext();
+        //Add the text field to the dialog.
+        builder.setView(view);
 
-        //Activity being used.
-        mActivity = fragment.getActivity();
-
-        // Creates a builder that will build alert dialogs.
-        dialogBuilder = new AlertDialog.Builder(context);
-
-        //Gets the view from the xml file.
-        final View renameView = fragment.getLayoutInflater().inflate(R.layout.rename_dialog, null);
-
-        //Sets the view1 onto the dialog.
-        dialogBuilder.setView(renameView);
-
-        //Sets the nickname.
-        dialogBuilder.setTitle("Set NickName");
-
-        TextView editDialog = renameView.findViewById(R.id.newNickName);
-        editDialog.setHint(peers.get(index).nickname);
-
-        //Set button listener.
-        SetButtonListeners(renameView, adapter, peers, index);
-
-        //sets the dialog to this.
-        dialog = dialogBuilder.create();
-
-    }
-
-
-    /**
-     * Sets the button listeners.
-     */
-    private void SetButtonListeners(final View view, final ArrayAdapter adapter,
-            final List<Peer> peers, final int index) {
-
-        // Button: Rename
-        dialogBuilder.setPositiveButton("Rename", new DialogInterface.OnClickListener()
+        //Add an action to YES button.
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
         {
             /**
              * Gets called when the user presses the "Rename" button inside of the rename modal.
@@ -100,54 +52,50 @@ public class NickNameModal
              * @param i
              */
             @Override
-            public void onClick(DialogInterface dialogInterface, int i)
+            public void onClick(DialogInterface dialogInterface, int p)
             {
-                final String NICKNAME =
-                        ((EditText)view.findViewById(R.id.newNickName)).getText().toString();
+                //Incase if the application fails to load.
+                try
+                {
+                    //Convert applicationContext to application.
+                    Application app = (Application) context.getApplicationContext();
 
-                ViewModel viewModel = getViewModel(mActivity.getApplication());
+                    //View model that will be used.
+                    ViewModel model = getViewModel(app);
 
-                viewModel.insertPeer(peers.get(index).macAddress, NICKNAME);
+                    //Retrieve text from the dialog.
+                    EditText text = view.findViewById(R.id.newNickName);
+
+                    //Update the peer nickname.
+                    model.insertPeer(macAddress, text.getText().toString());
+
+                } catch (Exception e)
+                {
+                    // Give out a warning of where it is and why it is crashing.
+                    Log.w("NicknameModal ", e.getLocalizedMessage());
+                }
             }
         });
 
-        //allow canceling without any special code.
-        dialogBuilder.setNegativeButton("Cancel", null);
+        //Set no button.
+        builder.setNegativeButton(R.string.cancel, null);
+        this.dialog =  builder.create();
     }
-
 
     /**
-     *
-     * Shows the context
+     * Show the dialog.
      */
     public void show() {
-        //Shows the dialog.
         dialog.show();
-
-        //Required classes to be able to retrieve the screen dimensions.
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        mActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
-        //Get screen width - 10;
-        final int WIDTH = displayMetrics.widthPixels - 10;
-
-        //Get screen height.
-        final int HEIGHT = displayMetrics.heightPixels / 3;
-
-        //Sets the width and height.
-        dialog.getWindow().setLayout(WIDTH, HEIGHT);
     }
-
 
     /**
      * Returns the ViewModel. Overridden for testing.
-     * @param app
-     * @return
+     * Get the view model.
+     * @param app application.
+     * @return new Viewmodel.
      */
     public ViewModel getViewModel(Application app) {
         return new ViewModel(app);
     }
-
-
-
 }

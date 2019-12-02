@@ -139,6 +139,13 @@ public class ViewModel extends AndroidViewModel
     }
 
     /**
+    * Wipes the database for a clean slate.
+    */
+    public void deleteEverything() {
+        repo.deleteEverything();
+    }
+
+    /**
      * Returns a LiveData of all messages associated with a peer's macAddress
      * @param macAddress Peer's MacAddress
      * @return LiveData containing a list of messages

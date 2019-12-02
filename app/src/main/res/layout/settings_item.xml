@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/parentText"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/parent_view_padding"
+        android:text="TextView"
+        android:textSize="@dimen/parentTextSizeSettings"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/childText"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/child_view_padding"
+        android:text="Hello World"
+        android:textSize="@dimen/childTextSizeSettings"
+        android:visibility="invisible"
+        />
+
+
+</RelativeLayout>

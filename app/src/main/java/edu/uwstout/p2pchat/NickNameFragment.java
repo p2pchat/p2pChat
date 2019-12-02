@@ -43,7 +43,7 @@ public class NickNameFragment extends Fragment
     /**
      * context that the nickname fragment will be using.
      */
-    private Context classContext;
+    protected Context classContext;
 
     /**
      * Arraylist of names.
@@ -73,6 +73,7 @@ public class NickNameFragment extends Fragment
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
             final Bundle savedInstanceState)
     {
+
         //Inflate a view.
         View view = inflater.inflate(R.layout.fragment_nick_name, container, false);
 
@@ -82,6 +83,8 @@ public class NickNameFragment extends Fragment
         //Inilizes listview for nicknames here.
         ListView listView = (ListView) view.findViewById(R.id.nameListView);
 
+
+        //Get View model.
         liveData = getViewModel(getActivity().getApplication()).getPeers();
         liveData.observeForever(new Observer<List<Peer>>() {
             /**
@@ -109,9 +112,15 @@ public class NickNameFragment extends Fragment
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
             {
-                PopUp(i, adapter);
+                // A list of peers from liveData.
+                List<Peer> peers = liveData.getValue();
+
+                //Creates a new pop up.
+                PopUp(peers.get(i).macAddress);
             }
         });
+
+
 
         // Inflate the layout for this fragment
         return view;
@@ -120,18 +129,17 @@ public class NickNameFragment extends Fragment
     /** Creates an array adapter from the database and returns it.
      * @return a newly created array adapter created from data.
      */
-    private ArrayAdapter getNickNameAdapter(List<Peer> peers)
+    protected ArrayAdapter getNickNameAdapter(List<Peer> peers)
     {
-
         List<String> elements = new ArrayList<>();
         for(Peer peer : peers) {
             elements.add(peer.macAddress + " - " + peer.nickname);
         }
+
         //Adapter that will be used.
         adapter = (new ArrayAdapter(classContext,
                 android.R.layout.simple_list_item_1,
                 elements));
-
 
         //Returns the new arrayadapter.
         return adapter;
@@ -139,21 +147,13 @@ public class NickNameFragment extends Fragment
 
     /**
      * Creates a pop up and sets up onclicklisteners.
-     * @param index position of the name being changed.
+     * @param macAddress position of the name being changed.
      */
-    private void PopUp(final int index, ArrayAdapter adapter) {
-        NickNameModal nick = getNickNameModal(this, adapter, liveData.getValue(), index);
+    private void PopUp(String macAddress) {
+        NickNameModal nick = getNickNameModal(macAddress);
         nick.show();
     }
 
-
-    /**
-     * Checks to make sure that no method has the same name.
-     * @return false.
-     */
-    private boolean noSameName() {
-        return false;
-    }
 
 
     /**
@@ -167,14 +167,11 @@ public class NickNameFragment extends Fragment
 
     /**
      * For testing
-     * @param fragment
-     * @param arrayAdapter
-     * @param peers
-     * @param index
-     * @return
+     * @param macAddress mac address.
+     * @return NickNameModal.
      */
-    public NickNameModal getNickNameModal(Fragment fragment, ArrayAdapter arrayAdapter, List<Peer> peers, final int index) {
-        return new NickNameModal(fragment, arrayAdapter, peers, index);
+    public NickNameModal getNickNameModal(String macAddress) {
+        return new NickNameModal(classContext, macAddress);
     }
 
 

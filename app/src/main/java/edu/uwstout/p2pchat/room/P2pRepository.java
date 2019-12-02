@@ -85,6 +85,34 @@ public class P2pRepository
         }
     }
 
+    private static class AsyncDeleteEverything extends AsyncTask<Void, Void, Void>
+    {
+
+        /**
+         * Reference to DataAccessObject for CRUD operations
+         */
+        private DataAccessObject dao;
+
+        /**
+         * @param daoRef Reference to Database's DataAccessObject
+         */
+        public AsyncDeleteEverything(final DataAccessObject daoRef)
+        {
+            dao = daoRef;
+        }
+
+        /**
+         * Function that performs message deletion on separate thread in background.
+         * @return Nothing
+         */
+        @Override
+        protected Void doInBackground(Void ...v)
+        {
+            dao.deleteEverything();
+            return null;
+        }
+    }
+
     /**
      * Helper class for deleting messages
      */
@@ -203,6 +231,11 @@ public class P2pRepository
     {
         (new AsyncDeleteMessage(dao)).execute(messages);
     }
+
+    public final void deleteEverything() {
+        (new AsyncDeleteEverything(dao)).execute();
+    }
+
 
     /**
      * Repository constructor

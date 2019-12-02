@@ -13,6 +13,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/messagesRecyclerView"
             android:layout_width="match_parent"
+            android:scrollbars="vertical"
             android:layout_height="fill_parent"
             android:layout_weight="12" />
         <LinearLayout
@@ -26,8 +27,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:contentDescription="@string/attach_description"
-                android:src="@mipmap/attachment_round"
-                />
+                android:src="@drawable/ic_attachment_foreground" />
 
             <EditText
                 android:id="@+id/textInput"

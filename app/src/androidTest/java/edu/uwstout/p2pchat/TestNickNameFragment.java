@@ -1,5 +1,6 @@
 package edu.uwstout.p2pchat;
 
+
 import android.app.Application;
 import android.widget.ArrayAdapter;
 
@@ -23,8 +24,9 @@ public class TestNickNameFragment extends NickNameFragment {
      * @return
      */
     @Override
-    public NickNameModal getNickNameModal(Fragment fragment, ArrayAdapter arrayAdapter, List<Peer> peers, int index) {
-        return new TestNickNameModal(fragment, arrayAdapter, peers, index);
+    public NickNameModal getNickNameModal(String macAddress)
+    {
+        return new TestNickNameModal(classContext, macAddress);
     }
 
     /**
