@@ -470,7 +470,7 @@ public class WifiDirectInstrumentedTest
         {
             // If we enter this block, something went wrong when awaiting
             // the intent, or the intent wasn't packaged correctly.
-            assert false;
+            assert(false);
         }
         // Step 4, check if the database has been updated with the fake message we mocked.
         // Specifically check messages that we received, since we can't check the one we sent.
