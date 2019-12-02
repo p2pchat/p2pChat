@@ -43,7 +43,7 @@ public class NickNameFragment extends Fragment
     /**
      * context that the nickname fragment will be using.
      */
-    private Context classContext;
+    protected Context classContext;
 
     /**
      * Arraylist of names.
