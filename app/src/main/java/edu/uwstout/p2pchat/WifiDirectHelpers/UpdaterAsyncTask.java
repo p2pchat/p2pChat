@@ -3,6 +3,8 @@ package edu.uwstout.p2pchat.WifiDirectHelpers;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -34,7 +36,8 @@ public class UpdaterAsyncTask extends AsyncTask<InetAddressListener, Object, Ine
     /**
      * Keeps track of all listeners passed into the asynchronous task.
      */
-    private static ArrayList<InetAddressListener> listeners;
+    @VisibleForTesting
+    protected static ArrayList<InetAddressListener> listeners;
 
     /**
      * Listens for incoming messages in the background.

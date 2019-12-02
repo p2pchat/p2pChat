@@ -69,7 +69,7 @@ public class InMemoryFile implements Serializable
      * @param textMessage
      *         a text message.
      */
-    InMemoryFile(final String textMessage)
+    public InMemoryFile(final String textMessage)
     {
         this.filename = null;
         this.mimeType = MESSAGE_MIME_TYPE;
