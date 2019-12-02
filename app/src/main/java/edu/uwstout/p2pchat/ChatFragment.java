@@ -85,7 +85,7 @@ public class ChatFragment extends Fragment
                 InMemoryFile file = new InMemoryFile(text);
 
                 //Send an inMemoryFile containing the current text message.
-                WifiDirect.getInstance(context).sendInMemoryFile(file);
+                getWifiDirect(context).sendInMemoryFile(file);
 
             }
         });
@@ -104,6 +104,15 @@ public class ChatFragment extends Fragment
 
 
         return binding.getRoot();
+    }
+
+    /**
+     * Get instance of WifiDirect. Overridable for testing.
+     * @param context
+     * @return
+     */
+    WifiDirectInterface getWifiDirect(@NonNull final Context context) {
+        return WifiDirect.getInstance(context);
     }
 
     /**

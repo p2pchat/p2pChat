@@ -93,7 +93,7 @@ public final class WifiDirect implements WifiDirectInterface
      * Creating an observer interface so that fragments can be notified
      * if this device gets disconnected from our peer.
      */
-    interface DisconnectionListener {
+    public interface DisconnectionListener {
         /**
          * Notifies the listener that we have disconnected from our peer.
          * This may or may not be due to a intentional disconnect from our
