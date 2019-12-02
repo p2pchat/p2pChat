@@ -14,6 +14,9 @@ import edu.uwstout.p2pchat.room.Message;
 import edu.uwstout.p2pchat.room.P2pRepository;
 import edu.uwstout.p2pchat.room.Peer;
 
+/**
+ * Helper class for interacting with the Model
+ */
 public class ViewModel extends AndroidViewModel
 {
 
@@ -30,7 +33,7 @@ public class ViewModel extends AndroidViewModel
     }
 
     /**
-     *
+     * Inserts peer into the database safely in background
      * @param macAddress Peer's Mac Address
      * @param nickname Peer's Nickname
      */
@@ -42,7 +45,7 @@ public class ViewModel extends AndroidViewModel
     }
 
     /**
-     *
+     * Inserts a message into the database
      * @param macAddress Peer's Mac Address to create Message
      * @param timestamp Time of creation
      * @param sent message sender status
@@ -62,7 +65,7 @@ public class ViewModel extends AndroidViewModel
     }
 
     /**
-     *
+     * Inserts a text message into the database
      * @param macAddress Peer's Mac Address to create Message
      * @param timestamp Time of creation
      * @param sent message sender status
@@ -80,7 +83,7 @@ public class ViewModel extends AndroidViewModel
     }
 
     /**
-     *
+     * Inserts a file message into the database
      * @param macAddress Peer's Mac Address to create Message
      * @param timestamp Time of creation
      * @param sent message sender status
@@ -107,7 +110,7 @@ public class ViewModel extends AndroidViewModel
     }
 
     /**
-     *
+     * Deletes the peer associated with macAddress from the database
      * @param macAddress Peer Address
      */
     public void deletePeer(final String macAddress)
@@ -116,7 +119,7 @@ public class ViewModel extends AndroidViewModel
     }
 
     /**
-     *
+     * Deletes the message associated with messageId from the database
      * @param messageId Message Id
      */
     public void deleteMessage(final int messageId)
@@ -127,7 +130,7 @@ public class ViewModel extends AndroidViewModel
     }
 
     /**
-     *
+     * Gets a LiveData of all peers in the database
      * @return LiveData containing a list of peers
      */
     public LiveData<List<Peer>> getPeers()
@@ -143,7 +146,7 @@ public class ViewModel extends AndroidViewModel
     }
 
     /**
-     *
+     * Returns a LiveData of all messages associated with a peer's macAddress
      * @param macAddress Peer's MacAddress
      * @return LiveData containing a list of messages
      */

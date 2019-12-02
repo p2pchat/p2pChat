@@ -35,12 +35,18 @@ public class NickNameFragmentTest
             new FragmentTestRule<>(MainActivity.class, TestNickNameFragment.class);
     String testNickName = "The Nick";
 
+    /**
+     * Resets mock data in the MockViewModel after a test
+     */
     @After
     public void after()
     {
         MockViewModel.resetModel();
     }
 
+    /**
+     * Tests that changes a nickname works
+     */
     @Test
     public void changeNickname()
     {

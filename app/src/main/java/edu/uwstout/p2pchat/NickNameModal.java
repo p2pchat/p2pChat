@@ -45,6 +45,12 @@ public class NickNameModal
         //Add an action to YES button.
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
         {
+            /**
+             * Gets called when the user presses the "Rename" button inside of the rename modal.
+             * Changes the nickname inside of the model.
+             * @param dialogInterface
+             * @param i
+             */
             @Override
             public void onClick(DialogInterface dialogInterface, int p)
             {
@@ -84,6 +90,7 @@ public class NickNameModal
     }
 
     /**
+     * Returns the ViewModel. Overridden for testing.
      * Get the view model.
      * @param app application.
      * @return new Viewmodel.
