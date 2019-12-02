@@ -135,7 +135,12 @@ public class ViewModel extends AndroidViewModel
         return repo.getPeers();
     }
 
-
+    /**
+    * Wipes the database for a clean slate.
+    */
+    public void deleteEverything() {
+        repo.deleteEverything();
+    }
 
     /**
      *

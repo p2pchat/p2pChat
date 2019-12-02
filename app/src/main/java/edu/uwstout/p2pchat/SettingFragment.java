@@ -20,8 +20,6 @@ import androidx.fragment.app.Fragment;
 public class SettingFragment extends Fragment
 {
 
-
-
     /**
      * Default constructor. Nothing will be used in here.
      */
@@ -48,7 +46,6 @@ public class SettingFragment extends Fragment
     {
         Context context;
 
-
         // Creates the view.
         View view = inflater.inflate(R.layout.fragment_setting, container, false);
 
@@ -63,8 +60,7 @@ public class SettingFragment extends Fragment
         try
         {
             //New Listview-adapter instance.
-            @Nullable ExpandableSettingsListViewAdapter adapter =
-                    new ExpandableSettingsListViewAdapter(context, this.getActivity());
+            @Nullable SettingsAdapter adapter = new SettingsAdapter(this);
 
             //Sets the adapter for Expandable list view.
             m.setAdapter(adapter);
@@ -75,7 +71,6 @@ public class SettingFragment extends Fragment
             Toast.makeText(context, "Error with ExpandableSettingsListViewAdapter, please report " +
                             "this as a bug. Sorry for your inconvience.",
                     Toast.LENGTH_SHORT).show();
-
         }
 
 

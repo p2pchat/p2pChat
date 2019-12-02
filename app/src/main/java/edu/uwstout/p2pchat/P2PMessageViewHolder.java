@@ -22,6 +22,7 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
 
     }
 
+    
     /**
      * Takes in a message and displays text
      * @param message message object
