@@ -20,9 +20,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.navigation.Navigation;
 
+import java.util.List;
+
 import edu.uwstout.p2pchat.databinding.FragmentHomeBinding;
+import edu.uwstout.p2pchat.room.Peer;
 
 
 /**
@@ -33,6 +38,7 @@ public class HomeFragment extends Fragment
 {
     // private variables
     private FragmentHomeBinding binding = null;
+    private LiveData<List<Peer>> liveData = null;
 
     /**
      * The constructor for the class, it is required by java, but is empty
@@ -98,6 +104,8 @@ public class HomeFragment extends Fragment
         WifiDirect
                 .getInstance(this.getContext())
                 .subscribePeerDiscoveryListener(this);
+
+        liveData = getViewModel().getPeers();
 
         return binding.getRoot();
     }
@@ -249,16 +257,25 @@ public class HomeFragment extends Fragment
     {
         Toast.makeText(this.getContext(), "Connection succeeded", Toast.LENGTH_LONG).show();
         ViewModel viewModel = new ViewModel(getActivity().getApplication());
-        if (!viewModel.peerExists(device.deviceAddress))
-        {
-            viewModel.insertPeer(device.deviceAddress, "nickname");
-        }
-        HomeFragmentDirections.ChatAction action = HomeFragmentDirections.chatAction();
 
-        action.setAddress(device.deviceAddress);
+       liveData.observeForever(new Observer<List<Peer>>()
+       {
+           @Override
+           public void onChanged(List<Peer> peers)
+           {
+              if(!peerExists(peers,device.deviceAddress))
+              {
+                  viewModel.insertPeer(device.deviceAddress,null);
+              }
+               HomeFragmentDirections.ChatAction action = HomeFragmentDirections.chatAction();
 
-        Navigation.findNavController(getActivity(), R.id.homeFragment)
-                .navigate(action);
+               action.setAddress(device.deviceAddress);
+
+               Navigation.findNavController(binding.homeMyDeviceTitle)
+                       .navigate(action);
+
+           }
+       });
 
 
     }
@@ -311,5 +328,23 @@ public class HomeFragment extends Fragment
         // caused by old references to old listeners / views that
         // won't exist anymore.
         WifiDirect.getInstance(this.getContext()).unsubscribePeerDiscoveryListener(this);
+    }
+
+    ViewModel getViewModel()
+    {
+        ViewModel viewModel = new ViewModel(getActivity().getApplication());
+        return viewModel;
+    }
+
+    boolean peerExists(List<Peer> peers, String address)
+    {
+        for(Peer peer:peers)
+        {
+            if(peer.macAddress.equals(address))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

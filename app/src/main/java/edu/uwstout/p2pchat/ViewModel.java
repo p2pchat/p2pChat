@@ -90,21 +90,8 @@ public class ViewModel extends AndroidViewModel
         return repo.getPeers();
     }
 
-    //TODO: make sure this function is still valid
-    public final boolean peerExists(String address)
-    {
-        List<Peer> peers = getPeers().getValue();
-        if(peers == null) return false;
-        for (Peer peer : getPeers().getValue())
-        {
-            if (peer.macAddress.equals(address))
-            {
-                return true;
-            }
 
-        }
-        return false;
-    }
+
 
 
     public void deleteEverything() {

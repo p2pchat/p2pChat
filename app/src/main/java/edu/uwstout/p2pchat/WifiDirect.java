@@ -2,14 +2,17 @@ package edu.uwstout.p2pchat;
 
 import static android.os.Looper.getMainLooper;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -17,11 +20,16 @@ import androidx.annotation.NonNull;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-import edu.uwstout.p2pchat.FileTransfer.ReceiverAsyncTask;
-import edu.uwstout.p2pchat.FileTransfer.SendDataService;
-import edu.uwstout.p2pchat.FileTransfer.UpdaterAsyncTask;
+import edu.uwstout.p2pchat.WifiDirectHelpers.InMemoryFileReceivedListener;
+import edu.uwstout.p2pchat.WifiDirectHelpers.InetAddressListener;
+import edu.uwstout.p2pchat.WifiDirectHelpers.LocalHostHelper;
+import edu.uwstout.p2pchat.WifiDirectHelpers.ReceiverAsyncTask;
+import edu.uwstout.p2pchat.WifiDirectHelpers.SendDataService;
+import edu.uwstout.p2pchat.WifiDirectHelpers.UpdaterAsyncTask;
+import edu.uwstout.p2pchat.WifiDirectHelpers.WifiDirectBroadcastReceiver;
 
 /**
  * WifiDirect is a Singleton which handles the process of communicating
@@ -37,7 +45,7 @@ import edu.uwstout.p2pchat.FileTransfer.UpdaterAsyncTask;
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
 public final class WifiDirect implements WifiP2pManager.ChannelListener,
-        WifiP2pManager.ConnectionInfoListener
+        WifiP2pManager.ConnectionInfoListener, WifiP2pManager.GroupInfoListener
 {
     /**
      * Creating an observer interface so that fragments can subscribe
@@ -65,6 +73,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
 
         /**
          * Notifies the observer that we have successfully connected to a peer.
+         *
          * @param device
          *         specific peer connected
          */
@@ -172,7 +181,9 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     /**
      * Globally accessible method provides a reference to the singleton
      * to call its functions.
-     * @param context a Context for the application on demand
+     *
+     * @param context
+     *         a Context for the application on demand
      * @return a reference to the WifiDirect singleton
      */
     public static WifiDirect getInstance(@NonNull final Context context)
@@ -206,7 +217,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @param enabled
      *         whether or not peer to peer communication is enabled
      */
-    void setP2pEnabled(final boolean enabled)
+    public void setP2pEnabled(final boolean enabled)
     {
         this.p2pEnabled = enabled;
     }
@@ -239,7 +250,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @param device
      *         a WifiP2pDevice that is this device
      */
-    void setThisDevice(final WifiP2pDevice device)
+    public void setThisDevice(final WifiP2pDevice device)
     {
         this.thisDevice = device;
     }
@@ -247,6 +258,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     /**
      * Returns the peer we are connected to as a WifiP2pDevice,
      * or null if we aren't connected yet.
+     *
      * @return a WifiP2pDevice that is our connected peer.
      */
     public WifiP2pDevice getPeerDevice()
@@ -257,7 +269,9 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     /**
      * Sets the INetAddress of our client if this device is the host
      * of the WifiP2pGroup. Used internally, there is no getter.
-     * @param client The INetAddress of our client.
+     *
+     * @param client
+     *         The INetAddress of our client.
      * @see InetAddress
      */
     public void setClient(InetAddress client)
@@ -296,7 +310,6 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     }
 
 
-
     //////////////////////////////////////////////////
     //
     // ANDROID LIFECYCLE FUNCTIONS
@@ -328,7 +341,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * processing time when the app is not in focus.
      *
      * @see android.app.Activity
-     * @see edu.uwstout.p2pchat.WifiDirectBroadcastReceiver
+     * @see WifiDirectBroadcastReceiver
      */
     void pause()
     {
@@ -357,48 +370,112 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     /**
      * Required by the ConnectionInfoListener interface, this function
      * informs us when there is connection information that we need to know.
-     * @param wifiP2pInfo the connection information we are interested in.
+     *
+     * @param wifiP2pInfo
+     *         the connection information we are interested in.
      */
     @Override
     public void onConnectionInfoAvailable(final WifiP2pInfo wifiP2pInfo)
     {
+        class imfrl implements InMemoryFileReceivedListener
+        {
+            @Override
+            public void onInMemoryFileAvailable(InMemoryFile inMemoryFile)
+            {
+                // save the InMemoryFile to the database if the file exists.
+                if (inMemoryFile != null)
+                {
+                    Log.i(LOG_TAG, "Message received, MIME type: " + inMemoryFile.getMimeType());
+                    // determine if we are dealing with a text message or a file.
+                    if (inMemoryFile.getMimeType().equals(InMemoryFile.MESSAGE_MIME_TYPE))
+                    {
+                        // add a text message to the database
+                        String macAddress = WifiDirect.getInstance(context)
+                                .getPeerDevice().deviceAddress;
+                        new ViewModel((Application) context.getApplicationContext())
+                                .insertTextMessage(macAddress, new Date(), false,
+                                        inMemoryFile.getTextMessage());
+                    }
+                    else
+                    {
+                        // add a regular file to the database
+                        String macAddress = WifiDirect.getInstance(context)
+                                .getPeerDevice().deviceAddress;
+                        new ViewModel((Application) context.getApplicationContext())
+                                .insertFileMessage(macAddress, new Date(), false, inMemoryFile,
+                                        context);
+                    }
+                }
+
+                // startup a new ReceiverAsyncTask to listen for the next message.
+                new ReceiverAsyncTask().execute(this);
+            }
+        }
+
         this.info = wifiP2pInfo;
 
         /* Determine if this device is the group host.
-        *  If so, set up the server to receive connections.
-        *  If I am the client, send the host my information
-        *  so that they can send me messages.
-        */
+         *  If so, set up the server to receive connections.
+         *  If I am the client, send the host my information
+         *  so that they can send me messages.
+         */
         if (this.info.groupFormed && this.info.isGroupOwner)
         {
+            Log.d(LOG_TAG, "Info available informs that this is the server.");
             // ReceiverAsyncTask handles the process of receiving messages.
-            new ReceiverAsyncTask(this.context);
+            new ReceiverAsyncTask().execute(new imfrl());
             // UpdaterAsyncTask handles the process of
             // getting client information for two-way communication.
-            new UpdaterAsyncTask(this.context);
+            new UpdaterAsyncTask().execute(
+                    (InetAddressListener) address -> this.clientAddress = address);
         }
         else if (this.info.groupFormed)
         {
             // ReceiverAsyncTask handles the process of receiving messages.
-            new ReceiverAsyncTask(this.context);
-            try
-            {
-                // Get the INetAddress of the current device.
-                InetAddress localHost = InetAddress.getLocalHost();
+            new ReceiverAsyncTask().execute(new imfrl());
+            new LocalHostHelper().execute((InetAddressListener) address -> {
                 // Create an intent to send to the server.
-                Intent updateIntent = new Intent(this.context, SendDataService.class);
+                Intent updateIntent = new Intent(context, SendDataService.class);
                 updateIntent.setAction(SendDataService.ACTION_UPDATE_INETADDRESS);
-                updateIntent.putExtra(SendDataService.EXTRAS_INETADDRESS, localHost);
+                updateIntent.putExtra(SendDataService.EXTRAS_INETADDRESS, address);
                 updateIntent.putExtra(SendDataService.EXTRAS_PEER_ADDRESS,
-                        this.info.groupOwnerAddress.getHostAddress());
-                updateIntent.putExtra(SendDataService.EXTRAS_PEER_PORT, UpdaterAsyncTask.MAGIC_PORT);
-                this.context.startService(updateIntent);
-            }
-            catch (UnknownHostException e)
+                        info.groupOwnerAddress.getHostAddress());
+                updateIntent.putExtra(SendDataService.EXTRAS_PEER_PORT,
+                        UpdaterAsyncTask.MAGIC_PORT);
+                context.startService(updateIntent);
+            });
+        }
+    }
+
+    /**
+     * Required by the GroupInfoListener interface, this function
+     * informs us when there is connection information that we need to know.
+     *
+     * @param wifiP2pGroup
+     *         The WifiP2pGroup that this device has become a part of.
+     */
+    @Override
+    public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup)
+    {
+        Log.d(LOG_TAG, "Group information is available");
+        if (wifiP2pGroup.isGroupOwner())
+        {
+            Log.d(LOG_TAG, "This device is the group owner");
+            // We only care to notify server devices that a connection has occurred.
+            // get the peer device (first and only device in the client list)
+            WifiP2pDevice peer = wifiP2pGroup.getClientList().iterator().next();
+            for (PeerDiscoveryListener listener : this.peerDiscoveryListeners)
             {
-                // One-way communication is impossible
-                Log.e(LOG_TAG, "Could not resolve localhost. "
-                    + e.getMessage());
+                listener.peerConnectionSucceeded(peer);
+            }
+        }
+        else // we are the client
+        {
+            Log.d(LOG_TAG, "This device is the client");
+            WifiP2pDevice peerHost = wifiP2pGroup.getOwner();
+            for (PeerDiscoveryListener listener : this.peerDiscoveryListeners)
+            {
+                listener.peerConnectionSucceeded(peerHost);
             }
         }
     }
@@ -409,19 +486,9 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      */
     void discoverPeers()
     {
-        // Create a local class which will handle the callbacks. Class created here because
-        // we needed to be able to handle context, which is an incredibly important concept
-        // in Android development and is now necessary "on demand" in the singleton.
-        class ActionListenerWithContext implements WifiP2pManager.ActionListener
+        // Discover a list of peers we can interact with
+        manager.discoverPeers(channel, new WifiP2pManager.ActionListener()
         {
-
-            private Context mContext;
-
-            private ActionListenerWithContext(final Context c)
-            {
-                mContext = c;
-            }
-
             @Override
             public void onSuccess()
             {
@@ -434,45 +501,17 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
             }
 
             @Override
-            public void onFailure(final int reasonCode)
+            public void onFailure(int reasonCode)
             {
-                // Turn the error code into a human readable message.
-                // Other error handling may occur in this code.
-                String errorType;
-                switch (reasonCode)
-                {
-                    case WifiP2pManager.ERROR:
-                        errorType = "Operation Failed due to an internal error.";
-                        break;
-                    case WifiP2pManager.P2P_UNSUPPORTED:
-                        errorType =
-                                "Operation failed because Peer to Peer connections are not supported on this device.";
-                        break;
-                    case WifiP2pManager.BUSY:
-                        errorType =
-                                "Operation failed because the framework is busy and is unable to service the request.";
-                        break;
-                    case WifiP2pManager.NO_SERVICE_REQUESTS:
-                        errorType =
-                                "Operation failed because no service channel requests were added.";
-                        break;
-                    default:
-                        errorType = "Operation failed due to an unknown error. Reason Code: " + reasonCode;
-                        break;
-                }
                 // log the error with a description of what went wrong.
-                Log.e(LOG_TAG, "Peer Discovery Failure. Error: " + errorType);
+                Log.e(LOG_TAG, "Peer Discovery Failure. Error: " + resolveFailureCode(reasonCode));
                 // Tell the PeerDiscoveryListeners that peer discovery has gone wrong.
-                WifiDirect.getInstance(mContext).peerDiscoveryFailed(reasonCode);
+                for (PeerDiscoveryListener pdl : peerDiscoveryListeners)
+                {
+                    pdl.peerDiscoveryFailed(reasonCode);
+                }
             }
-        }
-
-        // create an instance of the local class created
-        ActionListenerWithContext actionListenerWithContext =
-                new ActionListenerWithContext(this.context);
-
-        // Discover a list of peers we can interact with
-        manager.discoverPeers(channel, actionListenerWithContext);
+        });
     }
 
     /**
@@ -482,28 +521,11 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @param wifiP2pDeviceList
      *         the new list of peers available.
      */
-    void peersHaveChanged(final WifiP2pDeviceList wifiP2pDeviceList)
+    public void peersHaveChanged(final WifiP2pDeviceList wifiP2pDeviceList)
     {
         for (WifiDirect.PeerDiscoveryListener pdl : this.peerDiscoveryListeners)
         {
             pdl.peerListChanged(wifiP2pDeviceList);
-        }
-    }
-
-    /**
-     * Notifies all listeners which have subscribed to events relating
-     * to when peer discovery failed, and gives them the error code as to why.
-     * The reason code are static constants from the WifiP2pManager class, namely:
-     * ERROR, P2P_UNSUPPORTED, BUSY, or NO_SERVICE_REQUESTS
-     *
-     * @param reasonCode
-     *         The reason peer discovery failed.
-     */
-    private void peerDiscoveryFailed(final int reasonCode)
-    {
-        for (PeerDiscoveryListener pdl : this.peerDiscoveryListeners)
-        {
-            pdl.peerDiscoveryFailed(reasonCode);
         }
     }
 
@@ -517,45 +539,25 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     {
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = device.deviceAddress;
-
-        class ActionListenerWithContext implements WifiP2pManager.ActionListener
+        manager.connect(channel, config, new WifiP2pManager.ActionListener()
         {
-
-            private Context mContext;
-
-            private ActionListenerWithContext(final Context c)
-            {
-                mContext = c;
-            }
-
             @Override
             public void onSuccess()
             {
                 Log.i(LOG_TAG, "System reports successful connection");
-                for (PeerDiscoveryListener listener :
-                        WifiDirect.getInstance(mContext).peerDiscoveryListeners)
-                {
-                    listener.peerConnectionSucceeded(device);
-
-                }
             }
 
             @Override
-
-            public void onFailure(final int reason)
+            public void onFailure(int reason)
             {
-                // TODO figure out what the reasons are?
                 Log.e(LOG_TAG, "Connection failure. Reason: " + reason);
                 for (PeerDiscoveryListener listener
-                        : WifiDirect.getInstance(mContext).peerDiscoveryListeners)
+                        : WifiDirect.getInstance(context).peerDiscoveryListeners)
                 {
                     listener.peerConnectionFailed(reason);
                 }
             }
-
-        }
-
-        manager.connect(channel, config, new ActionListenerWithContext(this.context));
+        });
         this.peerDevice = device;
     }
 
@@ -591,8 +593,49 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
     }
 
     /**
+     * Turns error codes passed from WifiP2pManager.ActionListener#onFailure
+     * into a human readable String.
+     *
+     * @param failureCode
+     *         An int which cam from a WifiP2pManager.ActionListener callback.
+     * @return A string which describes an error code.
+     */
+    static String resolveFailureCode(int failureCode)
+    {
+        // Turn the error code into a human readable message.
+        String errorType;
+        switch (failureCode)
+        {
+            case WifiP2pManager.ERROR:
+                errorType = "Operation Failed due to an internal error.";
+                break;
+            case WifiP2pManager.P2P_UNSUPPORTED:
+                errorType =
+                        "Operation failed because Peer to Peer connections are not " +
+                                "supported on this device.";
+                break;
+            case WifiP2pManager.BUSY:
+                errorType =
+                        "Operation failed because the framework is busy and is unable to " +
+                                "service the request.";
+                break;
+            case WifiP2pManager.NO_SERVICE_REQUESTS:
+                errorType =
+                        "Operation failed because no service channel requests were added.";
+                break;
+            default:
+                errorType = "Operation failed due to an unknown error. Reason Code: " +
+                        failureCode;
+                break;
+        }
+        return errorType;
+    }
+
+    /**
      * Sends an InMemoryFile to the host assuming that we are the client.
-     * @param inMemoryFile The data that we want to send.
+     *
+     * @param inMemoryFile
+     *         The data that we want to send.
      */
     void sendInMemoryFile(final InMemoryFile inMemoryFile)
     {

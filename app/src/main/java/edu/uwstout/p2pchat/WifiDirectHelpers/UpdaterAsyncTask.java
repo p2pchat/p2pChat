@@ -1,7 +1,5 @@
-package edu.uwstout.p2pchat.FileTransfer;
+package edu.uwstout.p2pchat.WifiDirectHelpers;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -11,8 +9,8 @@ import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import edu.uwstout.p2pchat.WifiDirect;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * The updaterAsyncTask is run only when this device
@@ -23,13 +21,8 @@ import edu.uwstout.p2pchat.WifiDirect;
  *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
-public class UpdaterAsyncTask extends AsyncTask
+public class UpdaterAsyncTask extends AsyncTask<InetAddressListener, Object, InetAddress>
 {
-    /**
-     * Application context needed to do tasks.
-     */ // suppress warnings related to context leak.
-    @SuppressLint("StaticFieldLeak")
-    private final Context context;
     /**
      * Magic number for open port.
      */
@@ -38,28 +31,23 @@ public class UpdaterAsyncTask extends AsyncTask
      * The tag for logging.
      */
     private static final String LOG_TAG = "UpdaterAsyncTask";
-
     /**
-     * Non-Default Constructor
-     *
-     * @param c
-     *         Application context
+     * Keeps track of all listeners passed into the asynchronous task.
      */
-    public UpdaterAsyncTask(final Context c)
-    {
-        this.context = c.getApplicationContext();
-    }
+    private static ArrayList<InetAddressListener> listeners;
 
     /**
      * Listens for incoming messages in the background.
      *
-     * @param objects
-     *         Required by the superclass, these are unnecessary.
+     * @param inetAddressListeners
+     *         A series of InetAddressListeners
      * @return An object. Currently null.
      */
     @Override
-    protected Object doInBackground(final Object[] objects)
+    protected InetAddress doInBackground(InetAddressListener... inetAddressListeners)
     {
+        listeners = new ArrayList<>();
+        listeners.addAll(Arrays.asList(inetAddressListeners));
         try
         {
             ServerSocket serverSocket = new ServerSocket(MAGIC_PORT);
@@ -77,7 +65,7 @@ public class UpdaterAsyncTask extends AsyncTask
             {
                 Log.i(LOG_TAG,
                         "Client information received. " + clientLocalHost.getCanonicalHostName());
-                WifiDirect.getInstance(this.context).setClient(clientLocalHost);
+                return clientLocalHost;
             }
         }
         catch (IOException e)
@@ -89,6 +77,21 @@ public class UpdaterAsyncTask extends AsyncTask
             Log.e(LOG_TAG, "InputStream does not contain an InetAddress" + e.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Notifies all passed in InetAddressListeners of the updated InetAddress.
+     * @param address The InetAddress of the client device.
+     */
+    @Override
+    protected void onPostExecute(InetAddress address)
+    {
+        if (address == null)
+            return;
+        for (InetAddressListener listener: listeners)
+        {
+            listener.onLocalHostAvailable(address);
+        }
     }
 
     /**
