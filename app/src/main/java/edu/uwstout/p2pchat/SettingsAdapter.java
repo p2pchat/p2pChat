@@ -261,13 +261,14 @@ public class SettingsAdapter extends BaseExpandableListAdapter
         Resources resources = fragment.getResources();
 
         //Switch case for parents.
-        switch (parent)
-        {
-            case 0:
-                return resources.getStringArray(R.array.myDeviceInfoSettings);
-            case 1:
-                return resources.getStringArray(R.array.themeColor);
-        }
+       if (parent == 0)
+       {
+           return resources.getStringArray(R.array.myDeviceInfoSettings);
+       } else if (parent == 1)
+       {
+           return resources.getStringArray(R.array.themeColor);
+       }
+
         //If outside the two parent numbers, than want to return empty array.
         return new String[0];
     }
