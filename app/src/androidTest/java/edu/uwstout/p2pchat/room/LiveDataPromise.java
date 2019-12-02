@@ -30,7 +30,7 @@ public class LiveDataPromise<T> {
             }
         });
     }
-    T await() {
+    public T await() {
         try {
             latch.await();
             return result;
