@@ -24,7 +24,8 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
 
     
     /**
-     *
+     * Takes in a message and displays text
+     * @param message message object
      */
     void bindData(Message message)
     {
@@ -34,6 +35,10 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
         binding.executePendingBindings();
     }
 
+    /**
+     * Takes in a boolean and determines alignment
+     * @param sent sent boolean
+     */
     void bindAlignment(boolean sent){
         RelativeLayout.LayoutParams lp1 =
                 (RelativeLayout.LayoutParams) binding.chatMsgText.getLayoutParams();
