@@ -41,7 +41,7 @@ public class ChatFragmentTest
     @After
     public void after()
     {
-        MockViewModel.resetModel();
+       MockViewModel.resetModel();
     }
 
     @Test
