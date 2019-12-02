@@ -43,7 +43,7 @@ public class LiveDataPromise<T> {
      * Blocks until the LiveData result is ready. Then returns the value.
      * @return
      */
-    T await() {
+    public T await() {
         try {
             latch.await();
             return result;

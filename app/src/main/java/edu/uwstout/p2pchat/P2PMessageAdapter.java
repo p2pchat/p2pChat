@@ -50,18 +50,22 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
     {
         Message message = this.messageList.get(position);
 
+
+
+
+        holder.bindAlignment(message.sent);
         holder.bindData(message);
     }
 
     /**
-     * Returns the number of views
+     * Gets a count of items.
      */
     @Override
     public int getItemCount()
     {
         if (messageList == null)
         {
-            messageList = new ArrayList<Message>();
+            messageList = new ArrayList<>();
         }
         return messageList.size();
     }

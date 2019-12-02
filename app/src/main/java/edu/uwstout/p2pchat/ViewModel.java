@@ -23,8 +23,8 @@ public class ViewModel extends AndroidViewModel
     private P2pRepository repo;
 
     /**
-     * Constructor
-     * @param application
+     *
+     * @param application Requires Application reference
      */
     public ViewModel(@NonNull final Application application)
     {
@@ -34,6 +34,8 @@ public class ViewModel extends AndroidViewModel
 
     /**
      * Inserts peer into the database safely in background
+     * @param macAddress Peer's Mac Address
+     * @param nickname Peer's Nickname
      */
     public void insertPeer(final String macAddress, final String nickname)
     {
@@ -44,11 +46,11 @@ public class ViewModel extends AndroidViewModel
 
     /**
      * Inserts a message into the database
-     * @param macAddress
-     * @param timestamp
-     * @param sent
-     * @param mimeType
-     * @param content
+     * @param macAddress Peer's Mac Address to create Message
+     * @param timestamp Time of creation
+     * @param sent message sender status
+     * @param mimeType Type of content
+     * @param content message content
      */
     public void insertMessage(final String macAddress, final Date timestamp,
             final Boolean sent, final String mimeType,
@@ -64,10 +66,10 @@ public class ViewModel extends AndroidViewModel
 
     /**
      * Inserts a text message into the database
-     * @param macAddress
-     * @param timestamp
-     * @param sent
-     * @param message
+     * @param macAddress Peer's Mac Address to create Message
+     * @param timestamp Time of creation
+     * @param sent message sender status
+     * @param message message content
      */
     public void insertTextMessage(final String macAddress, final Date timestamp,
             final Boolean sent, final String message)
@@ -82,12 +84,12 @@ public class ViewModel extends AndroidViewModel
 
     /**
      * Inserts a file message into the database
-     * @param macAddress
-     * @param timestamp
-     * @param sent
-     * @param file
-     * @param context
-     * @return
+     * @param macAddress Peer's Mac Address to create Message
+     * @param timestamp Time of creation
+     * @param sent message sender status
+     * @param file File
+     * @param context Context of File
+     * @return Boolean file state of existence
      */
     public Boolean insertFileMessage(final String macAddress, final Date timestamp,
             final Boolean sent,
@@ -109,7 +111,7 @@ public class ViewModel extends AndroidViewModel
 
     /**
      * Deletes the peer associated with macAddress from the database
-     * @param macAddress
+     * @param macAddress Peer Address
      */
     public void deletePeer(final String macAddress)
     {
@@ -118,7 +120,7 @@ public class ViewModel extends AndroidViewModel
 
     /**
      * Deletes the message associated with messageId from the database
-     * @param messageId
+     * @param messageId Message Id
      */
     public void deleteMessage(final int messageId)
     {
@@ -129,7 +131,7 @@ public class ViewModel extends AndroidViewModel
 
     /**
      * Gets a LiveData of all peers in the database
-     * @return
+     * @return LiveData containing a list of peers
      */
     public LiveData<List<Peer>> getPeers()
     {
@@ -137,29 +139,9 @@ public class ViewModel extends AndroidViewModel
     }
 
     /**
-     * Checks if a peer exists. Should not be called.
-     * @param address
-     * @return
-     */
-    public final boolean peerExists(String address)
-    {
-        List<Peer> peers = getPeers().getValue();
-        if(peers == null) return false;
-        for (Peer peer : getPeers().getValue())
-        {
-            if (peer.macAddress.equals(address))
-            {
-                return true;
-            }
-
-        }
-        return false;
-    }
-
-    /**
      * Returns a LiveData of all messages associated with a peer's macAddress
-     * @param macAddress
-     * @return
+     * @param macAddress Peer's MacAddress
+     * @return LiveData containing a list of messages
      */
     public LiveData<List<Message>> getMessages(final String macAddress)
     {
