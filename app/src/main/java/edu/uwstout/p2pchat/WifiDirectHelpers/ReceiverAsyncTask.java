@@ -1,8 +1,6 @@
-package edu.uwstout.p2pchat.FileTransfer;
+package edu.uwstout.p2pchat.WifiDirectHelpers;
 
-import android.annotation.SuppressLint;
 import android.app.Application;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -11,6 +9,8 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import edu.uwstout.p2pchat.InMemoryFile;
@@ -24,13 +24,8 @@ import edu.uwstout.p2pchat.WifiDirect;
  *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
-public class ReceiverAsyncTask extends AsyncTask
+public class ReceiverAsyncTask extends AsyncTask<InMemoryFileReceivedListener, Object, InMemoryFile>
 {
-    /**
-     * Application context needed to do tasks.
-     */ // suppress warnings related to context leak.
-    @SuppressLint("StaticFieldLeak")
-    private final Context context;
     /**
      * Magic number for open port.
      */
@@ -39,28 +34,25 @@ public class ReceiverAsyncTask extends AsyncTask
      * The tag for logging.
      */
     private static final String LOG_TAG = "ReceiverAsyncTask";
-
     /**
-     * Non-Default Constructor.
-     *
-     * @param c
-     *         Application context.
+     * Keeps track of all listeners passed into the asynchronous task.
      */
-    public ReceiverAsyncTask(final Context c)
-    {
-        this.context = c.getApplicationContext();
-    }
+    private static ArrayList<InMemoryFileReceivedListener> listeners;
 
     /**
      * Listens for incoming messages in the background.
      *
-     * @param objects
-     *         Required by the superclass, these are unnecessary.
-     * @return An object. Currently null.
+     * @param inMemoryFileReceivedListeners
+     *         A series of InMemoryFileReceivedListeners which want to be notified when an
+     *         InMemoryFile is received from our peer.
+     * @return An InMemoryFile which was sent to us by our peer.
      */
     @Override
-    protected Object doInBackground(final Object[] objects)
+    protected InMemoryFile doInBackground(
+            InMemoryFileReceivedListener... inMemoryFileReceivedListeners)
     {
+        listeners = new ArrayList<>();
+        listeners.addAll(Arrays.asList(inMemoryFileReceivedListeners));
         try
         {
             ServerSocket serverSocket = new ServerSocket(MAGIC_PORT);
@@ -76,29 +68,7 @@ public class ReceiverAsyncTask extends AsyncTask
             // we have accepted a connection.
             Log.i(LOG_TAG, "Receiver: Connection established");
             // get the InMemoryFile object from the InputStream
-            InMemoryFile imf = parseInMemoryFileFromInputStream(client.getInputStream());
-            // save the InMemoryFile to the database.
-            // determine if we are dealing with a text message or a file.
-            if (imf != null)
-            {
-                Log.i(LOG_TAG, "Message received, MIME type: " + imf.getMimeType());
-                if (imf.getMimeType().equals(InMemoryFile.MESSAGE_MIME_TYPE))
-                {
-                    // add a text message to the database
-                    String macAddress = WifiDirect.getInstance(this.context)
-                            .getPeerDevice().deviceAddress;
-                    new ViewModel((Application) this.context.getApplicationContext())
-                            .insertTextMessage(macAddress, new Date(), false, imf.getTextMessage());
-                }
-                else
-                {
-                    // add a regular file to the database
-                    String macAddress = WifiDirect.getInstance(this.context)
-                            .getPeerDevice().deviceAddress;
-                    new ViewModel((Application) this.context.getApplicationContext())
-                            .insertFileMessage(macAddress, new Date(), false, imf, this.context);
-                }
-            }
+            return parseInMemoryFileFromInputStream(client.getInputStream());
         }
         catch (IOException e)
         {
@@ -109,6 +79,21 @@ public class ReceiverAsyncTask extends AsyncTask
             Log.e(LOG_TAG, "InputStream did not contain InMemoryFile. " + e.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Notifies all passed in InMemoryFileReceivedListeners of the message received.
+     * @param inMemoryFile the message sent by the our peer.
+     */
+    @Override
+    protected void onPostExecute(InMemoryFile inMemoryFile)
+    {
+        if (inMemoryFile == null)
+            return;
+        for (InMemoryFileReceivedListener listener: listeners)
+        {
+            listener.onInMemoryFileAvailable(inMemoryFile);
+        }
     }
 
     /**

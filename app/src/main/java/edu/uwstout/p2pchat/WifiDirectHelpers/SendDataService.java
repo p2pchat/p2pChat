@@ -1,4 +1,4 @@
-package edu.uwstout.p2pchat.FileTransfer;
+package edu.uwstout.p2pchat.WifiDirectHelpers;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -7,15 +7,10 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
