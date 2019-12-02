@@ -37,12 +37,18 @@ public class ChatFragmentTest
     @Rule
     public FragmentTestRule<MainActivity, TestChatFragment> fragmentRule = new FragmentTestRule<>(MainActivity.class, TestChatFragment.class);
 
+    /**
+     * Resets the mock data in the MockViewModel after a test
+     */
     @After
     public void after()
     {
         MockViewModel.resetModel();
     }
 
+    /**
+     * Checks that sending and receiving messages work correctly
+     */
     @Test
     public void validateSendAndReceiveMessages()
     {
@@ -58,6 +64,9 @@ public class ChatFragmentTest
 
     }
 
+    /**
+     * Checks that the add image button is tappable
+     */
     @Test
     public void validateImageButtonClicks()
     {

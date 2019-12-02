@@ -93,6 +93,12 @@ public class NickNameModal
         // Button: Rename
         dialogBuilder.setPositiveButton("Rename", new DialogInterface.OnClickListener()
         {
+            /**
+             * Gets called when the user presses the "Rename" button inside of the rename modal.
+             * Changes the nickname inside of the model.
+             * @param dialogInterface
+             * @param i
+             */
             @Override
             public void onClick(DialogInterface dialogInterface, int i)
             {
@@ -133,6 +139,11 @@ public class NickNameModal
     }
 
 
+    /**
+     * Returns the ViewModel. Overridden for testing.
+     * @param app
+     * @return
+     */
     public ViewModel getViewModel(Application app) {
         return new ViewModel(app);
     }

@@ -8,11 +8,19 @@ import androidx.lifecycle.Observer;
 
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Class used for unwrapping LiveData objects for testing
+ * @param <T>
+ */
 public class LiveDataPromise<T> {
     T result;
     LiveData<T> liveData;
     CountDownLatch latch;
 
+    /**
+     * Constructor taking in LiveData object to be unwrapped
+     * @param liveData
+     */
     public LiveDataPromise(LiveData<T> liveData) {
         latch = new CountDownLatch(1);
         this.liveData = liveData;
@@ -30,6 +38,11 @@ public class LiveDataPromise<T> {
             }
         });
     }
+
+    /**
+     * Blocks until the LiveData result is ready. Then returns the value.
+     * @return
+     */
     T await() {
         try {
             latch.await();

@@ -20,6 +20,9 @@ import java.util.List;
 import edu.uwstout.p2pchat.databinding.FragmentChatBinding;
 import edu.uwstout.p2pchat.room.Message;
 
+/**
+ * Fragment used for sending and receiving messages to/from peers
+ */
 public class ChatFragment extends Fragment
 {
     private FragmentChatBinding binding;
@@ -27,7 +30,7 @@ public class ChatFragment extends Fragment
     private P2PMessageAdapter messageAdapter;
 
     /**
-     *
+     * Inflates layout xml and configures event listeners
      */
     @Nullable
     @Override
@@ -46,6 +49,11 @@ public class ChatFragment extends Fragment
         binding.messagesRecyclerView.setAdapter(messageAdapter);
 
         liveData.observeForever(new Observer<List<Message>>() {
+            /**
+             * Gets called whenever a message associated with the current peer is added to the
+             * database
+             * @param messages
+             */
             @Override
             public void onChanged(List<Message> messages) {
                 messageAdapter = new P2PMessageAdapter(messages);
@@ -58,7 +66,7 @@ public class ChatFragment extends Fragment
         binding.sendButton.setOnClickListener(new View.OnClickListener()
         {
             /**
-             *
+             * Gets called whenever the send button is pressed
              * @param view
              */
             @Override
@@ -78,7 +86,7 @@ public class ChatFragment extends Fragment
         binding.attachmentButton.setOnClickListener(new View.OnClickListener()
         {
             /**
-             *
+             * Gets called when the add attachment button is pressed
              * @param view
              */
             @Override

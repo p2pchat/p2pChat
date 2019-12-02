@@ -84,6 +84,11 @@ public class NickNameFragment extends Fragment
 
         liveData = getViewModel(getActivity().getApplication()).getPeers();
         liveData.observeForever(new Observer<List<Peer>>() {
+            /**
+             * Gets called whenever a peer is added to the database or when peer information is
+             * available
+             * @param peers
+             */
             @Override
             public void onChanged(List<Peer> peers) {
                 listView.setAdapter(getNickNameAdapter(peers));
@@ -93,6 +98,14 @@ public class NickNameFragment extends Fragment
         //Set the click listeners for each of the lists.
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
+            /**
+             * Gets called when a nickname is selected. Creates a pop-up modal that can be used
+             * to update the nickname
+             * @param adapterView
+             * @param view
+             * @param i
+             * @param l
+             */
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
             {

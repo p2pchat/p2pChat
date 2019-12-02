@@ -12,6 +12,10 @@ import static com.google.common.truth.Truth.assertThat;
  */
 public class WifiDirectTest
 {
+    /**
+     * Tests that the summarize P2P Device method is working as expected
+     * Device summary contains a secondary device.
+     */
     @Test
     public void deviceSummaryWithSecondaryDeviceType() {
         // create a mock WifiP2pDevice
@@ -32,6 +36,10 @@ public class WifiDirectTest
         assertThat(actual).isEqualTo(expected);
     }
 
+    /**
+     * Tests that the summarize P2P device method is working as expected.
+     * Device summary does not contain a secondary device
+     */
     @Test
     public void deviceSummaryWithoutSecondaryDeviceType() {
         // create a mock WifiP2pDevice

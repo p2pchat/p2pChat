@@ -12,13 +12,16 @@ import java.util.List;
 import edu.uwstout.p2pchat.databinding.ItemMessageBinding;
 import edu.uwstout.p2pchat.room.Message;
 
+/**
+ * RecyclerView adapter used by the Chat Fragment
+ */
 public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder>
 {
 
     private List<Message> messageList;
 
     /**
-     *
+     * Constructor that initializes the messageList property
      */
     P2PMessageAdapter(List<Message> messageList)
     {
@@ -26,7 +29,7 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
     }
 
     /**
-     *
+     * Inflates message views to be added to the RecyclerView
      */
     @NonNull
     @Override
@@ -40,7 +43,7 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
     }
 
     /**
-     *
+     * Sets the data to be displayed by a particular view
      */
     @Override
     public void onBindViewHolder(@NonNull P2PMessageViewHolder holder, int position)
@@ -51,7 +54,7 @@ public class P2PMessageAdapter extends RecyclerView.Adapter<P2PMessageViewHolder
     }
 
     /**
-     *
+     * Returns the number of views
      */
     @Override
     public int getItemCount()

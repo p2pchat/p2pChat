@@ -10,12 +10,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import edu.uwstout.p2pchat.databinding.ItemMessageBinding;
 import edu.uwstout.p2pchat.room.Message;
 
+/**
+ * View holder for messages in the chat history list
+ */
 class P2PMessageViewHolder extends RecyclerView.ViewHolder
 {
     private final ItemMessageBinding binding;
 
     /**
-     *
+     * Constructor that initializes local properties
      */
     P2PMessageViewHolder(ItemMessageBinding binding)
     {
@@ -25,7 +28,7 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
     }
 
     /**
-     *
+     * Sets the data displayed by this item.
      */
     void bindData(Message message)
     {
