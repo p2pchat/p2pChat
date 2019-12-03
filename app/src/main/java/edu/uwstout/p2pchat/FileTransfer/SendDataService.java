@@ -34,6 +34,10 @@ import edu.uwstout.p2pchat.InMemoryFile;
  */
 public class SendDataService extends IntentService
 {
+    static boolean isTesting = false;
+    public static void setIsTesting(boolean value) {
+        isTesting = value;
+    }
     /**
      * A tag for logging.
      */
@@ -112,14 +116,14 @@ public class SendDataService extends IntentService
     @Override
     protected void onHandleIntent(@Nullable final Intent intent)
     {
-        if (intent == null)
+        if (intent == null && !isTesting)
         {
             // Can't handle the intent if it is null.
             return;
         }
         try
         {
-            if (Objects.equals(intent.getAction(), ACTION_SEND_DATA))
+            if (isTesting || Objects.equals(intent.getAction(), ACTION_SEND_DATA))
             {
                 transmitInMemoryFile(intent);
             }
@@ -149,16 +153,16 @@ public class SendDataService extends IntentService
      * how to communicate with the peer.
      *
      * @param intent
-     *         a non-null intent whose action is ACTION_SEND_DATA.
+     *         a  intent whose action is ACTION_SEND_DATA.
      */
-    private void transmitInMemoryFile(@NonNull final Intent intent)
+    private void transmitInMemoryFile(final Intent intent)
     {
-        final InMemoryFile IMF =
+        final InMemoryFile IMF = intent != null ?
                 Objects.requireNonNull(intent.getExtras())
-                        .getParcelable(EXTRAS_IN_MEMORY_FILE);
-        String host = intent.getExtras().getString(EXTRAS_PEER_ADDRESS);
+                        .getParcelable(EXTRAS_IN_MEMORY_FILE) : null;
+        String host = intent != null ? intent.getExtras().getString(EXTRAS_PEER_ADDRESS) : null;
         Socket socket = getSocket();
-        final int PORT = intent.getExtras().getInt(EXTRAS_PEER_PORT);
+        final int PORT = intent != null ? intent.getExtras().getInt(EXTRAS_PEER_PORT) : 0;
 
         try
         {

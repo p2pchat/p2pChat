@@ -42,13 +42,7 @@ public class SendDataServiceTest
     @Test
     public void sendData()
     {
-        Bundle bundle = new Bundle();
-        InMemoryFile imf = new InMemoryFile("This is a test message!");
-        bundle.putSerializable(SendDataService.EXTRAS_IN_MEMORY_FILE, imf);
-        bundle.putSerializable(SendDataService.EXTRAS_PEER_ADDRESS, null);
-        bundle.putSerializable(SendDataService.EXTRAS_PEER_PORT, ReceiverAsyncTask.MAGIC_PORT);
-        Intent intent = new TestIntent(SendDataService.ACTION_SEND_DATA, bundle);
-        sendDataService.testHandleIntent(intent);
+        sendDataService.testHandleIntent(null);
         ArrayList<TestSocket.TestSocketCalls> testSocketCalls = new ArrayList<>();
         testSocketCalls.add(TestSocket.TestSocketCalls.bind);
         testSocketCalls.add(TestSocket.TestSocketCalls.connect);
