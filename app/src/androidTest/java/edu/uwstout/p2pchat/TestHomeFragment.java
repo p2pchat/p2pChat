@@ -1,6 +1,8 @@
 package edu.uwstout.p2pchat;
 
 import android.content.Context;
+import android.view.Menu;
+import android.view.MenuInflater;
 
 import androidx.annotation.NonNull;
 
@@ -22,5 +24,10 @@ public class TestHomeFragment extends HomeFragment {
     @Override
     ViewModel getViewModel() {
         return new MockViewModel(null);
+    }
+
+    @Override
+    public void addMenuItem(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        //Do nothing
     }
 }
