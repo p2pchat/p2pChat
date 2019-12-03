@@ -1,11 +1,16 @@
 package edu.uwstout.p2pchat;
 
 import android.net.wifi.p2p.WifiP2pDevice;
+import android.view.View;
 
+import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android21buttons.fragmenttestrule.FragmentTestRule;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -20,13 +25,16 @@ import edu.uwstout.p2pchat.testing.MockPeers;
 import edu.uwstout.p2pchat.testing.MockViewModel;
 import edu.uwstout.p2pchat.testing.MockWifiDirect;
 
+import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.anything;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -36,6 +44,30 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 @RunWith(AndroidJUnit4.class)
 public class HomeFragmentTest
 {
+
+    /**
+     * From: https://stackoverflow.com/a/39756832
+     * @param matcher
+     * @param index
+     * @return
+     */
+    public static Matcher<View> withIndex(final Matcher<View> matcher, final int index) {
+        return new TypeSafeMatcher<View>() {
+            int currentIndex = 0;
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with index: ");
+                description.appendValue(index);
+                matcher.describeTo(description);
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                return matcher.matches(view) && currentIndex++ == index;
+            }
+        };
+    }
 
     @Rule
     public FragmentTestRule<MainActivity, TestHomeFragment> fragmentRule = new FragmentTestRule<>(MainActivity.class, TestHomeFragment.class);
@@ -57,13 +89,22 @@ public class HomeFragmentTest
     {
         MockViewModel.resetModel();
         MockWifiDirect.reset();
+        TestHomeFragment.reset();
     }
 
     @Test
     public void testDiscoveryList()
     {
-        MockViewModel.resetModel();
-        assert(true);
+        assert(!TestHomeFragment.getNavigated());
+        try {
+            openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
+        } catch (Exception e) {
+            //This is normal. Maybe we dont have overflow menu.
+        }
+        onView(withText("Discover Peers")).perform(click());
+        onView(withIndex(withId(R.id.unrecognized_list), 0)).perform(click());
+        assert(TestHomeFragment.getNavigated());
+        assert(TestHomeFragment.getNavigationDevice().deviceAddress.equals(MockPeers.austin.macAddress));
     }
 
 }

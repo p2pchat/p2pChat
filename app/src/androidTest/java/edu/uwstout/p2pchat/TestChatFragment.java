@@ -15,4 +15,5 @@ public class TestChatFragment extends ChatFragment {
     public String getPeerMacAddress() {
         return MockPeers.austin.macAddress;
     }
+
 }

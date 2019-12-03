@@ -282,17 +282,24 @@ public class HomeFragment extends Fragment
               {
                   viewModel.insertPeer(device.deviceAddress,null);
               }
-               HomeFragmentDirections.ChatAction action = HomeFragmentDirections.chatAction();
-
-               action.setAddress(device.deviceAddress);
-
-               Navigation.findNavController(binding.homeMyDeviceTitle)
-                       .navigate(action);
-
+              navigateToChatFragment(device);
            }
        });
 
 
+    }
+
+    /**
+     * Overridable for testing
+     * @param device
+     */
+    public void navigateToChatFragment(WifiP2pDevice device) {
+        HomeFragmentDirections.ChatAction action = HomeFragmentDirections.chatAction();
+
+        action.setAddress(device.deviceAddress);
+
+        Navigation.findNavController(binding.homeMyDeviceTitle)
+                .navigate(action);
     }
 
     /**
