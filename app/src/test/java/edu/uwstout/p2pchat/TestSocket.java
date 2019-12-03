@@ -10,6 +10,8 @@ public class TestSocket extends Socket
 {
     public enum TestSocketCalls { bind, connect, isConnected, getOutputStream }
 
+    boolean isConnected = false;
+
     public TestSocket() {
         socketCalls = new ArrayList<>();
     }
@@ -30,6 +32,7 @@ public class TestSocket extends Socket
     @Override
     public void connect(SocketAddress endpoint) throws IOException
     {
+        isConnected = true;
         socketCalls.add(TestSocketCalls.connect);
     }
 
@@ -37,7 +40,7 @@ public class TestSocket extends Socket
     public boolean isConnected()
     {
         socketCalls.add(TestSocketCalls.isConnected);
-        return true;
+        return isConnected;
     }
 
     @Override
