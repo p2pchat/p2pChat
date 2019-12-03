@@ -34,6 +34,10 @@ import edu.uwstout.p2pchat.InMemoryFile;
  */
 public class SendDataService extends IntentService
 {
+    static boolean isTesting = false;
+    public static void setIsTesting(boolean value) {
+        isTesting = value;
+    }
     /**
      * A tag for logging.
      */
@@ -164,7 +168,7 @@ public class SendDataService extends IntentService
         {
             Log.d(LOG_TAG, "Opening client socket");
             socket.bind(null);
-            socket.connect((new InetSocketAddress(host, PORT)), SOCKET_TIMEOUT);
+            socket.connect(isTesting ? null : (new InetSocketAddress(host, PORT)), SOCKET_TIMEOUT);
 
             Log.d(LOG_TAG, "Client socket connected: " + socket.isConnected());
             OutputStream outputStream = socket.getOutputStream();

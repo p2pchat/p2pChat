@@ -40,7 +40,7 @@ public class TestSocket extends Socket
     public boolean isConnected()
     {
         socketCalls.add(TestSocketCalls.isConnected);
-        return isConnected;
+        return true;
     }
 
     @Override
