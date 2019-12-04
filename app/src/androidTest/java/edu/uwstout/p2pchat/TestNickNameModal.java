@@ -17,20 +17,18 @@ import edu.uwstout.p2pchat.testing.MockViewModel;
  */
 public class TestNickNameModal extends NickNameModal {
     /**
-     * Pass through constructor
-     * @param fragment
-     * @param adapter
-     * @param peers
-     * @param index
+     * Pass-through constructor
+     * @param context view context where the modal is being displayed
+     * @param macAddress The mac address of the peer whose nickname we are changing
      */
-    public TestNickNameModal(Fragment fragment, ArrayAdapter adapter, List<Peer> peers, int index) {
-        super(fragment, adapter, peers, index);
+    public TestNickNameModal(Context context, String macAddress) {
+        super(context, macAddress);
     }
 
     /**
      * Returns a MockViewModel
-     * @param app
-     * @return
+     * @param app Application context
+     * @return a Mock of the database view model
      */
     @Override
     public ViewModel getViewModel(Application app) {
