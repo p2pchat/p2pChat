@@ -13,6 +13,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.android21buttons.fragmenttestrule.FragmentTestRule;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,15 +38,22 @@ public class ChatFragmentTest
     @Rule
     public FragmentTestRule<MainActivity, TestChatFragment> fragmentRule = new FragmentTestRule<>(MainActivity.class, TestChatFragment.class);
 
+    /**
+     * Resets the mock data in the MockViewModel after a test
+     */
     @After
     public void after()
     {
-        MockViewModel.resetModel();
+       MockViewModel.resetModel();
     }
 
+    /**
+     * Checks that sending and receiving messages work correctly
+     */
     @Test
     public void validateSendAndReceiveMessages()
     {
+
         onView(withId(R.id.textInput)).perform(typeText(testMessage1));
         onView(withId(R.id.sendButton)).perform(click());
         onView(withText(testMessage1)).check(matches(isDisplayed()));
@@ -58,6 +66,9 @@ public class ChatFragmentTest
 
     }
 
+    /**
+     * Checks that the add image button is tappable
+     */
     @Test
     public void validateImageButtonClicks()
     {

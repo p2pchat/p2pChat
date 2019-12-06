@@ -18,6 +18,9 @@ import androidx.navigation.ui.NavigationUI;
 
 import edu.uwstout.p2pchat.databinding.ActivityMainBinding;
 
+/**
+ * Class containing functionality shared by all fragments
+ */
 public class MainActivity extends AppCompatActivity
 {
     // Necessary for consistency between methods
@@ -48,6 +51,12 @@ public class MainActivity extends AppCompatActivity
         navController.addOnDestinationChangedListener(
                 new NavController.OnDestinationChangedListener()
                 {
+                    /**
+                     * This method gets called whenever the current fragment changes
+                     * @param controller
+                     * @param destination
+                     * @param arguments
+                     */
                     @Override
                     public void onDestinationChanged(@NonNull NavController controller,
                             @NonNull NavDestination destination, @Nullable Bundle arguments)

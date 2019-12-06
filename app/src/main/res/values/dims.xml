@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="parentTextSizeSettings">30dp</dimen>
+    <dimen name="childTextSizeSettings">22dp</dimen>
+    <dimen name="child_view_padding">20dp</dimen>
+    <dimen name="parent_view_padding">10dp</dimen>
+</resources>

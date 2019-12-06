@@ -28,6 +28,9 @@ public class ExampleInstrumentedTest
     @Rule
     public ActivityTestRule<MainActivity> activityRule = new ActivityTestRule<>(MainActivity.class);
 
+    /**
+     * Simple Instrumented test to confirm instrumented tests are working correctly
+     */
     @Test
     public void useAppContext()
     {

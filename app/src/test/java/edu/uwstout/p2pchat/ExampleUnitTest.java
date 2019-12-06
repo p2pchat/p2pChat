@@ -15,23 +15,12 @@ import static com.google.common.truth.Truth.assertThat;
  */
 public class ExampleUnitTest
 {
+    /**
+     * Simple unit test for checking that Unit tests are working as expected
+     */
     @Test
     public void addition_isCorrect()
     {
         assertThat(4).isEqualTo(2 + 2);
-    }
-
-    @Test
-    public void verify_uuid_unique()
-    {
-
-
-        UUID[] uuids = new UUID[500];
-        for (int i = 0; i < 500; i++)
-        {
-            uuids[i] = UUID.randomUUID();
-        }
-        HashSet<UUID> isUnique = new HashSet<UUID>(Arrays.asList(uuids));
-        assertThat(uuids.length).isEqualTo(isUnique.size());
     }
 }

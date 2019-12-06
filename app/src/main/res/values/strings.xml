@@ -17,4 +17,42 @@
     <string name="message_hint">Please Enter Your Message...</string>
     <string name="attach_description">Attach Files or Photos</string>
     <string name="file_name">file</string>
+    <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="setNickName">Set Nickname</string>
+
+    <!-- Will be used to change the header and for testing -->
+    <string-array name="themeColorTitle">
+        <item>Theme Color: Light</item>
+        <item>Theme Color: Majestic</item>
+        <item>Theme Color: Dark</item>
+    </string-array>
+
+    <!-- Parent names for settings-->
+    <string-array name="parentSettingsName">
+        <item>My Device Info</item>
+        <item>Theme Color</item>
+        <item>Clear All</item>
+        <item>Rename</item>
+        <item>Help</item>
+    </string-array>
+
+
+    <!-- Settings under Theme Color -->
+    <string-array name="themeColor">
+        <item>Light</item>
+        <item>Majestic</item>
+        <item>Dark</item>
+    </string-array>
+
+    <string-array name="myDeviceInfoSettings">
+        <item name="deviceAddress">Device Address:</item>
+        <item name="deviceName">Device Name:</item>
+        <item name="primaryDeviceType">Primary Device Type:</item>
+        <item name="secondaryDeviceType">Secondary Device Type:</item>
+        <item name="status">Status:</item>
+    </string-array>
+
+
+
 </resources>
