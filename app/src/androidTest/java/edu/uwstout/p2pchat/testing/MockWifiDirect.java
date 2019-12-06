@@ -1,11 +1,13 @@
 package edu.uwstout.p2pchat.testing;
 
+import android.content.Context;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 
-import java.lang.reflect.Array;
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -13,9 +15,8 @@ import java.util.List;
 
 import edu.uwstout.p2pchat.InMemoryFile;
 import edu.uwstout.p2pchat.WifiDirect;
-import edu.uwstout.p2pchat.WifiDirectInterface;
 
-public class MockWifiDirect implements WifiDirectInterface {
+public class MockWifiDirect extends WifiDirect {
     static List<WifiDirect.PeerDiscoveryListener> peerDiscoveryListeners = new ArrayList<>();
     static List<WifiDirect.DisconnectionListener> disconnectionListeners = new ArrayList<>();
 
@@ -96,6 +97,11 @@ public class MockWifiDirect implements WifiDirectInterface {
     @Override
     public void pause() {
 
+    }
+
+    public MockWifiDirect(@NonNull Context c)
+    {
+        super(c);
     }
 
     @Override

@@ -357,7 +357,7 @@ public class HomeFragment extends Fragment
      * @param context
      * @return
      */
-    WifiDirectInterface getWifiDirect(@NonNull final Context context) {
+    WifiDirect getWifiDirect(@NonNull final Context context) {
         return WifiDirect.getInstance(context);
     }
 

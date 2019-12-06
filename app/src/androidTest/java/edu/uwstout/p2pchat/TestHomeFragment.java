@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 
 import androidx.annotation.NonNull;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import edu.uwstout.p2pchat.testing.MockViewModel;
 import edu.uwstout.p2pchat.testing.MockWifiDirect;
@@ -32,8 +33,8 @@ public class TestHomeFragment extends HomeFragment {
      * @return
      */
     @Override
-    WifiDirectInterface getWifiDirect(@NonNull Context context) {
-        return new MockWifiDirect();
+    WifiDirect getWifiDirect(@NonNull Context context) {
+        return new MockWifiDirect(InstrumentationRegistry.getInstrumentation().getTargetContext());
     }
 
     @Override

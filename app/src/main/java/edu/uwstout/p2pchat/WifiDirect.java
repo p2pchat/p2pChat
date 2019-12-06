@@ -46,7 +46,7 @@ import edu.uwstout.p2pchat.WifiDirectHelpers.WifiDirectBroadcastReceiver;
  *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
-public final class WifiDirect implements WifiDirectInterface
+public class WifiDirect implements WifiP2pManager.ChannelListener, WifiP2pManager.ConnectionInfoListener, WifiP2pManager.GroupInfoListener
 {
     /**
      * Creating an observer interface so that fragments can subscribe
@@ -173,7 +173,8 @@ public final class WifiDirect implements WifiDirectInterface
      * @param c
      *         the application c that this singleton should use.
      */
-    private WifiDirect(@NonNull final Context c)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    protected WifiDirect(@NonNull final Context c)
     {
         this.context = c.getApplicationContext();
         // set up P2P framework and helper class.
