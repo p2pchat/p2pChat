@@ -46,8 +46,7 @@ import edu.uwstout.p2pchat.WifiDirectHelpers.WifiDirectBroadcastReceiver;
  *
  * @author VanderHoevenEvan (Evan Vander Hoeven)
  */
-public final class WifiDirect implements WifiP2pManager.ChannelListener,
-        WifiP2pManager.ConnectionInfoListener, WifiP2pManager.GroupInfoListener
+public class WifiDirect implements WifiP2pManager.ChannelListener, WifiP2pManager.ConnectionInfoListener, WifiP2pManager.GroupInfoListener
 {
     /**
      * Creating an observer interface so that fragments can subscribe
@@ -94,7 +93,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * Creating an observer interface so that fragments can be notified
      * if this device gets disconnected from our peer.
      */
-    interface DisconnectionListener {
+    public interface DisconnectionListener {
         /**
          * Notifies the listener that we have disconnected from our peer.
          * This may or may not be due to a intentional disconnect from our
@@ -174,7 +173,8 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @param c
      *         the application c that this singleton should use.
      */
-    private WifiDirect(@NonNull final Context c)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    protected WifiDirect(@NonNull final Context c)
     {
         this.context = c.getApplicationContext();
         // set up P2P framework and helper class.
@@ -252,7 +252,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      *
      * @return a boolean indicating if peer to peer communication is enabled
      */
-    boolean isP2pEnabled()
+    public boolean isP2pEnabled()
     {
         return p2pEnabled;
     }
@@ -263,7 +263,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @return a WifiP2pDevice that is this device, or null if this device doesn't have P2P enabled.
      * @see WifiP2pDevice
      */
-    WifiP2pDevice getThisDevice()
+    public WifiP2pDevice getThisDevice()
     {
         // ternary operator
         return (this.isP2pEnabled()) ? this.thisDevice : null;
@@ -286,7 +286,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      *
      * @return a WifiP2pDevice that is our connected peer.
      */
-    WifiP2pDevice getPeerDevice()
+    public WifiP2pDevice getPeerDevice()
     {
         return this.peerDevice;
     }
@@ -299,7 +299,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      *         a PeerDiscoveryListener that wants to be notified
      * @see WifiDirect.PeerDiscoveryListener
      */
-    void subscribePeerDiscoveryListener(final WifiDirect.PeerDiscoveryListener pdl)
+    public void subscribePeerDiscoveryListener(final WifiDirect.PeerDiscoveryListener pdl)
     {
         // check to make sure that there are no repeats
         if (!this.peerDiscoveryListeners.contains(pdl))
@@ -316,7 +316,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      *         a PeerDiscoveryListener that no longer wants to be notified
      * @see WifiDirect.PeerDiscoveryListener
      */
-    void unsubscribePeerDiscoveryListener(final WifiDirect.PeerDiscoveryListener pdl)
+    public void unsubscribePeerDiscoveryListener(final WifiDirect.PeerDiscoveryListener pdl)
     {
         this.peerDiscoveryListeners.remove(pdl);
     }
@@ -327,7 +327,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @param disconnectionListener a DisconnectionListener that wants to be notified.
      * @see WifiDirect.DisconnectionListener
      */
-    void subscribeDisconnectionListener(final WifiDirect.DisconnectionListener disconnectionListener)
+    public void subscribeDisconnectionListener(final WifiDirect.DisconnectionListener disconnectionListener)
     {
         // check to make sure there are no repeats
         if (!this.disconnectionListeners.contains(disconnectionListener))
@@ -336,7 +336,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
         }
     }
 
-    void unSubscribeDisconnectionListener(final WifiDirect.DisconnectionListener disconnectionListener)
+    public void unSubscribeDisconnectionListener(final WifiDirect.DisconnectionListener disconnectionListener)
     {
         this.disconnectionListeners.remove(disconnectionListener);
     }
@@ -361,7 +361,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      *
      * @see android.app.Activity
      */
-    void resume()
+    public void resume()
     {
         receiver = new WifiDirectBroadcastReceiver(manager, channel);
         context.registerReceiver(receiver, intentFilter);
@@ -374,7 +374,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @see android.app.Activity
      * @see WifiDirectBroadcastReceiver
      */
-    void pause()
+    public void pause()
     {
         context.unregisterReceiver(receiver);
     }
@@ -514,7 +514,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * starts a call to WifiP2pManager.discoverPeers()
      * and describes the behavior of the callback.
      */
-    void discoverPeers()
+    public void discoverPeers()
     {
         // Discover a list of peers we can interact with
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener()
@@ -580,7 +580,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @param device
      *         a WifiP2pDevice that we wish to connect to.
      */
-    void connectToDevice(final WifiP2pDevice device)
+    public void connectToDevice(final WifiP2pDevice device)
     {
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = device.deviceAddress;
@@ -682,7 +682,7 @@ public final class WifiDirect implements WifiP2pManager.ChannelListener,
      * @param inMemoryFile
      *         The data that we want to send.
      */
-    void sendInMemoryFile(final InMemoryFile inMemoryFile)
+    public void sendInMemoryFile(final InMemoryFile inMemoryFile)
     {
         if (this.info != null)
         {

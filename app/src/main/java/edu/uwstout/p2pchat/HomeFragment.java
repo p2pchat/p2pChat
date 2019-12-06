@@ -101,8 +101,7 @@ public class HomeFragment extends Fragment
         setHasOptionsMenu(true);
 
         // subscribe to the events that we need in this context
-        WifiDirect
-                .getInstance(this.getContext())
+        getWifiDirect(this.getContext())
                 .subscribePeerDiscoveryListener(this);
 
         liveData = getViewModel().getPeers();
@@ -122,10 +121,15 @@ public class HomeFragment extends Fragment
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
     {
         super.onCreateOptionsMenu(menu, inflater);
+        addMenuItem(menu, inflater);
+    }
+
+    public void addMenuItem(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         MenuItem menuItem = menu.add(Menu.NONE, R.id.refresh_peers, Menu.NONE,
                 R.string.discover_peers);
         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
     }
+
 
     /**
      * handles the event when an item in our options menu is clicked
@@ -139,7 +143,7 @@ public class HomeFragment extends Fragment
     {
         if (item.getItemId() == R.id.refresh_peers)
         {
-            WifiDirect.getInstance(this.getContext()).discoverPeers();
+            getWifiDirect(this.getContext()).discoverPeers();
             return true;
         }
         else
@@ -200,7 +204,7 @@ public class HomeFragment extends Fragment
                 @Override
                 public void onClick(View view)
                 { // I need a way to ensure the context isn't null?
-                    WifiDirect.getInstance(thisContext).connectToDevice(peers[view.getId()]);
+                    getWifiDirect(thisContext).connectToDevice(peers[view.getId()]);
                 }
             });
             // add the TextView to the view
@@ -256,7 +260,7 @@ public class HomeFragment extends Fragment
     public void peerConnectionSucceeded(WifiP2pDevice device)
     {
         Toast.makeText(this.getContext(), "Connection succeeded", Toast.LENGTH_LONG).show();
-        ViewModel viewModel = new ViewModel(getActivity().getApplication());
+        ViewModel viewModel = getViewModel();
 
        liveData.observeForever(new Observer<List<Peer>>()
        {
@@ -267,17 +271,24 @@ public class HomeFragment extends Fragment
               {
                   viewModel.insertPeer(device.deviceAddress,null);
               }
-               HomeFragmentDirections.ChatAction action = HomeFragmentDirections.chatAction();
-
-               action.setAddress(device.deviceAddress);
-
-               Navigation.findNavController(binding.homeMyDeviceTitle)
-                       .navigate(action);
-
+              navigateToChatFragment(device);
            }
        });
 
 
+    }
+
+    /**
+     * Overridable for testing
+     * @param device
+     */
+    public void navigateToChatFragment(WifiP2pDevice device) {
+        HomeFragmentDirections.ChatAction action = HomeFragmentDirections.chatAction();
+
+        action.setAddress(device.deviceAddress);
+
+        Navigation.findNavController(binding.homeMyDeviceTitle)
+                .navigate(action);
     }
 
     /**
@@ -302,7 +313,7 @@ public class HomeFragment extends Fragment
     public void onResume()
     {
         super.onResume();
-        WifiDirect.getInstance(this.getContext()).resume();
+        getWifiDirect(this.getContext()).resume();
     }
 
     /**
@@ -313,7 +324,7 @@ public class HomeFragment extends Fragment
     public void onPause()
     {
         super.onPause();
-        WifiDirect.getInstance(this.getContext()).pause();
+        getWifiDirect(this.getContext()).pause();
     }
 
     /**
@@ -327,7 +338,16 @@ public class HomeFragment extends Fragment
         // this is necessary so that we don't have a memory leak
         // caused by old references to old listeners / views that
         // won't exist anymore.
-        WifiDirect.getInstance(this.getContext()).unsubscribePeerDiscoveryListener(this);
+        getWifiDirect(this.getContext()).unsubscribePeerDiscoveryListener(this);
+    }
+
+    /**
+     * Get instance of WifiDirect. Overridable for testing.
+     * @param context
+     * @return
+     */
+    WifiDirect getWifiDirect(@NonNull final Context context) {
+        return WifiDirect.getInstance(context);
     }
 
     /**
