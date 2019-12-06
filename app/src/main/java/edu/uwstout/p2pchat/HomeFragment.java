@@ -40,17 +40,6 @@ public class HomeFragment extends Fragment
     private FragmentHomeBinding binding = null;
     private LiveData<List<Peer>> liveData = null;
 
-    static boolean isTesting = false;
-
-    /**
-     * Sets if the program is currently testing.
-     * I hate how this smells but I can't think of a better way to do this.
-     * @param value
-     */
-    public static void setIsTesting(boolean value) {
-        isTesting = value;
-    }
-
     /**
      * The constructor for the class, it is required by java, but is empty
      */
@@ -155,7 +144,7 @@ public class HomeFragment extends Fragment
         if (item.getItemId() == R.id.refresh_peers)
         {
             getWifiDirect(this.getContext()).discoverPeers();
-            return !isTesting;
+            return true;
         }
         else
         {
