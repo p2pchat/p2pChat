@@ -44,6 +44,10 @@ public interface DataAccessObject
     @Delete
     void deleteMessages(Message... messages);
 
+
+    @Query("DELETE FROM peer")
+    void deleteEverything();
+
     /**
      * Returns all messages referencing a particular MAC Address.
      * @param macAddress MAC Address to filter by

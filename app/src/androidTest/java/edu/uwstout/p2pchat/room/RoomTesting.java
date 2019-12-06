@@ -24,6 +24,9 @@ import java.util.Date;
 import edu.uwstout.p2pchat.ExternalFile;
 import edu.uwstout.p2pchat.InMemoryFile;
 
+/**
+ * Class used for testing that the Database is configured correctly
+ */
 @RunWith(AndroidJUnit4.class)
 public class RoomTesting
 {
@@ -35,6 +38,9 @@ public class RoomTesting
     public GrantPermissionRule grantPermissionRule = GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
+    /**
+     * Initializes an In-Memory database before running a test
+     */
     @Before
     public void initDb()
     {
@@ -44,6 +50,9 @@ public class RoomTesting
         dao = database.dataAccessObject();
     }
 
+    /**
+     * Closes the In-Memory database after finishing a test
+     */
     @After
     public void closeDb()
     {
@@ -60,11 +69,20 @@ public class RoomTesting
         }
     }
 
+    /**
+     * Uses a LiveDataPromise to unwrap a LiveData object
+     * @param liveData
+     * @param <T>
+     * @return
+     */
     private <T> T await(LiveData<T> liveData) {
         LiveDataPromise<T> liveDataPromise = new LiveDataPromise<>(liveData);
         return liveDataPromise.await();
     }
 
+    /**
+     * Tests adding and removing peers
+     */
     @Test
     public void createRetrieveUpdateDestroyPeer()
     {
@@ -108,6 +126,9 @@ public class RoomTesting
 
     }
 
+    /**
+     * Tests adding and removing messages
+     */
     @Test
     public void createAndDestroyMessage()
     {
@@ -184,6 +205,9 @@ public class RoomTesting
         assertEquals(await(dao.getMessagesFromPeer(peer2.macAddress)).get(0).sent, message2.sent);
     }
 
+    /**
+     * Tests adding and removing files from the database
+     */
     @Test
     public void createAndDestroyFiles()
     {

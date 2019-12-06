@@ -18,9 +18,8 @@ import static com.google.common.truth.Truth.assertThat;
 public class WifiDirectTest
 {
     /**
-     * Testing summarizeP2pDevice where the WifiP2pDevice
-     * has a non-null value in its variable
-     * "secondaryDeviceType"
+     * Tests that the summarize P2P Device method is working as expected
+     * Device summary contains a secondary device.
      */
     @Test
     public void deviceSummaryWithSecondaryDeviceType() {
@@ -43,8 +42,8 @@ public class WifiDirectTest
     }
 
     /**
-     * Testing summarizeP2pDevice where the WifiP2pDevice
-     * has a null value in the variable "secondaryDeviceType"
+     * Tests that the summarize P2P device method is working as expected.
+     * Device summary does not contain a secondary device
      */
     @Test
     public void deviceSummaryWithoutSecondaryDeviceType() {

@@ -2,6 +2,11 @@ package edu.uwstout.p2pchat;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.util.Log;
+
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 
 /**
@@ -32,12 +37,22 @@ public class Save
      */
     private SharedPreferences mSharedPreferences;
 
+
     /**
      * Creates a saving object.
      */
-    public Save(final Context context)
+    public Save(final Fragment fragment)
     {
-        mSharedPreferences = context.getSharedPreferences(KEYPACKAGE, 0);
+        try {
+            Context context = fragment.getContext();
+            mSharedPreferences = context.getSharedPreferences(KEYPACKAGE, 0);
+
+        }catch (NullPointerException e)
+        {
+            Log.w("Failed in Save File", "Error with transaction of reading context and retrieving" +
+                    " get shared preferences.");
+        }
+
     }
 
 
@@ -48,9 +63,12 @@ public class Save
      */
     public void save(final int themeColor)
     {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putInt(THEMEPOSITION, themeColor);
-        editor.apply();
+        //Apply bounds and make sure that the theme color does not change.
+        if (themeColor < 3 && themeColor >= 0) {
+            SharedPreferences.Editor editor = mSharedPreferences.edit();
+            editor.putInt(THEMEPOSITION, themeColor);
+            editor.apply();
+        }
     }
 
 
@@ -62,6 +80,19 @@ public class Save
     public int getThemeColorThatShallBeSelected()
     {
         return mSharedPreferences.getInt(THEMEPOSITION, 0);
+    }
+
+    /**
+     * Get the new Heading.
+     * @return the new theme color title.
+     */
+    public String getTitle()
+    {
+        String headings[] = {"Theme Color: Light", "Theme Color: Majestic", "Theme Color: Dark"};
+
+        Log.w("Length = ", String.valueOf(headings.length));
+
+        return headings[getThemeColorThatShallBeSelected()];
     }
 
 }

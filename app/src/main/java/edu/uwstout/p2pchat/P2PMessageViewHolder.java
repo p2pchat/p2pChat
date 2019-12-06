@@ -8,12 +8,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import edu.uwstout.p2pchat.databinding.ItemMessageBinding;
 import edu.uwstout.p2pchat.room.Message;
 
+/**
+ * View holder for messages in the chat history list
+ */
 class P2PMessageViewHolder extends RecyclerView.ViewHolder
 {
     private final ItemMessageBinding binding;
 
     /**
-     *
+     * Constructor that initializes local properties
      */
     P2PMessageViewHolder(ItemMessageBinding binding)
     {
@@ -22,8 +25,10 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
 
     }
 
+    
     /**
-     *
+     * Takes in a message and displays text
+     * @param message message object
      */
     void bindData(Message message)
     {
@@ -33,6 +38,10 @@ class P2PMessageViewHolder extends RecyclerView.ViewHolder
         binding.executePendingBindings();
     }
 
+    /**
+     * Takes in a boolean and determines alignment
+     * @param sent sent boolean
+     */
     void bindAlignment(boolean sent){
         RelativeLayout.LayoutParams lp1 =
                 (RelativeLayout.LayoutParams) binding.chatMsgText.getLayoutParams();
