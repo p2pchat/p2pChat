@@ -74,7 +74,7 @@ public class HomeFragmentTest
 
     @Before
     public void setup() {
-        HomeFragment.setIsTesting(true);
+
         WifiP2pDevice device = new WifiP2pDevice();
         device.deviceAddress = MockPeers.austin.macAddress;
         device.deviceName = "Mock peer";
@@ -96,12 +96,7 @@ public class HomeFragmentTest
     public void testDiscoveryList()
     {
         assert(!TestHomeFragment.getNavigated());
-        try {
-            openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
-        } catch (Exception e) {
-            //This is normal. Maybe we dont have overflow menu.
-        }
-        onView(withText("Discover Peers")).perform(click());
+        TestHomeFragment.tapGetPeers();
         onView(withIndex(withId(R.id.unrecognized_list), 0)).perform(click());
         assert(TestHomeFragment.getNavigated());
         assert(TestHomeFragment.getNavigationDevice().deviceAddress.equals(MockPeers.austin.macAddress));
