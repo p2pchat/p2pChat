@@ -1,17 +1,11 @@
 package edu.uwstout.p2pchat;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 
 
@@ -49,7 +43,7 @@ public class NickNameModal
              * Gets called when the user presses the "Rename" button inside of the rename modal.
              * Changes the nickname inside of the model.
              * @param dialogInterface
-             * @param i
+             * @param p
              */
             @Override
             public void onClick(DialogInterface dialogInterface, int p)

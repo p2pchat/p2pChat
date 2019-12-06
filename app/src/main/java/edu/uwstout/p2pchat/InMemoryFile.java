@@ -4,8 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -115,7 +113,7 @@ public class InMemoryFile implements Serializable
      */
     public ExternalFile saveToStorage(final Context context, final Date date)
     {
-        if (this.mimeType == MESSAGE_MIME_TYPE)
+        if (this.mimeType.equals(MESSAGE_MIME_TYPE))
         {
             return null;
         }

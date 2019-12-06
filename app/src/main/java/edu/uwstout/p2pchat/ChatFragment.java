@@ -1,12 +1,8 @@
 package edu.uwstout.p2pchat;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,7 +60,7 @@ public class ChatFragment extends Fragment
             @Override
             public void onChanged(List<Message> messages) {
                 messageAdapter = new P2PMessageAdapter(messages);
-                binding.messagesRecyclerView.swapAdapter(messageAdapter, false);
+                binding.messagesRecyclerView.swapAdapter(messageAdapter, true);
                 binding.messagesRecyclerView.scrollToPosition(messages.size() - 1);
             }
         });
