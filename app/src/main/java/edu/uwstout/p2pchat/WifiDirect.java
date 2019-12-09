@@ -697,8 +697,13 @@ public class WifiDirect implements WifiP2pManager.ChannelListener, WifiP2pManage
             Intent serviceIntent = new Intent(this.context, this.senderService);
             serviceIntent.setAction(SendDataService.ACTION_SEND_DATA);
             serviceIntent.putExtra(SendDataService.EXTRAS_IN_MEMORY_FILE, inMemoryFile);
-            serviceIntent.putExtra(SendDataService.EXTRAS_PEER_ADDRESS,
-                    this.clientAddress.getHostAddress());
+            if (this.info.isGroupOwner) {
+                serviceIntent.putExtra(SendDataService.EXTRAS_PEER_ADDRESS,
+                        this.clientAddress.getHostAddress());
+            } else {
+                serviceIntent.putExtra(SendDataService.EXTRAS_PEER_ADDRESS,
+                        this.info.groupOwnerAddress.getHostAddress());
+            }
             serviceIntent.putExtra(SendDataService.EXTRAS_PEER_PORT, ReceiverAsyncTask.MAGIC_PORT);
             this.context.startService(serviceIntent);
         }
