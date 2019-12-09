@@ -315,7 +315,7 @@ public class TestHomeFragment extends HomeFragment {
         return new MockWifiDirect(InstrumentationRegistry.getInstrumentation().getTargetContext());
     }
 
-    @Override
+
     ViewModel getViewModel() {
         return new MockViewModel(null);
     }

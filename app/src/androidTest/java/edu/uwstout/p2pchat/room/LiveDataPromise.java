@@ -17,12 +17,15 @@ public class LiveDataPromise<T> {
     LiveData<T> liveData;
     CountDownLatch latch;
 
+    public LiveDataPromise(LiveData<T> liveData) {
+        this(liveData, 1);
+    }
     /**
      * Constructor taking in LiveData object to be unwrapped
      * @param liveData
      */
-    public LiveDataPromise(LiveData<T> liveData) {
-        latch = new CountDownLatch(1);
+    public LiveDataPromise(LiveData<T> liveData, int changesExpected) {
+        latch = new CountDownLatch(changesExpected);
         this.liveData = liveData;
         Handler handler = new Handler(Looper.getMainLooper());
         handler.post(new Runnable() {

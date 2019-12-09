@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import edu.uwstout.p2pchat.ExternalFile;
 import edu.uwstout.p2pchat.InMemoryFile;
@@ -129,12 +130,16 @@ public class RoomTesting
     /**
      * Tests adding and removing messages
      */
-    @Test
+    @Test(timeout = 5000)
     public void createAndDestroyMessage()
     {
         Peer peer = new Peer("7a:a0:83:04:03:60");
         peer.nickname = "Eren Jeager";
         database.dataAccessObject().insertPeers(peer);
+
+        LiveData<List<Message>> multiChangeLiveData = dao.getMessagesFromPeer(peer.macAddress);
+        LiveDataPromise<List<Message>> liveDataPromise =
+        new LiveDataPromise<>(multiChangeLiveData, 3);
 
         Peer peer2 = new Peer("7c:4f:87:2c:56:d5");
         peer2.nickname = "Armin Arlert";
@@ -190,6 +195,9 @@ public class RoomTesting
         assertEquals(await(dao.getMessagesFromPeer(peer.macAddress)).get(1).macAddress,
                 message3.macAddress);
         assertEquals(await(dao.getMessagesFromPeer(peer.macAddress)).get(1).sent, message3.sent);
+
+        liveDataPromise.await(); //Testing will only pass this line if the onChange handler is
+        // called at least 3 times
 
         // Eren is now feeling bad about that last message so he is going to delete it
 
